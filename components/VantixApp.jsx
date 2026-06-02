@@ -2080,12 +2080,25 @@ function LandingView({ onEnter }) {
       <ProductPreview />
     </header>
 
-    {/* IMPULSADO POR — los modelos de IA sobre los que corre la plataforma */}
-    <div style={{ ...section, paddingBottom: 50, textAlign: "center" }}>
-      <div style={{ fontSize: 12.5, color: PAL.sub, letterSpacing: ".5px", marginBottom: 18 }}>{L("POWERED BY FRONTIER AI MODELS", "IMPULSADO POR MODELOS DE IA DE FRONTERA")}</div>
-      <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", opacity: .6 }}>
-        {["OpenAI", "Anthropic", "Google Gemini", "Mistral", "Meta Llama"].map(n => <span key={n} style={{ fontSize: 18, fontWeight: 700, color: PAL.sub, letterSpacing: "-.3px" }}>{n}</span>)}
-      </div>
+    {/* MARCAS — IA que mueve la plataforma + stack de datos/BI con el que se integra.
+       Lockups (monograma de color + wordmark): se ve enterprise sin falsear logos. */}
+    <div style={{ ...section, paddingBottom: 56, textAlign: "center" }}>
+      {[
+        { label: { en: "POWERED BY FRONTIER AI", es: "IMPULSADO POR IA DE FRONTERA" },
+          marks: [["OpenAI", "#0E8C6E"], ["Anthropic", "#C15F3C"], ["Google Gemini", "#1A73E8"]] },
+        { label: { en: "CONNECTS WITH YOUR STACK", es: "SE CONECTA CON TU STACK" },
+          marks: [["Snowflake", "#1A9BD7"], ["BigQuery", "#3B6FD4"], ["Power BI", "#C99A00"], ["Salesforce", "#0089C7"], ["Stripe", "#635BFF"]] },
+      ].map((row, ri) => (
+        <div key={ri} style={{ marginTop: ri ? 28 : 0 }}>
+          <div style={{ fontSize: 11.5, color: PAL.sub, letterSpacing: ".8px", fontWeight: 600, marginBottom: 14 }}>{L(row.label.en, row.label.es)}</div>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: isMobile ? 16 : 30, flexWrap: "wrap" }}>
+            {row.marks.map(([name, c]) => (
+              <div key={name} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 22, height: 22, borderRadius: 6, background: `${c}1A`, color: c, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>{name[0]}</span>
+                <span style={{ fontSize: 15.5, fontWeight: 600, color: "#3A3F47", letterSpacing: "-.2px" }}>{name}</span>
+              </div>))}
+          </div>
+        </div>))}
     </div>
 
     {/* CARACTERÍSTICAS */}
