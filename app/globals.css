@@ -4,6 +4,24 @@ html, body {
   background: #F7F8FA;
 }
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+img, svg, canvas { max-width: 100%; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: #D4D7DD; border-radius: 4px; }
 input[type=range] { height: 4px; border-radius: 4px; background: #E8EAEE; }
+
+/* ============================================================
+   RESPONSIVE (estilo Stripe) — global, cubre landing + gate
+   (que viven fuera de <main>; el dashboard tiene su propia
+   media query, ver VantixApp). Colapsa grids por breakpoint.
+   ============================================================ */
+/* Tablet: 3 columnas → 2 */
+@media (max-width: 980px) {
+  [style*="repeat(3, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+}
+/* Teléfono: todo apila a 1 columna */
+@media (max-width: 640px) {
+  [style*="repeat(3, 1fr)"],
+  [style*="repeat(2, 1fr)"],
+  [style*="1fr 1fr"] { grid-template-columns: 1fr !important; }
+}

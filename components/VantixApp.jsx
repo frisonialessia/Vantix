@@ -6,7 +6,7 @@ import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ScatterChart, Scatter, ZAxis
 } from "recharts";
-import { SessionProvider, useSession } from "./session";
+import { SessionProvider, useSession, useIsMobile } from "./session";
 import { makeRng, toSnapshot } from "../lib/synth";
 
 /* ============================================================
@@ -69,6 +69,7 @@ function rampColor(i, total) {
   return rgbToHex([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]);
 }
 const FONT = `"Inter", -apple-system, sans-serif`;
+const REPO_URL = "https://github.com/frisonialessia/Vantix"; // "View source" (repo público)
 
 /* =================== DATOS =================== */
 const ridgeNames = ["PLATINUM", "VIP", "PREMIUM", "CORE", "GROWTH", "AT-RISK", "DORMANT"];
@@ -210,6 +211,12 @@ function Logo({ size = 34 }) {
     <circle cx="29" cy="13" r="2.7" fill="#fff" />
   </svg>;
 }
+// Marca de GitHub (para el botón "View source"). currentColor → hereda del padre.
+function GhIcon({ size = 17 }) {
+  return <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style={{ flexShrink: 0, display: "block" }}>
+    <path fillRule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
+  </svg>;
+}
 function Tabs({ tabs }) {
   const [active, setActive] = useState(0);
   return <div>
@@ -290,7 +297,7 @@ function Waterfall() {
 function Heatmap() {
   const { L } = useSession();
   return <div>
-    <div style={{ display: "grid", gridTemplateColumns: "78px repeat(4, 1fr)", gap: 4 }}>
+    <div className="matrixgrid" style={{ display: "grid", gridTemplateColumns: "78px repeat(4, 1fr)", gap: 4 }}>
       <div />{riskBands.map((r) => <div key={r} style={{ fontSize: 9.5, color: PAL.sub, textAlign: "center", paddingBottom: 4, textTransform: "uppercase", letterSpacing: ".3px" }}>{r}</div>)}
       {heat.map((row, vi) => (<React.Fragment key={vi}>
         <div style={{ fontSize: 9.5, color: PAL.sub, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 8 }}>{valueBands[vi]}</div>
@@ -737,7 +744,7 @@ function IntegrationsView({ embedded } = {}) {
   const { L } = useSession();
   return <div>
     {!embedded && <H1 title={L("Integrations", "Integraciones")} sub={L("It doesn't just export — it writes back. The more tools it connects, the harder it is to leave.", "No solo exporta — escribe de vuelta. Cuantas más herramientas conecta, más difícil es abandonarlo.")} />}
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+    <div className="cardrow" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
       {integrations.map((it) => (
         <div key={it.name} style={{ background: PAL.panel, border: `1px solid ${it.status === "connected" ? `${it.c}66` : PAL.line}`, borderRadius: 14, padding: 18 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
@@ -873,7 +880,7 @@ function GovernanceView() {
   const { L } = useSession();
   return <div>
     <H1 title={L("Trust & governance", "Confianza & gobernanza")} sub={L("What closes enterprise deals: compliance, model explainability and PII handling.", "Lo que cierra ventas enterprise: cumplimiento, explicabilidad del modelo y manejo de PII.")} />
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 14 }}>
+    <div className="cardrow" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 14 }}>
       {compliance.map((c) => (
         <div key={c.name.en} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 18 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 8 }}>
@@ -1434,7 +1441,7 @@ function NetworkView() {
           </ScatterChart></ResponsiveContainer>
       </Panel>
     </div>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10, marginTop: 14 }}>
+    <div className="cardrow" style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10, marginTop: 14 }}>
       {GRAPH.clusters.map(c => {
         const tot = GRAPH.nodes.filter(n => n.cluster === c.id).reduce((a, n) => a + n.val, 0);
         return <div key={c.id} onMouseEnter={() => setHighlight(c.id)} onMouseLeave={() => setHighlight(null)}
@@ -1510,7 +1517,7 @@ function OverviewView() {
   const { kpis } = dataset;
   return <div>
     <H1 title="Customer Intelligence" sub={`${company ? company + " · " : ""}${L("Churn prediction · CLV modeling · RFM & forecast", "Predicción de churn · Modelado de CLV · RFM & forecast")}`} />
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14 }}>
+    <div className="cardrow" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14 }}>
       {kpis.map((k) => (
         <div key={k.label} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 16 }}>
           <div style={{ fontSize: FS.label, color: PAL.sub, marginBottom: 8, fontWeight: 500 }}>{k.label}</div>
@@ -1974,9 +1981,10 @@ function ProductPreview() {
   const flat = groups.flatMap(g => g.items);
   const [active, setActive] = useState(0);
   const activeItem = flat[active];
-  let idx = -1;
-  return <div style={{ marginTop: 56, maxWidth: 980, marginLeft: "auto", marginRight: "auto", borderRadius: 16, border: `1px solid ${PAL.line}`, boxShadow: "0 24px 60px -20px rgba(16,17,22,.18), 0 8px 20px -12px rgba(16,17,22,.1)", overflow: "hidden", background: PAL.panel }}>
-    {/* barra de ventana */}
+  const isMobile = useIsMobile();
+
+  // Barra de ventana (compartida entre móvil y escritorio).
+  const windowBar = (
     <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "11px 14px", borderBottom: `1px solid ${PAL.line}`, background: PAL.panel2 }}>
       <div style={{ display: "flex", gap: 6 }}>
         <span style={{ width: 11, height: 11, borderRadius: "50%", background: "#E2E4E9" }} />
@@ -1988,6 +1996,27 @@ function ProductPreview() {
       </div>
       <div style={{ fontSize: 10, color: PAL.brand, fontWeight: 600, background: `${PAL.brand}12`, padding: "3px 9px", borderRadius: 20 }}>DEMO</div>
     </div>
+  );
+
+  // MÓVIL: sin sidebar ni escalado (ilegible en pantalla pequeña). Navegación
+  // en píldoras con scroll horizontal + la vista real a ancho natural, que
+  // reflowa sola (los grids colapsan vía globals.css; las gráficas encogen).
+  if (isMobile) {
+    return <div style={{ marginTop: 36, borderRadius: 14, border: `1px solid ${PAL.line}`, boxShadow: "0 16px 40px -18px rgba(16,17,22,.18)", overflow: "hidden", background: PAL.panel, textAlign: "left" }}>
+      {windowBar}
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "10px 12px", borderBottom: `1px solid ${PAL.line}`, WebkitOverflowScrolling: "touch", background: PAL.panel }}>
+        {flat.map((it, i) => (
+          <button key={it.label.en} onClick={() => setActive(i)} style={{ fontSize: 12, fontWeight: active === i ? 600 : 500, whiteSpace: "nowrap", padding: "7px 12px", borderRadius: 20, cursor: "pointer", fontFamily: FONT, border: `1px solid ${active === i ? PAL.brand : PAL.line}`, color: active === i ? "#fff" : PAL.sub, background: active === i ? PAL.brand : PAL.panel }}>{L(it.label.en, it.label.es)}</button>))}
+      </div>
+      <div style={{ maxHeight: 460, overflowY: "auto", overflowX: "auto", padding: "14px 14px 28px", background: PAL.panel2 }}>
+        {activeItem.view}
+      </div>
+    </div>;
+  }
+
+  let idx = -1;
+  return <div style={{ marginTop: 56, maxWidth: 980, marginLeft: "auto", marginRight: "auto", borderRadius: 16, border: `1px solid ${PAL.line}`, boxShadow: "0 24px 60px -20px rgba(16,17,22,.18), 0 8px 20px -12px rgba(16,17,22,.1)", overflow: "hidden", background: PAL.panel }}>
+    {windowBar}
     {/* cuerpo */}
     <div style={{ display: "flex", textAlign: "left", height: 520 }}>
       {/* sidebar interactivo completo (scrolleable) */}
@@ -2017,30 +2046,33 @@ function ProductPreview() {
 
 function LandingView({ onEnter }) {
   const { L, lang, setLang } = useSession();
+  const isMobile = useIsMobile();
   const navLink = { fontSize: 14, color: PAL.sub, cursor: "pointer", fontWeight: 500, textDecoration: "none" };
   const section = { maxWidth: 1080, margin: "0 auto", padding: "0 24px" };
+  const viewSource = (full) => <a href={REPO_URL} target="_blank" rel="noopener noreferrer" style={{ ...navLink, display: "inline-flex", alignItems: "center", gap: 6 }} title="View source on GitHub"><GhIcon />{full && L("View source", "Ver código")}</a>;
   return <div style={{ fontFamily: FONT, color: PAL.text, background: PAL.panel }}>
     {/* NAV */}
     <nav style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(255,255,255,.85)", backdropFilter: "blur(10px)", borderBottom: `1px solid ${PAL.line}` }}>
-      <div style={{ ...section, display: "flex", alignItems: "center", height: 64, gap: 28 }}>
+      <div style={{ ...section, display: "flex", alignItems: "center", height: 64, gap: isMobile ? 14 : 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Logo size={32} /><span style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-.3px", fontFamily: '"Space Grotesk", sans-serif' }}>Vantix</span></div>
+          <Logo size={30} /><span style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-.3px", fontFamily: '"Space Grotesk", sans-serif' }}>Vantix</span></div>
         <div style={{ flex: 1 }} />
-        <a style={navLink} onClick={() => document.getElementById("feat")?.scrollIntoView({ behavior: "smooth" })}>{L("Product", "Producto")}</a>
-        <a style={navLink} onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>{L("Credits", "Créditos")}</a>
+        {!isMobile && <a style={navLink} onClick={() => document.getElementById("feat")?.scrollIntoView({ behavior: "smooth" })}>{L("Product", "Producto")}</a>}
+        {!isMobile && <a style={navLink} onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>{L("Credits", "Créditos")}</a>}
+        {viewSource(!isMobile)}
         <LangToggle lang={lang} setLang={setLang} />
-        <button onClick={onEnter} style={{ fontSize: 14, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>{L("Try demo", "Probar demo")}</button>
+        <button onClick={onEnter} style={{ fontSize: 14, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: isMobile ? "9px 14px" : "10px 18px", cursor: "pointer", fontFamily: FONT, whiteSpace: "nowrap" }}>{L("Try demo", "Probar demo")}</button>
       </div>
     </nav>
 
     {/* HERO */}
-    <header style={{ ...section, paddingTop: 80, paddingBottom: 60, textAlign: "center" }}>
+    <header style={{ ...section, paddingTop: isMobile ? 48 : 80, paddingBottom: isMobile ? 40 : 60, textAlign: "center" }}>
       <div style={{ display: "inline-block", fontSize: 12.5, fontWeight: 600, color: PAL.brand, background: `${PAL.brand}12`, padding: "6px 14px", borderRadius: 20, marginBottom: 22 }}>Market & Customer Intelligence</div>
-      <h1 style={{ fontSize: 52, fontWeight: 800, letterSpacing: "-1.5px", lineHeight: 1.08, margin: 0, maxWidth: 820, marginLeft: "auto", marginRight: "auto" }}>
+      <h1 style={{ fontSize: "clamp(30px, 6.5vw, 52px)", fontWeight: 800, letterSpacing: "-1.2px", lineHeight: 1.08, margin: 0, maxWidth: 820, marginLeft: "auto", marginRight: "auto" }}>
         {L(<>Predictive intelligence to maximize <span style={{ color: PAL.brand }}>financial value</span></>, <>Inteligencia predictiva para maximizar el <span style={{ color: PAL.brand }}>valor financiero</span></>)}</h1>
-      <p style={{ fontSize: 19, color: PAL.sub, lineHeight: 1.5, maxWidth: 640, margin: "22px auto 0" }}>
+      <p style={{ fontSize: "clamp(16px, 2.4vw, 19px)", color: PAL.sub, lineHeight: 1.5, maxWidth: 640, margin: "22px auto 0" }}>
         {L("Vantix predicts churn and the lifetime value of every customer, and turns it into decisions that protect and grow your revenue.", "Vantix predice el churn y el valor de vida de cada cliente, y lo traduce en decisiones que protegen y hacen crecer tus ingresos.")}</p>
-      <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 34 }}>
+      <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 34, flexWrap: "wrap" }}>
         <button onClick={() => document.getElementById("feat")?.scrollIntoView({ behavior: "smooth" })} style={{ fontSize: 15, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 12, padding: "14px 28px", cursor: "pointer", fontFamily: FONT }}>{L("How it works", "Cómo funciona")}</button>
         <button onClick={onEnter} style={{ fontSize: 15, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 12, padding: "14px 28px", cursor: "pointer", fontFamily: FONT }}>{L("See demo", "Ver demo")}</button>
       </div>
@@ -2057,10 +2089,10 @@ function LandingView({ onEnter }) {
     </div>
 
     {/* CARACTERÍSTICAS */}
-    <section id="feat" style={{ background: PAL.panel2, padding: "70px 0" }}>
+    <section id="feat" style={{ background: PAL.panel2, padding: isMobile ? "48px 0" : "70px 0" }}>
       <div style={section}>
         <div style={{ textAlign: "center", marginBottom: 44 }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>{L("Everything you need to decide", "Todo lo que necesitas para decidir")}</h2>
+          <h2 style={{ fontSize: "clamp(26px, 5vw, 36px)", fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>{L("Everything you need to decide", "Todo lo que necesitas para decidir")}</h2>
           <p style={{ fontSize: 17, color: PAL.sub, marginTop: 12 }}>{L("One platform, not ten scattered tools.", "Una plataforma, no diez herramientas sueltas.")}</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18 }}>
@@ -2075,9 +2107,9 @@ function LandingView({ onEnter }) {
     </section>
 
     {/* CÓMO FUNCIONA */}
-    <section style={{ ...section, padding: "70px 24px" }}>
+    <section style={{ ...section, padding: isMobile ? "48px 24px" : "70px 24px" }}>
       <div style={{ textAlign: "center", marginBottom: 44 }}>
-        <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>{L("From data to decision in 3 steps", "De los datos a la decisión en 3 pasos")}</h2>
+        <h2 style={{ fontSize: "clamp(26px, 5vw, 36px)", fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>{L("From data to decision in 3 steps", "De los datos a la decisión en 3 pasos")}</h2>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
         {landingSteps.map((s) => (
@@ -2090,16 +2122,16 @@ function LandingView({ onEnter }) {
     </section>
 
     {/* PRECIOS */}
-    <section id="pricing" style={{ background: PAL.panel2, padding: "70px 0" }}>
+    <section id="pricing" style={{ background: PAL.panel2, padding: isMobile ? "48px 0" : "70px 0" }}>
       <div style={section}>
         <div style={{ textAlign: "center", marginBottom: 44 }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>{L("Credit-based access", "Acceso basado en créditos")}</h2>
+          <h2 style={{ fontSize: "clamp(26px, 5vw, 36px)", fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>{L("Credit-based access", "Acceso basado en créditos")}</h2>
           <p style={{ fontSize: 17, color: PAL.sub, marginTop: 12, maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>{L("Start free. Each analysis consumes credits — no subscription, no card. You only pay for the compute you use.", "Empieza gratis. Cada análisis consume créditos — sin suscripción, sin tarjeta. Pagas solo por el cómputo que usas.")}</p>
         </div>
-        <div style={{ maxWidth: 720, margin: "0 auto", background: PAL.panel, border: `2px solid ${PAL.brand}`, borderRadius: 16, padding: 32, position: "relative" }}>
-          <div style={{ position: "absolute", top: -11, left: 32, fontSize: 11, fontWeight: 700, color: "#fff", background: PAL.brand, padding: "4px 12px", borderRadius: 20 }}>{L("EARLY ACCESS · FREE", "EARLY ACCESS · GRATIS")}</div>
+        <div style={{ maxWidth: 720, margin: "0 auto", background: PAL.panel, border: `2px solid ${PAL.brand}`, borderRadius: 16, padding: isMobile ? 22 : 32, position: "relative" }}>
+          <div style={{ position: "absolute", top: -11, left: isMobile ? 22 : 32, fontSize: 11, fontWeight: 700, color: "#fff", background: PAL.brand, padding: "4px 12px", borderRadius: 20 }}>{L("EARLY ACCESS · FREE", "EARLY ACCESS · GRATIS")}</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px" }}>{L("500 credits", "500 créditos")}</span>
+            <span style={{ fontSize: "clamp(32px, 7vw, 40px)", fontWeight: 800, letterSpacing: "-1px" }}>{L("500 credits", "500 créditos")}</span>
             <span style={{ fontSize: 16, color: PAL.sub }}>{L("/ month · renewed free", "/ mes · renovados gratis")}</span>
           </div>
           <div style={{ fontSize: 14.5, color: PAL.sub, marginTop: 8, marginBottom: 24 }}>{L("Enough to explore the whole product. No commitment during launch.", "Suficiente para explorar todo el producto. Sin compromiso durante el lanzamiento.")}</div>
@@ -2120,8 +2152,8 @@ function LandingView({ onEnter }) {
     </section>
 
     {/* CTA FINAL */}
-    <section style={{ ...section, padding: "80px 24px", textAlign: "center" }}>
-      <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px", margin: 0, maxWidth: 640, marginLeft: "auto", marginRight: "auto" }}>{L("Start deciding with data today", "Empieza a decidir con datos hoy")}</h2>
+    <section style={{ ...section, padding: isMobile ? "56px 24px" : "80px 24px", textAlign: "center" }}>
+      <h2 style={{ fontSize: "clamp(28px, 5.5vw, 40px)", fontWeight: 800, letterSpacing: "-1px", margin: 0, maxWidth: 640, marginLeft: "auto", marginRight: "auto" }}>{L("Start deciding with data today", "Empieza a decidir con datos hoy")}</h2>
       <p style={{ fontSize: 18, color: PAL.sub, marginTop: 16 }}>{L("Explore the full Vantix. Start with 500 free credits.", "Explora Vantix completo. Empieza con 500 créditos gratis.")}</p>
       <button onClick={onEnter} style={{ fontSize: 16, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 12, padding: "15px 34px", cursor: "pointer", fontFamily: FONT, marginTop: 28 }}>{L("Start free", "Empezar gratis")}</button>
     </section>
@@ -2131,7 +2163,7 @@ function LandingView({ onEnter }) {
       <div style={{ ...section, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}><Logo size={26} /><span style={{ fontWeight: 700, fontSize: 15 }}>Vantix</span></div>
         <div style={{ fontSize: 13, color: PAL.sub }}>© 2026 Vantix · Market & Customer Intelligence</div>
-        <div style={{ display: "flex", gap: 20, fontSize: 13, color: PAL.sub }}><span>{L("Privacy", "Privacidad")}</span><span>{L("Terms", "Términos")}</span><span>SOC 2</span></div>
+        <div style={{ display: "flex", gap: 20, fontSize: 13, color: PAL.sub, alignItems: "center", flexWrap: "wrap" }}>{viewSource(true)}<span>{L("Privacy", "Privacidad")}</span><span>{L("Terms", "Términos")}</span><span>SOC 2</span></div>
       </div>
     </footer>
   </div>;
@@ -2303,7 +2335,7 @@ function ConnectGate({ onBack }) {
   const lbl = { fontSize: FS.label, fontWeight: 600, color: PAL.sub, display: "block", marginBottom: 5 };
   return <div style={{ fontFamily: FONT, color: PAL.text, minHeight: "100vh", background: PAL.panel2, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
     <style>{`@keyframes cgspin{to{transform:rotate(360deg)}}`}</style>
-    <div style={{ width: "100%", maxWidth: 580, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 18, padding: "32px 34px 26px", boxShadow: "0 24px 60px -20px rgba(16,17,22,.18)" }}>
+    <div style={{ width: "100%", maxWidth: 580, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 18, padding: "clamp(22px, 5vw, 32px) clamp(20px, 5vw, 34px) 26px", boxShadow: "0 24px 60px -20px rgba(16,17,22,.18)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
         <Logo size={40} />
         <div><div style={{ fontSize: 18, fontWeight: 700, fontFamily: '"Space Grotesk", sans-serif', letterSpacing: "-.3px" }}>Vantix</div>
@@ -2388,6 +2420,11 @@ function Dashboard({ onLogout }) {
       </div>))}
     <div style={{ marginTop: 12, padding: "10px 12px", background: PAL.panel2, borderRadius: 10, fontSize: 10.5, color: PAL.good, display: "flex", alignItems: "center", gap: 6, fontWeight: 500 }}>
       <span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />{L("Model active · 2.4M tx/day", "Modelo activo · 2.4M tx/día")}</div>
+    {/* La cabecera oculta el toggle en móvil; lo exponemos aquí, en el cajón. */}
+    {isMobile && <div style={{ marginTop: 14, padding: "0 8px" }}>
+      <div style={{ fontSize: 9, color: PAL.sub, letterSpacing: "1px", marginBottom: 6, fontWeight: 700 }}>{L("LANGUAGE", "IDIOMA")}</div>
+      <LangToggle lang={lang} setLang={setLang} />
+    </div>}
   </>;
 
   return <div style={{ display: "flex", minHeight: "100vh", background: PAL.panel2, fontFamily: FONT, color: PAL.text }}>
@@ -2400,6 +2437,14 @@ function Dashboard({ onLogout }) {
         main [style*="span 2"]{ grid-column: span 1 !important; }
         main .tablewrap [style*="grid-template-columns"]{ grid-template-columns: 1.6fr .8fr .8fr .8fr 2fr 1fr !important; }
         main table{ font-size: 11px !important; }
+        /* Excepciones de mayor especificidad (div.clase) que ganan al colapso anterior:
+           las filas de tarjetas/KPI van 2-por-fila (no un stack alto) y la matriz RFM
+           conserva su retícula (scrollea en horizontal si no cabe). */
+        main div.cardrow{ grid-template-columns: repeat(2, 1fr) !important; }
+        main div.matrixgrid{ grid-template-columns: 78px repeat(4, 1fr) !important; overflow-x: auto; }
+      }
+      @media (max-width: 360px){
+        main div.cardrow{ grid-template-columns: 1fr !important; }
       }`}</style>
 
     {/* SIDEBAR DESKTOP */}
@@ -2420,7 +2465,7 @@ function Dashboard({ onLogout }) {
       <header style={{ background: PAL.panel, borderBottom: `1px solid ${PAL.line}`, padding: "11px 18px", display: "flex", alignItems: "center", gap: 12, position: "sticky", top: 0, zIndex: 50 }}>
         {isMobile && <button onClick={() => setMobileOpen(true)} style={{ background: PAL.panel2, border: `1px solid ${PAL.line}`, borderRadius: 8, width: 36, height: 36, fontSize: 16, cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>☰</button>}
         <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, flexShrink: 0 }}>
-          {company && <><span style={{ fontSize: 11.5, fontWeight: 700, color: PAL.brand, background: `${PAL.brand}12`, padding: "3px 9px", borderRadius: 7, whiteSpace: "nowrap" }}>{company}</span><span style={{ color: PAL.line }}>/</span></>}
+          {company && <><span style={{ fontSize: 11.5, fontWeight: 700, color: PAL.brand, background: `${PAL.brand}12`, padding: "3px 9px", borderRadius: 7, whiteSpace: "nowrap", maxWidth: isMobile ? 120 : 220, overflow: "hidden", textOverflow: "ellipsis" }}>{company}</span><span style={{ color: PAL.line }}>/</span></>}
           {!isMobile && <><span style={{ color: PAL.sub }}>{L(current.sec.en, current.sec.es)}</span><span style={{ color: PAL.line }}>/</span></>}
           <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{L(current.label.en, current.label.es)}</span>
         </div>

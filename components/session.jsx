@@ -152,3 +152,16 @@ export function useSession() {
   if (!ctx) throw new Error("useSession debe usarse dentro de <SessionProvider>");
   return ctx;
 }
+
+// Hook de viewport (SSR-safe): false en server/primer render → desktop, luego
+// se ajusta en el cliente. Útil para layouts responsive en landing/gate/preview.
+export function useIsMobile(bp = 768) {
+  const [m, setM] = useState(false);
+  useEffect(() => {
+    const f = () => setM(window.innerWidth < bp);
+    f();
+    window.addEventListener("resize", f);
+    return () => window.removeEventListener("resize", f);
+  }, [bp]);
+  return m;
+}
