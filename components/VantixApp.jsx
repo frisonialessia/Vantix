@@ -118,7 +118,7 @@ const econ = Array.from({ length: 60 }, () => {
   const income = 20 + _rndEcon() * 180; const spend = income * (0.1 + _rndEcon() * 0.5);
   return { income: +income.toFixed(0), spend: +spend.toFixed(1), z: spend, c: spend > 60 ? PAL.teal : spend > 30 ? PAL.indigo : PAL.amber };
 });
-const psycho = [{ trait: "Innovación", A: 88, B: 42 }, { trait: "Lealtad", A: 74, B: 55 }, { trait: "Precio-sens.", A: 30, B: 82 }, { trait: "Status", A: 81, B: 38 }, { trait: "Exploración", A: 69, B: 47 }, { trait: "Riesgo", A: 58, B: 71 }];
+const psycho = [{ trait: { en: "Innovation", es: "Innovación" }, A: 88, B: 42 }, { trait: { en: "Loyalty", es: "Lealtad" }, A: 74, B: 55 }, { trait: { en: "Price-sens.", es: "Precio-sens." }, A: 30, B: 82 }, { trait: { en: "Status", es: "Status" }, A: 81, B: 38 }, { trait: { en: "Exploration", es: "Exploración" }, A: 69, B: 47 }, { trait: { en: "Risk", es: "Riesgo" }, A: 58, B: 71 }];
 const fc = Array.from({ length: 24 }, (_, i) => {
   const trend = 320 + i * 9; const season = Math.sin((i / 12) * Math.PI * 2) * 28;
   const actual = i < 16 ? +(trend + season + (Math.random() - 0.5) * 18).toFixed(0) : null;
@@ -223,6 +223,7 @@ function Tabs({ tabs }) {
 
 /* =================== GRÁFICAS BASE =================== */
 function Ridgeline() {
+  const { L } = useSession();
   // SVG único: cada cresta con su línea base separada uniformemente. No se desborda.
   const W = 600, H = 320, padL = 92, padR = 16, padT = 56, padB = 26;
   const plotW = W - padL - padR, plotH = H - padT - padB;
@@ -255,7 +256,7 @@ function Ridgeline() {
       {[0, 20, 40, 60, 80, 100].map(t => (
         <text key={t} x={px(t)} y={H - 8} textAnchor="middle" fontSize={FS.axis} fill={PAL.sub} fontFamily="Inter">{t}%</text>))}
     </svg>
-    <div style={{ textAlign: "center", fontSize: FS.axis, color: PAL.sub, marginTop: 2 }}>Probabilidad de churn (90 días)</div>
+    <div style={{ textAlign: "center", fontSize: FS.axis, color: PAL.sub, marginTop: 2 }}>{L("Churn probability (90 days)", "Probabilidad de churn (90 días)")}</div>
   </div>;
 }
 function BoxPlots() {
@@ -287,6 +288,7 @@ function Waterfall() {
     </BarChart></ResponsiveContainer>;
 }
 function Heatmap() {
+  const { L } = useSession();
   return <div>
     <div style={{ display: "grid", gridTemplateColumns: "78px repeat(4, 1fr)", gap: 4 }}>
       <div />{riskBands.map((r) => <div key={r} style={{ fontSize: 9.5, color: PAL.sub, textAlign: "center", paddingBottom: 4, textTransform: "uppercase", letterSpacing: ".3px" }}>{r}</div>)}
@@ -295,12 +297,13 @@ function Heatmap() {
         {row.map((cell) => { const col = heatColor(cell.vi, cell.ri); const faint = col === PAL.line || col === PAL.sub;
           return <div key={cell.ri} style={{ background: col, opacity: faint ? 0.4 : 0.9, borderRadius: 6, height: 46, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: faint ? PAL.sub : "#fff", cursor: "pointer", transition: "transform .12s" }}
             onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.04)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}>
-            <span style={{ fontSize: 14, fontWeight: 700 }}>{cell.count}</span><span style={{ fontSize: 8, opacity: 0.85 }}>cuentas</span></div>; })}
+            <span style={{ fontSize: 14, fontWeight: 700 }}>{cell.count}</span><span style={{ fontSize: 8, opacity: 0.85 }}>{L("accounts", "cuentas")}</span></div>; })}
       </React.Fragment>))}</div>
     <div style={{ display: "flex", gap: 14, marginTop: 12, fontSize: 9.5, color: PAL.sub, flexWrap: "wrap" }}>
-      <Legend c={PAL.teal} t="Blindar VIP" /><Legend c={PAL.amber} t="Vigilar" /><Legend c={PAL.red} t="Rescate urgente" /><Legend c={PAL.lime} t="Nutrir" /><Legend c={PAL.sub} t="No invertir" /></div></div>;
+      <Legend c={PAL.teal} t={L("Shield VIP", "Blindar VIP")} /><Legend c={PAL.amber} t={L("Watch", "Vigilar")} /><Legend c={PAL.red} t={L("Urgent rescue", "Rescate urgente")} /><Legend c={PAL.lime} t={L("Nurture", "Nutrir")} /><Legend c={PAL.sub} t={L("Don't invest", "No invertir")} /></div></div>;
 }
 function Forecast() {
+  const { L } = useSession();
   return <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
     <div style={{ flex: 2, minHeight: 0 }}>
       <ResponsiveContainer width="100%" height="100%">
@@ -311,11 +314,11 @@ function Forecast() {
           <YAxis tick={{ fontSize: 10, fill: PAL.sub }} tickFormatter={(v) => `$${v}k`} domain={[280, 600]} />
           <Tooltip content={<TipBox unit="k" />} />
           <Area dataKey="lo" stackId="b" stroke="none" fill="transparent" isAnimationActive={false} />
-          <Area dataKey="range" stackId="b" stroke="none" fill="url(#band)" name="Banda 80%" isAnimationActive={false} />
-          <Line dataKey="actual" stroke={PAL.teal} strokeWidth={2.4} dot={false} name="MRR real" isAnimationActive={false} />
-          <Line dataKey="forecast" stroke={PAL.indigo} strokeWidth={2.4} strokeDasharray="5 4" dot={false} name="Proyección" isAnimationActive={false} />
+          <Area dataKey="range" stackId="b" stroke="none" fill="url(#band)" name={L("80% band", "Banda 80%")} isAnimationActive={false} />
+          <Line dataKey="actual" stroke={PAL.teal} strokeWidth={2.4} dot={false} name={L("Actual MRR", "MRR real")} isAnimationActive={false} />
+          <Line dataKey="forecast" stroke={PAL.indigo} strokeWidth={2.4} strokeDasharray="5 4" dot={false} name={L("Forecast", "Proyección")} isAnimationActive={false} />
         </ComposedChart></ResponsiveContainer></div>
-    <div style={{ fontSize: 9.5, color: PAL.sub, margin: "6px 0 2px", paddingLeft: 4 }}>Componente estacional aislado</div>
+    <div style={{ fontSize: 9.5, color: PAL.sub, margin: "6px 0 2px", paddingLeft: 4 }}>{L("Isolated seasonal component", "Componente estacional aislado")}</div>
     <div style={{ flex: 1, minHeight: 0 }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={seasonal} margin={{ top: 2, right: 12, bottom: 0, left: -12 }}>
@@ -1432,7 +1435,7 @@ function NetworkView() {
 /* =================== OVERVIEW (dashboard original) =================== */
 // Panel destacado: Revenue at Risk + plan de retención → dataset.retentionPlan (lib/synth.js)
 function RevenueAtRiskPanel() {
-  const { dataset } = useSession();
+  const { dataset, L } = useSession();
   const { retentionPlan, revenueAtRisk } = dataset;
   const [generated, setGenerated] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -1444,49 +1447,49 @@ function RevenueAtRiskPanel() {
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.bad }} />
           <span style={{ fontSize: FS.h2, fontWeight: 600 }}>Revenue at Risk</span></div>
-        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-.5px", marginTop: 8 }}>{revenueAtRisk.totalLabel} <span style={{ fontSize: FS.body, fontWeight: 600, color: PAL.bad }}>en CLV de {revenueAtRisk.accounts} cuentas</span></div>
-        <div style={{ fontSize: FS.body, color: PAL.sub, marginTop: 4 }}>Concentrado en 3 segmentos. El modelo puede proponer un plan de retención priorizado por impacto.</div>
+        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-.5px", marginTop: 8 }}>{revenueAtRisk.totalLabel} <span style={{ fontSize: FS.body, fontWeight: 600, color: PAL.bad }}>{L(`in CLV across ${revenueAtRisk.accounts} accounts`, `en CLV de ${revenueAtRisk.accounts} cuentas`)}</span></div>
+        <div style={{ fontSize: FS.body, color: PAL.sub, marginTop: 4 }}>{L("Concentrated in 3 segments. The model can propose a retention plan prioritized by impact.", "Concentrado en 3 segmentos. El modelo puede proponer un plan de retención priorizado por impacto.")}</div>
       </div>
       {!generated && <button onClick={generate} disabled={loading} style={{ flexShrink: 0, fontSize: FS.body, fontWeight: 600, color: "#fff", background: loading ? PAL.sub : PAL.brand, border: "none", borderRadius: 10, padding: "12px 20px", cursor: loading ? "default" : "pointer", fontFamily: FONT }}>
-        {loading ? "Generando plan…" : "Generar plan de retención"}</button>}
+        {loading ? L("Generating plan…", "Generando plan…") : L("Generate retention plan", "Generar plan de retención")}</button>}
     </div>
     {loading && <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 10, color: PAL.sub, fontSize: FS.body }}>
       <span style={{ display: "inline-block", width: 18, height: 18, border: `2.5px solid ${PAL.line}`, borderTopColor: PAL.brand, borderRadius: "50%", animation: "vspin .8s linear infinite" }} />
-      Priorizando segmentos por CLV en riesgo y costo de intervención…
+      {L("Prioritizing segments by CLV at risk and intervention cost…", "Priorizando segmentos por CLV en riesgo y costo de intervención…")}
       <style>{`@keyframes vspin{to{transform:rotate(360deg)}}`}</style></div>}
     {generated && <div style={{ marginTop: 18 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span style={{ fontSize: FS.label, fontWeight: 700, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".4px" }}>Plan de retención priorizado</span>
-        <span style={{ fontSize: FS.body, color: PAL.good, fontWeight: 700 }}>Recuperación estimada: +${totalRecover}K CLV</span>
+        <span style={{ fontSize: FS.label, fontWeight: 700, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".4px" }}>{L("Prioritized retention plan", "Plan de retención priorizado")}</span>
+        <span style={{ fontSize: FS.body, color: PAL.good, fontWeight: 700 }}>{L(`Est. recovery: +$${totalRecover}K CLV`, `Recuperación estimada: +$${totalRecover}K CLV`)}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {retentionPlan.map((p, i) => (
           <div key={i} style={{ border: `1px solid ${PAL.line}`, borderLeft: `3px solid ${p.color}`, borderRadius: 10, padding: "13px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
             <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{ fontSize: FS.body, fontWeight: 600 }}>{p.seg} <span style={{ fontSize: FS.label, color: PAL.sub, fontWeight: 400 }}>· {p.accounts} cuentas · ${p.clv}K CLV</span></div>
+              <div style={{ fontSize: FS.body, fontWeight: 600 }}>{p.seg} <span style={{ fontSize: FS.label, color: PAL.sub, fontWeight: 400 }}>{L(`· ${p.accounts} accounts · $${p.clv}K CLV`, `· ${p.accounts} cuentas · $${p.clv}K CLV`)}</span></div>
               <div style={{ fontSize: FS.body, color: PAL.text, marginTop: 3 }}>{p.action}</div>
-              <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: 4 }}>Esfuerzo: {p.effort} · Ventana: {p.window}</div>
+              <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: 4 }}>{L(`Effort: ${p.effort} · Window: ${p.window}`, `Esfuerzo: ${p.effort} · Ventana: ${p.window}`)}</div>
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: PAL.good }}>+${p.impact}K</div>
-              <div style={{ fontSize: 10, color: PAL.sub }}>recuperable</div>
+              <div style={{ fontSize: 10, color: PAL.sub }}>{L("recoverable", "recuperable")}</div>
             </div>
           </div>))}
       </div>
       <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
-        <button onClick={() => { window.location.hash = "/simulador"; }} style={{ fontSize: FS.body, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>Simular impacto en ARR</button>
-        <button style={{ fontSize: FS.body, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 10, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>Exportar al CRM</button>
-        <button style={{ fontSize: FS.body, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 10, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>Asignar al equipo</button>
+        <button onClick={() => { window.location.hash = "/simulador"; }} style={{ fontSize: FS.body, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>{L("Simulate ARR impact", "Simular impacto en ARR")}</button>
+        <button style={{ fontSize: FS.body, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 10, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>{L("Export to CRM", "Exportar al CRM")}</button>
+        <button style={{ fontSize: FS.body, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 10, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>{L("Assign to team", "Asignar al equipo")}</button>
       </div>
     </div>}
   </div>;
 }
 
 function OverviewView() {
-  const { dataset, company } = useSession();
+  const { dataset, company, L } = useSession();
   const { kpis } = dataset;
   return <div>
-    <H1 title="Customer Intelligence" sub={`${company ? company + " · " : ""}Churn prediction · CLV modeling · RFM & forecast`} />
+    <H1 title="Customer Intelligence" sub={`${company ? company + " · " : ""}${L("Churn prediction · CLV modeling · RFM & forecast", "Predicción de churn · Modelado de CLV · RFM & forecast")}`} />
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14 }}>
       {kpis.map((k) => (
         <div key={k.label} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 16 }}>
@@ -1497,32 +1500,32 @@ function OverviewView() {
           <div style={{ marginTop: 8 }}><Spark data={k.spark} color={k.good ? PAL.good : PAL.bad} /></div></div>))}</div>
     <RevenueAtRiskPanel />
     <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 14, alignItems: "start" }}>
-      <Panel title="Churn por segmento de valor" tag="ridgeline" h={360}><Ridgeline /></Panel>
-      <Panel title="Segmentación conductual" tag="boxplot" h={360}><BoxPlots /></Panel>
-      <Panel title="Forecast & ciclos — MRR" tag="proyección + estacionalidad" span={2} h={380}><Forecast /></Panel>
-      <Panel title="CLV bridge por cohorte" tag="waterfall" h={340}><Waterfall /></Panel>
-      <Panel title="Matriz valor × riesgo" tag="heatmap RFM" h={360}><Heatmap /></Panel>
-      <Panel title="Segmentación demográfica" tag="cohortes de edad" h={300}>
+      <Panel title={L("Churn by value segment", "Churn por segmento de valor")} tag="ridgeline" h={360}><Ridgeline /></Panel>
+      <Panel title={L("Behavioral segmentation", "Segmentación conductual")} tag="boxplot" h={360}><BoxPlots /></Panel>
+      <Panel title={L("Forecast & cycles — MRR", "Forecast & ciclos — MRR")} tag={L("projection + seasonality", "proyección + estacionalidad")} span={2} h={380}><Forecast /></Panel>
+      <Panel title={L("CLV bridge by cohort", "CLV bridge por cohorte")} tag="waterfall" h={340}><Waterfall /></Panel>
+      <Panel title={L("Value × risk matrix", "Matriz valor × riesgo")} tag="heatmap RFM" h={360}><Heatmap /></Panel>
+      <Panel title={L("Demographic segmentation", "Segmentación demográfica")} tag={L("age cohorts", "cohortes de edad")} h={300}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={demo} margin={{ top: 10, right: 10, bottom: 0, left: -18 }}>
             <CartesianGrid vertical={false} stroke={PAL.line} /><XAxis dataKey="age" tick={{ fontSize: 10, fill: PAL.sub }} /><YAxis domain={[0, "dataMax + 4"]} allowDecimals={false} tick={{ fontSize: 10, fill: PAL.sub }} tickFormatter={(v) => `${v}%`} />
             <Tooltip content={<TipBox unit="%" />} cursor={{ fill: "rgba(0,0,0,.03)" }} />
             <Bar dataKey="v" radius={[4, 4, 0, 0]} isAnimationActive={false}>{demo.map((d, i) => <Cell key={i} fill={rampColor(i, demo.length)} />)}</Bar>
           </BarChart></ResponsiveContainer></Panel>
-      <Panel title="Perfil psicográfico" tag="radar" h={300}>
+      <Panel title={L("Psychographic profile", "Perfil psicográfico")} tag="radar" h={300}>
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={psycho} outerRadius="72%">
+          <RadarChart data={psycho.map((p) => ({ ...p, trait: L(p.trait.en, p.trait.es) }))} outerRadius="72%">
             <PolarGrid stroke={PAL.line} /><PolarAngleAxis dataKey="trait" tick={{ fontSize: 9.5, fill: PAL.sub }} /><PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-            <Radar name="Alto CLV" dataKey="A" stroke={PAL.teal} fill={PAL.teal} fillOpacity={0.3} isAnimationActive={false} />
-            <Radar name="En riesgo" dataKey="B" stroke={PAL.amber} fill={PAL.amber} fillOpacity={0.22} isAnimationActive={false} />
+            <Radar name={L("High CLV", "Alto CLV")} dataKey="A" stroke={PAL.teal} fill={PAL.teal} fillOpacity={0.3} isAnimationActive={false} />
+            <Radar name={L("At risk", "En riesgo")} dataKey="B" stroke={PAL.amber} fill={PAL.amber} fillOpacity={0.22} isAnimationActive={false} />
             <Tooltip content={<TipBox />} /></RadarChart></ResponsiveContainer>
-        <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 9.5, color: PAL.sub, marginTop: 4 }}><Legend c={PAL.teal} t="Alto CLV" /><Legend c={PAL.amber} t="En riesgo" /></div></Panel>
-      <Panel title="Segmentación económica" tag="ingreso × gasto" span={2} h={320}>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 9.5, color: PAL.sub, marginTop: 4 }}><Legend c={PAL.teal} t={L("High CLV", "Alto CLV")} /><Legend c={PAL.amber} t={L("At risk", "En riesgo")} /></div></Panel>
+      <Panel title={L("Economic segmentation", "Segmentación económica")} tag={L("income × spend", "ingreso × gasto")} span={2} h={320}>
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 10, right: 20, bottom: 16, left: 0 }}>
             <CartesianGrid stroke={PAL.line} />
-            <XAxis type="number" dataKey="income" name="Ingreso" unit="k" tick={{ fontSize: 10, fill: PAL.sub }} label={{ value: "Ingreso anual ($K)", position: "bottom", offset: -2, style: { fontSize: 9.5, fill: PAL.sub } }} />
-            <YAxis type="number" dataKey="spend" name="Gasto" tick={{ fontSize: 10, fill: PAL.sub }} label={{ value: "Gasto mensual ($)", angle: -90, position: "insideLeft", style: { fontSize: 9.5, fill: PAL.sub } }} />
+            <XAxis type="number" dataKey="income" name={L("Income", "Ingreso")} unit="k" tick={{ fontSize: 10, fill: PAL.sub }} label={{ value: L("Annual income ($K)", "Ingreso anual ($K)"), position: "bottom", offset: -2, style: { fontSize: 9.5, fill: PAL.sub } }} />
+            <YAxis type="number" dataKey="spend" name={L("Spend", "Gasto")} tick={{ fontSize: 10, fill: PAL.sub }} label={{ value: L("Monthly spend ($)", "Gasto mensual ($)"), angle: -90, position: "insideLeft", style: { fontSize: 9.5, fill: PAL.sub } }} />
             <ZAxis type="number" dataKey="z" range={[40, 300]} /><Tooltip content={<TipBox />} cursor={{ strokeDasharray: "3 3" }} />
             <Scatter data={econ} isAnimationActive={false}>{econ.map((d, i) => <Cell key={i} fill={d.c} fillOpacity={0.55} stroke={d.c} strokeOpacity={0.9} />)}</Scatter>
           </ScatterChart></ResponsiveContainer></Panel></div></div>;
