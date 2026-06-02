@@ -1821,6 +1821,7 @@ function FinanceView() {
 
 /* =================== CUENTA: CONFIGURACIÓN Y LOGOUT =================== */
 function SettingsView() {
+  const { email, userName, userInitials, company } = useSession();
   const [tab, setTab] = useState(0);
   const Row = ({ label, desc, children }) => (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: `1px solid ${PAL.line}` }}>
@@ -1836,11 +1837,11 @@ function SettingsView() {
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
       <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: "18px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 4 }}>
-          <div style={{ width: 52, height: 52, borderRadius: "50%", background: `${PAL.brand}1A`, color: PAL.brand, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 18 }}>AR</div>
-          <div><div style={{ fontSize: 16, fontWeight: 600 }}>Ana Rivera</div><div style={{ fontSize: FS.label, color: PAL.sub }}>CFO · Acceso total</div></div>
+          <div style={{ width: 52, height: 52, borderRadius: "50%", background: `${PAL.brand}1A`, color: PAL.brand, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 18 }}>{userInitials}</div>
+          <div><div style={{ fontSize: 16, fontWeight: 600 }}>{userName}</div><div style={{ fontSize: FS.label, color: PAL.sub }}>{company ? `${company} · Acceso total` : "Acceso total"}</div></div>
         </div>
-        <Row label="Nombre" desc="Como apareces en el equipo"><input defaultValue="Ana Rivera" style={{ ...sel, width: 160 }} /></Row>
-        <Row label="Email" desc="Para alertas y reportes"><input defaultValue="ana@empresa.com" style={{ ...sel, width: 200 }} /></Row>
+        <Row label="Nombre" desc="Como apareces en el equipo"><input key={userName} defaultValue={userName} style={{ ...sel, width: 160 }} /></Row>
+        <Row label="Email" desc="Para alertas y reportes"><input key={email} defaultValue={email} style={{ ...sel, width: 200 }} /></Row>
         <Row label="Idioma" desc="Idioma de la interfaz"><select style={sel}><option>Español</option><option>English</option></select></Row>
         <Row label="Zona horaria" desc="Para fechas y reportes"><select style={sel}><option>GMT-6 (CDMX)</option><option>GMT-5 (Bogotá)</option><option>GMT+1 (Madrid)</option></select></Row>
       </div>
@@ -2230,7 +2231,7 @@ function ConnectGate({ onBack }) {
     setStep(0);
     let i = 0;
     const iv = setInterval(() => { i = Math.min(i + 1, steps.length - 1); setStep(i); }, 720);
-    setTimeout(() => { clearInterval(iv); connect(company, inputs); }, 2950);
+    setTimeout(() => { clearInterval(iv); connect(company, inputs, email); }, 2950);
   };
   const fld = { width: "100%", fontSize: FS.body, padding: "11px 13px", borderRadius: 10, border: `1px solid ${PAL.line}`, fontFamily: FONT, outline: "none", background: PAL.panel };
   const lbl = { fontSize: FS.label, fontWeight: 600, color: PAL.sub, display: "block", marginBottom: 5 };
@@ -2280,7 +2281,7 @@ function ConnectGate({ onBack }) {
 }
 
 function Dashboard({ onLogout }) {
-  const { connected, company } = useSession();
+  const { connected, company, email, userName, userInitials } = useSession();
   const [slug, go] = useHashRoute("overview");
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -2371,12 +2372,12 @@ function Dashboard({ onLogout }) {
           <option>Últimos 30 días</option><option>Último trimestre</option><option>Últimos 12 meses</option>
         </select>}
         <div style={{ position: "relative" }} onClick={(e) => e.stopPropagation()}>
-          <div onClick={() => setMenuOpen(o => !o)} style={{ width: 32, height: 32, borderRadius: "50%", background: `${PAL.brand}1A`, color: PAL.brand, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12, flexShrink: 0, cursor: "pointer", userSelect: "none" }}>AR</div>
-          {menuOpen && <div style={{ position: "absolute", top: 42, right: 0, width: 220, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 12, boxShadow: "0 8px 28px rgba(16,17,22,.14)", overflow: "hidden", zIndex: 80 }}>
+          <div onClick={() => setMenuOpen(o => !o)} style={{ width: 32, height: 32, borderRadius: "50%", background: `${PAL.brand}1A`, color: PAL.brand, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12, flexShrink: 0, cursor: "pointer", userSelect: "none" }}>{userInitials}</div>
+          {menuOpen && <div style={{ position: "absolute", top: 42, right: 0, width: 240, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 12, boxShadow: "0 8px 28px rgba(16,17,22,.14)", overflow: "hidden", zIndex: 80 }}>
             <div style={{ padding: "14px 16px", borderBottom: `1px solid ${PAL.line}` }}>
-              <div style={{ fontSize: FS.body, fontWeight: 600 }}>Ana Rivera</div>
-              <div style={{ fontSize: FS.label, color: PAL.sub }}>ana@empresa.com</div>
-              <div style={{ fontSize: 10, color: PAL.brand, marginTop: 4, fontWeight: 600 }}>CFO · Acceso total</div>
+              <div style={{ fontSize: FS.body, fontWeight: 600 }}>{userName}</div>
+              <div style={{ fontSize: FS.label, color: PAL.sub, overflow: "hidden", textOverflow: "ellipsis" }}>{email}</div>
+              <div style={{ fontSize: 10, color: PAL.brand, marginTop: 4, fontWeight: 600 }}>{company ? `${company} · Acceso total` : "Acceso total"}</div>
             </div>
             <div onClick={() => { nav("settings"); setMenuOpen(false); }} style={{ padding: "11px 16px", fontSize: FS.body, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}
               onMouseEnter={(e) => e.currentTarget.style.background = PAL.panel2} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>

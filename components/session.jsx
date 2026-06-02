@@ -21,11 +21,24 @@ import { generateDataset, newSeed } from "../lib/synth";
 const STORAGE_KEY = "vantix:session:v1";
 const BASELINE_SEED = "vantix-baseline"; // determinista para SSR + estado vacío
 
+// No pedimos nombre: derivamos uno presentable (y sus iniciales) del email.
+function deriveName(email) {
+  const local = (email || "").split("@")[0].replace(/[._\-+]+/g, " ").trim();
+  if (!local) return "Invitado";
+  return local.split(" ").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+}
+function deriveInitials(name, company) {
+  const src = name && name !== "Invitado" ? name : company || "Vantix";
+  const parts = src.trim().split(/\s+/).filter(Boolean);
+  return (parts.length >= 2 ? parts[0][0] + parts[1][0] : src.slice(0, 2)).toUpperCase();
+}
+
 const SessionContext = createContext(null);
 
 export function SessionProvider({ children }) {
   const [seed, setSeed] = useState(BASELINE_SEED);
   const [company, setCompany] = useState("");
+  const [email, setEmail] = useState("");
   const [inputs, setInputs] = useState({});
   const [credits, setCredits] = useState(500);
   const [connected, setConnected] = useState(false);
@@ -39,6 +52,7 @@ export function SessionProvider({ children }) {
         if (saved && saved.connected && saved.seed) {
           setSeed(saved.seed);
           setCompany(saved.company || "");
+          setEmail(saved.email || "");
           setInputs(saved.inputs || {});
           setCredits(typeof saved.credits === "number" ? saved.credits : 500);
           setConnected(true);
@@ -59,22 +73,24 @@ export function SessionProvider({ children }) {
 
   // Conecta una fuente (simulada). Siembra desde el nombre de empresa si lo
   // hay (determinista y "suyo"); si no, una semilla aleatoria por sesión.
-  const connect = (companyName, businessInputs = {}) => {
+  const connect = (companyName, businessInputs = {}, userEmail = "") => {
     const name = (companyName || "").trim();
+    const mail = (userEmail || "").trim();
     const s = name ? `co:${name.toLowerCase()}` : newSeed();
     setSeed(s);
     setCompany(name);
+    setEmail(mail);
     setInputs(businessInputs);
     setCredits(500);
     setConnected(true);
-    persist({ seed: s, company: name, inputs: businessInputs, credits: 500, connected: true });
+    persist({ seed: s, company: name, email: mail, inputs: businessInputs, credits: 500, connected: true });
   };
 
   // Re-siembra manteniendo la conexión (otro "set" de datos simulados).
   const reseed = () => {
     const s = newSeed();
     setSeed(s);
-    persist({ seed: s, company, inputs, credits, connected });
+    persist({ seed: s, company, email, inputs, credits, connected });
   };
 
   // Descuenta créditos por una acción (asistente, estudios…). Persiste el saldo.
@@ -95,6 +111,7 @@ export function SessionProvider({ children }) {
   const disconnect = () => {
     setConnected(false);
     setCompany("");
+    setEmail("");
     setInputs({});
     setCredits(500);
     setSeed(BASELINE_SEED);
@@ -105,10 +122,13 @@ export function SessionProvider({ children }) {
     }
   };
 
+  const userName = deriveName(email);
+  const userInitials = deriveInitials(userName, company);
+
   const dataset = useMemo(() => generateDataset(seed, undefined, inputs), [seed, inputs]);
   const value = useMemo(
-    () => ({ seed, dataset, company, inputs, credits, connected, connect, reseed, spendCredits, disconnect }),
-    [seed, dataset, company, inputs, credits, connected]
+    () => ({ seed, dataset, company, email, userName, userInitials, inputs, credits, connected, connect, reseed, spendCredits, disconnect }),
+    [seed, dataset, company, email, inputs, credits, connected]
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
