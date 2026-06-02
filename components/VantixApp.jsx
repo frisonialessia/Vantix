@@ -593,17 +593,22 @@ const shap = [
 // === MÓDULO: ASISTENTE IA (pantalla completa) ===
 function AssistantView({ previewHeight } = {}) {
   const isPreview = !!previewHeight;
-  const { dataset, company, credits, spendCredits } = useSession();
+  const { dataset, company, credits, spendCredits, lang, L } = useSession();
   // La conversación arranca distinta según el contexto:
   // - preview de la landing: los mensajes de ejemplo (se ve "lleno").
   // - asistente real: un saludo personalizado con las cifras de la sesión.
   const [msgs, setMsgs] = useState(() => isPreview
     ? aiMessages.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text, actions: m.actions }))
-    : [{ role: "assistant", content: `Hola${company ? `, equipo de ${company}` : ""}. Tengo cargado el análisis de tu negocio: ${dataset.revenueAtRisk.totalLabel} de CLV en riesgo en ${dataset.revenueAtRisk.accounts} cuentas, NRR ${dataset.metrics.nrr}% y CLV:CAC ${dataset.metrics.clvCac}:1. Pregúntame qué priorizar, por qué se va un cliente, o dónde reasignar presupuesto.` }]);
+    : [{ role: "assistant", content: L(
+        `Hi${company ? `, ${company} team` : ""}. I've loaded your business analysis: ${dataset.revenueAtRisk.totalLabel} of CLV at risk across ${dataset.revenueAtRisk.accounts} accounts, NRR ${dataset.metrics.nrr}% and CLV:CAC ${dataset.metrics.clvCac}:1. Ask me what to prioritize, why a customer is leaving, or where to reallocate budget.`,
+        `Hola${company ? `, equipo de ${company}` : ""}. Tengo cargado el análisis de tu negocio: ${dataset.revenueAtRisk.totalLabel} de CLV en riesgo en ${dataset.revenueAtRisk.accounts} cuentas, NRR ${dataset.metrics.nrr}% y CLV:CAC ${dataset.metrics.clvCac}:1. Pregúntame qué priorizar, por qué se va un cliente, o dónde reasignar presupuesto.`
+      ) }]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = React.useRef(null);
-  const suggestions = ["¿Qué cuentas debería priorizar esta semana?", "Resume el churn del último trimestre", "¿Qué canal trae los clientes más valiosos?"];
+  const suggestions = lang === "es"
+    ? ["¿Qué cuentas debería priorizar esta semana?", "Resume el churn del último trimestre", "¿Qué canal trae los clientes más valiosos?"]
+    : ["Which accounts should I prioritize this week?", "Summarize last quarter's churn", "Which channel brings the most valuable customers?"];
 
   React.useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -619,14 +624,14 @@ function AssistantView({ previewHeight } = {}) {
     // En el preview de la landing no llamamos al backend (costo cero al explorar).
     if (isPreview) {
       setTimeout(() => {
-        setMsgs(m => [...m, { role: "assistant", content: "Esta es una demo. Entra y conecta tu negocio para conversar con el asistente sobre tus datos." }]);
+        setMsgs(m => [...m, { role: "assistant", content: L("This is a demo. Enter and connect your business to chat with the assistant about your data.", "Esta es una demo. Entra y conecta tu negocio para conversar con el asistente sobre tus datos.") }]);
         setSending(false);
       }, 700);
       return;
     }
     // Cada consulta consume 1 crédito (refleja el costo de cómputo del modelo).
     if (!spendCredits(1)) {
-      setMsgs(m => [...m, { role: "assistant", content: "Te quedaste sin créditos para esta sesión. Renuévalos en «Créditos & uso» para seguir consultando." }]);
+      setMsgs(m => [...m, { role: "assistant", content: L("You're out of credits for this session. Top up in “Credits & usage” to keep asking.", "Te quedaste sin créditos para esta sesión. Renuévalos en «Créditos & uso» para seguir consultando.") }]);
       setSending(false);
       return;
     }
@@ -634,12 +639,12 @@ function AssistantView({ previewHeight } = {}) {
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })), context: toSnapshot(dataset, company) }),
+        body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })), context: toSnapshot(dataset, company), lang }),
       });
       const data = await res.json();
-      setMsgs(m => [...m, { role: "assistant", content: data.reply || data.error || "No pude responder en este momento." }]);
+      setMsgs(m => [...m, { role: "assistant", content: data.reply || data.error || L("I couldn't respond right now.", "No pude responder en este momento.") }]);
     } catch {
-      setMsgs(m => [...m, { role: "assistant", content: "Hubo un problema de conexión. Intenta de nuevo." }]);
+      setMsgs(m => [...m, { role: "assistant", content: L("There was a connection problem. Please try again.", "Hubo un problema de conexión. Intenta de nuevo.") }]);
     } finally {
       setSending(false);
     }

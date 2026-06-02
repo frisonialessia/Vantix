@@ -45,11 +45,12 @@ export async function POST(request) {
 
     // Snapshot de los datos de la sesión (grounding). Acotado para limitar tokens.
     const context = typeof body?.context === "string" ? body.context.slice(0, 4000) : "";
+    const lang = body?.lang === "es" ? "es" : "en";
 
     // Límite defensivo: no procesar historiales absurdamente largos.
     const trimmed = messages.slice(-12);
 
-    const reply = await askLLM(trimmed, { context });
+    const reply = await askLLM(trimmed, { context, lang });
     return Response.json({ reply });
   } catch (err) {
     console.error("Error en /api/assistant:", err);
