@@ -2100,7 +2100,10 @@ function LandingView({ onEnter }) {
 
     {/* HERO */}
     <header style={{ ...section, paddingTop: isMobile ? 48 : 80, paddingBottom: isMobile ? 40 : 60, textAlign: "center" }}>
-      <div style={{ display: "inline-block", fontSize: 12.5, fontWeight: 600, color: PAL.brand, background: `${PAL.brand}12`, padding: "6px 14px", borderRadius: 20, marginBottom: 22 }}>Market & Customer Intelligence</div>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 22 }}>
+        <span style={{ fontSize: 12.5, fontWeight: 600, color: PAL.brand, background: `${PAL.brand}12`, padding: "6px 14px", borderRadius: 20 }}>Market & Customer Intelligence</span>
+        <span style={{ fontSize: 12.5, fontWeight: 600, color: PAL.sub, background: PAL.panel2, border: `1px solid ${PAL.line}`, padding: "6px 14px", borderRadius: 20 }}>{L("Proof of concept", "Prueba de concepto")}</span>
+      </div>
       <h1 style={{ fontSize: "clamp(30px, 6.5vw, 52px)", fontWeight: 800, letterSpacing: "-1.2px", lineHeight: 1.08, margin: 0, maxWidth: 820, marginLeft: "auto", marginRight: "auto" }}>
         {L(<>Predictive intelligence to maximize <span style={{ color: PAL.brand }}>financial value</span></>, <>Inteligencia predictiva para maximizar el <span style={{ color: PAL.brand }}>valor financiero</span></>)}</h1>
       <p style={{ fontSize: "clamp(16px, 2.4vw, 19px)", color: PAL.sub, lineHeight: 1.5, maxWidth: 640, margin: "22px auto 0" }}>
@@ -2203,6 +2206,9 @@ function LandingView({ onEnter }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}><Logo size={26} /><span style={{ fontWeight: 700, fontSize: 15 }}>Vantix</span></div>
         <div style={{ fontSize: 13, color: PAL.sub }}>© 2026 Vantix · Market & Customer Intelligence</div>
         <div style={{ display: "flex", gap: 20, fontSize: 13, color: PAL.sub, alignItems: "center", flexWrap: "wrap" }}>{viewSource(true)}<span>{L("Privacy", "Privacidad")}</span><span>{L("Terms", "Términos")}</span><span>SOC 2</span></div>
+      </div>
+      <div style={{ ...section, marginTop: 18, fontSize: 11.5, lineHeight: 1.5, color: PAL.sub, opacity: .85, textAlign: "center" }}>
+        {L("Proof of concept, for demonstration only. All figures are synthetic and generated from your inputs — no real data is processed. Brand names are shown to illustrate the AI models and integrations, and do not imply any partnership or endorsement.", "Prueba de concepto, solo con fines de demostración. Todas las cifras son sintéticas y se generan a partir de tus datos — no se procesa información real. Los nombres de marcas se muestran para ilustrar los modelos de IA e integraciones, y no implican alianza ni respaldo.")}
       </div>
     </footer>
   </div>;
