@@ -1,0 +1,9 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #F7F8FA;
+}
+* { box-sizing: border-box; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #D4D7DD; border-radius: 4px; }
+input[type=range] { height: 4px; border-radius: 4px; background: #E8EAEE; }
