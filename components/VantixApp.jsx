@@ -1622,20 +1622,20 @@ function monteCarlo(runs, months, p) {
 
 // ---- Componente: P&L ----
 function PnLTab() {
-  const { dataset } = useSession();
+  const { dataset, L } = useSession();
   const PNL = useMemo(() => buildPnL(dataset.finance.startMrrK), [dataset.finance.startMrrK]);
   const lines = [
-    { k: "revenue", l: "Ingreso", strong: true, c: PAL.text },
+    { k: "revenue", l: L("Revenue", "Ingreso"), strong: true, c: PAL.text },
     { k: "cogs", l: "(−) COGS", c: PAL.sub },
-    { k: "gross", l: "Margen bruto", strong: true, c: PAL.d4 },
-    { k: "sm", l: "(−) Ventas & Mkt", c: PAL.sub },
-    { k: "rd", l: "(−) I+D", c: PAL.sub },
+    { k: "gross", l: L("Gross margin", "Margen bruto"), strong: true, c: PAL.d4 },
+    { k: "sm", l: L("(−) Sales & Mkt", "(−) Ventas & Mkt"), c: PAL.sub },
+    { k: "rd", l: L("(−) R&D", "(−) I+D"), c: PAL.sub },
     { k: "ga", l: "(−) G&A", c: PAL.sub },
     { k: "ebitda", l: "EBITDA", strong: true, c: PAL.brand },
   ];
   return <div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-      <Panel title="Trayectoria ingreso vs EBITDA" tag="proyección 8 trimestres" h={300}>
+      <Panel title={L("Revenue vs EBITDA trajectory", "Trayectoria ingreso vs EBITDA")} tag={L("8-quarter projection", "proyección 8 trimestres")} h={300}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={PNL} margin={{ top: 10, right: 12, bottom: 0, left: -8 }}>
             <defs><linearGradient id="rev" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={PAL.brand} stopOpacity={0.25} /><stop offset="100%" stopColor={PAL.brand} stopOpacity={0.02} /></linearGradient></defs>
@@ -1643,11 +1643,11 @@ function PnLTab() {
             <XAxis dataKey="q" tick={{ fontSize: FS.axis, fill: PAL.sub }} />
             <YAxis tick={{ fontSize: FS.axis, fill: PAL.sub }} tickFormatter={(v) => `$${(v/1000).toFixed(1)}M`} />
             <Tooltip content={<TipBox unit="k" />} />
-            <Area dataKey="revenue" stroke={PAL.brand} strokeWidth={2.4} fill="url(#rev)" name="Ingreso" isAnimationActive={false} />
+            <Area dataKey="revenue" stroke={PAL.brand} strokeWidth={2.4} fill="url(#rev)" name={L("Revenue", "Ingreso")} isAnimationActive={false} />
             <Line dataKey="ebitda" stroke={PAL.d4} strokeWidth={2.4} dot={false} name="EBITDA" isAnimationActive={false} />
           </ComposedChart></ResponsiveContainer>
       </Panel>
-      <Panel title="Margen EBITDA" tag="% sobre ingreso" h={300}>
+      <Panel title={L("EBITDA margin", "Margen EBITDA")} tag={L("% of revenue", "% sobre ingreso")} h={300}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={PNL} margin={{ top: 10, right: 12, bottom: 0, left: -12 }}>
             <CartesianGrid vertical={false} stroke={PAL.line} />
@@ -1663,7 +1663,7 @@ function PnLTab() {
       <div className="tablewrap" style={{ overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: FS.body, minWidth: 640 }}>
         <thead><tr style={{ background: PAL.panel2 }}>
-          <th style={{ padding: "11px 16px", textAlign: "left", fontSize: FS.label, fontWeight: 700, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".3px" }}>Estado de resultados ($K)</th>
+          <th style={{ padding: "11px 16px", textAlign: "left", fontSize: FS.label, fontWeight: 700, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".3px" }}>{L("Income statement ($K)", "Estado de resultados ($K)")}</th>
           {PNL.map(r => <th key={r.q} style={{ padding: "11px 12px", textAlign: "right", fontSize: FS.label, fontWeight: 700, color: PAL.sub }}>{r.q}</th>)}
         </tr></thead>
         <tbody>
@@ -1679,6 +1679,7 @@ function PnLTab() {
 
 // ---- Componente: Runway ----
 function RunwayTab() {
+  const { L } = useSession();
   const [cash, setCash] = useState(4200);     // caja actual $K
   const [burn, setBurn] = useState(280);      // burn mensual $K
   const [growth, setGrowth] = useState(6);    // % mejora mensual del burn (hacia break-even)
@@ -1702,16 +1703,16 @@ function RunwayTab() {
         <span style={{ fontSize: FS.body, fontWeight: 700, color: PAL.brand }}>{fmt(val)}</span></div>
       <input type="range" min={min} max={max} step={step} value={val} onChange={(e) => set(+e.target.value)} style={{ width: "100%", accentColor: PAL.brand }} /></div>);
   return <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 14 }}>
-    <Panel title="Supuestos de caja" tag="editable" h={420}>
-      <Slider label="Caja actual" val={cash} set={setCash} min={500} max={10000} step={100} fmt={(v) => `$${(v/1000).toFixed(1)}M`} />
-      <Slider label="Burn mensual" val={burn} set={setBurn} min={50} max={800} step={10} fmt={(v) => `$${v}K`} />
-      <Slider label="Mejora de burn / mes" val={growth} set={setGrowth} min={0} max={15} step={1} fmt={(v) => `${v}%`} />
+    <Panel title={L("Cash assumptions", "Supuestos de caja")} tag={L("editable", "editable")} h={420}>
+      <Slider label={L("Current cash", "Caja actual")} val={cash} set={setCash} min={500} max={10000} step={100} fmt={(v) => `$${(v/1000).toFixed(1)}M`} />
+      <Slider label={L("Monthly burn", "Burn mensual")} val={burn} set={setBurn} min={50} max={800} step={10} fmt={(v) => `$${v}K`} />
+      <Slider label={L("Burn improvement / mo", "Mejora de burn / mes")} val={growth} set={setGrowth} min={0} max={15} step={1} fmt={(v) => `${v}%`} />
       <div style={{ marginTop: 20, padding: 16, background: safe ? `${PAL.good}12` : `${PAL.bad}12`, borderRadius: 12, border: `1px solid ${safe ? PAL.good : PAL.bad}40` }}>
-        <div style={{ fontSize: FS.label, color: PAL.sub }}>Runway estimado</div>
-        <div style={{ fontSize: 32, fontWeight: 800, color: safe ? PAL.good : PAL.bad, letterSpacing: "-1px" }}>{runwayMonths} <span style={{ fontSize: FS.body, fontWeight: 600 }}>meses</span></div>
-        <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: 2 }}>{safe ? "Zona saludable (>12 meses)" : "Atención: levanta capital o reduce burn"}</div></div>
+        <div style={{ fontSize: FS.label, color: PAL.sub }}>{L("Estimated runway", "Runway estimado")}</div>
+        <div style={{ fontSize: 32, fontWeight: 800, color: safe ? PAL.good : PAL.bad, letterSpacing: "-1px" }}>{runwayMonths} <span style={{ fontSize: FS.body, fontWeight: 600 }}>{L("months", "meses")}</span></div>
+        <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: 2 }}>{safe ? L("Healthy zone (>12 months)", "Zona saludable (>12 meses)") : L("Heads up: raise capital or cut burn", "Atención: levanta capital o reduce burn")}</div></div>
     </Panel>
-    <Panel title="Proyección de caja" tag="hasta agotar runway" h={420}>
+    <Panel title={L("Cash projection", "Proyección de caja")} tag={L("until runway runs out", "hasta agotar runway")} h={420}>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={proj} margin={{ top: 10, right: 14, bottom: 0, left: -6 }}>
           <defs><linearGradient id="cashg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={PAL.brand} stopOpacity={0.25} /><stop offset="100%" stopColor={PAL.brand} stopOpacity={0.02} /></linearGradient></defs>
@@ -1719,8 +1720,8 @@ function RunwayTab() {
           <XAxis dataKey="m" tick={{ fontSize: FS.axis, fill: PAL.sub }} interval={2} />
           <YAxis tick={{ fontSize: FS.axis, fill: PAL.sub }} tickFormatter={(v) => `$${(v/1000).toFixed(1)}M`} />
           <Tooltip content={<TipBox unit="k" />} />
-          <Area dataKey="cash" stroke={PAL.brand} strokeWidth={2.6} fill="url(#cashg)" name="Caja" isAnimationActive={false} />
-          <Line dataKey="burn" stroke={PAL.warn} strokeWidth={2} dot={false} name="Burn mensual" isAnimationActive={false} />
+          <Area dataKey="cash" stroke={PAL.brand} strokeWidth={2.6} fill="url(#cashg)" name={L("Cash", "Caja")} isAnimationActive={false} />
+          <Line dataKey="burn" stroke={PAL.warn} strokeWidth={2} dot={false} name={L("Monthly burn", "Burn mensual")} isAnimationActive={false} />
         </ComposedChart></ResponsiveContainer>
     </Panel>
   </div>;
@@ -1728,7 +1729,7 @@ function RunwayTab() {
 
 // ---- Componente: Monte Carlo ----
 function MonteCarloTab() {
-  const { dataset } = useSession();
+  const { dataset, L } = useSession();
   const startArr = dataset.finance.startMrrK * 12;   // ARR inicial (escalado al MRR del usuario)
   const fmtArr = (v) => (v >= 1000 ? `$${(v / 1000).toFixed(1)}M` : `$${Math.round(v)}k`);
   const [growth, setGrowth] = useState(8);
@@ -1754,16 +1755,16 @@ function MonteCarloTab() {
         <span style={{ fontSize: FS.body, fontWeight: 700, color: PAL.brand }}>{fmt(val)}</span></div>
       <input type="range" min={min} max={max} step={step} value={val} onChange={(e) => set(+e.target.value)} style={{ width: "100%", accentColor: PAL.brand }} /></div>);
   return <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 14 }}>
-    <Panel title="Supuestos del modelo" tag="400 simulaciones" h={420}>
-      <Slider label="Crecimiento mensual medio" val={growth} set={setGrowth} min={0} max={15} step={0.5} fmt={(v) => `${v}%`} />
-      <Slider label="Churn mensual medio" val={churn} set={setChurn} min={0} max={10} step={0.5} fmt={(v) => `${v}%`} />
-      <Slider label="Volatilidad" val={vol} set={setVol} min={1} max={10} step={0.5} fmt={(v) => `±${v}%`} />
+    <Panel title={L("Model assumptions", "Supuestos del modelo")} tag={L("400 simulations", "400 simulaciones")} h={420}>
+      <Slider label={L("Avg monthly growth", "Crecimiento mensual medio")} val={growth} set={setGrowth} min={0} max={15} step={0.5} fmt={(v) => `${v}%`} />
+      <Slider label={L("Avg monthly churn", "Churn mensual medio")} val={churn} set={setChurn} min={0} max={10} step={0.5} fmt={(v) => `${v}%`} />
+      <Slider label={L("Volatility", "Volatilidad")} val={vol} set={setVol} min={1} max={10} step={0.5} fmt={(v) => `±${v}%`} />
       <div style={{ marginTop: 20, padding: 16, background: `${PAL.brand}10`, borderRadius: 12, border: `1px solid ${PAL.brand}40` }}>
-        <div style={{ fontSize: FS.label, color: PAL.sub }}>Probabilidad de superar {fmtArr(target)} ARR en 18m</div>
+        <div style={{ fontSize: FS.label, color: PAL.sub }}>{L(`Probability of exceeding ${fmtArr(target)} ARR in 18m`, `Probabilidad de superar ${fmtArr(target)} ARR en 18m`)}</div>
         <div style={{ fontSize: 32, fontWeight: 800, color: PAL.brand, letterSpacing: "-1px" }}>{probTarget}%</div>
-        <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: 2 }}>Mediana proyectada: ${(sim.bands[months].p50/1000).toFixed(1)}M</div></div>
+        <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: 2 }}>{L(`Projected median: $${(sim.bands[months].p50/1000).toFixed(1)}M`, `Mediana proyectada: $${(sim.bands[months].p50/1000).toFixed(1)}M`)}</div></div>
     </Panel>
-    <Panel title="Abanico de escenarios — ARR a 18 meses" tag="Monte Carlo · P10–P90" h={420}>
+    <Panel title={L("Scenario fan — ARR at 18 months", "Abanico de escenarios — ARR a 18 meses")} tag="Monte Carlo · P10–P90" h={420}>
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
         {/* banda P10-P90 */}
         <path d={`M ${sim.bands.map(b => `${px(b.m).toFixed(1)} ${py(b.p90).toFixed(1)}`).join(" L ")} L ${[...sim.bands].reverse().map(b => `${px(b.m).toFixed(1)} ${py(b.p10).toFixed(1)}`).join(" L ")} Z`} fill={PAL.brand} fillOpacity={0.1} />
@@ -1773,59 +1774,61 @@ function MonteCarloTab() {
         <polyline points={sim.bands.map(b => `${px(b.m).toFixed(1)},${py(b.p50).toFixed(1)}`).join(" ")} fill="none" stroke={PAL.brand} strokeWidth={2.6} />
         {/* línea objetivo */}
         <line x1={padL} y1={py(target)} x2={W - padR} y2={py(target)} stroke={PAL.d4} strokeWidth={1.2} strokeDasharray="4 3" />
-        <text x={W - padR} y={py(target) - 4} textAnchor="end" fontSize={FS.axis} fill={PAL.d4} fontFamily="Inter">Objetivo {fmtArr(target)}</text>
+        <text x={W - padR} y={py(target) - 4} textAnchor="end" fontSize={FS.axis} fill={PAL.d4} fontFamily="Inter">{L("Target", "Objetivo")} {fmtArr(target)}</text>
         {/* ejes */}
         {[0, 6, 12, 18].map(m => <text key={m} x={px(m)} y={H - 8} textAnchor="middle" fontSize={FS.axis} fill={PAL.sub} fontFamily="Inter">M{m}</text>)}
         {[0, allMax/2, allMax].map((v, i) => <text key={i} x={padL - 6} y={py(v) + 3} textAnchor="end" fontSize={FS.axis} fill={PAL.sub} fontFamily="Inter">${(v/1000).toFixed(0)}M</text>)}
       </svg>
       <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: FS.axis, color: PAL.sub, marginTop: 6 }}>
-        <Legend c={PAL.brand} t="Mediana (P50)" /><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: PAL.brand, opacity: 0.2 }} />Banda P10–P90</span></div>
+        <Legend c={PAL.brand} t={L("Median (P50)", "Mediana (P50)")} /><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: PAL.brand, opacity: 0.2 }} />{L("P10–P90 band", "Banda P10–P90")}</span></div>
     </Panel>
   </div>;
 }
 
 // ---- Componente: Unit Economics ----
 const unitData = [
-  { k: "CLV (valor de vida)", v: "$3,580", good: true, note: "BG/NBD + Gamma-Gamma" },
-  { k: "CAC (costo adquisición)", v: "$830", good: true, note: "mezcla de canales" },
-  { k: "Ratio CLV : CAC", v: "4.3 : 1", good: true, note: "sano > 3:1" },
-  { k: "CAC payback", v: "11 meses", good: true, note: "objetivo < 12m" },
-  { k: "Margen de contribución", v: "68%", good: true, note: "tras costo de servir" },
-  { k: "Break-even por cliente", v: "Mes 11", good: true, note: "punto de equilibrio" },
+  { k: { en: "CLV (lifetime value)", es: "CLV (valor de vida)" }, v: { en: "$3,580", es: "$3,580" }, good: true, note: { en: "BG/NBD + Gamma-Gamma", es: "BG/NBD + Gamma-Gamma" } },
+  { k: { en: "CAC (acquisition cost)", es: "CAC (costo adquisición)" }, v: { en: "$830", es: "$830" }, good: true, note: { en: "channel mix", es: "mezcla de canales" } },
+  { k: { en: "CLV : CAC ratio", es: "Ratio CLV : CAC" }, v: { en: "4.3 : 1", es: "4.3 : 1" }, good: true, note: { en: "healthy > 3:1", es: "sano > 3:1" } },
+  { k: { en: "CAC payback", es: "CAC payback" }, v: { en: "11 months", es: "11 meses" }, good: true, note: { en: "target < 12m", es: "objetivo < 12m" } },
+  { k: { en: "Contribution margin", es: "Margen de contribución" }, v: { en: "68%", es: "68%" }, good: true, note: { en: "after cost to serve", es: "tras costo de servir" } },
+  { k: { en: "Per-customer break-even", es: "Break-even por cliente" }, v: { en: "Month 11", es: "Mes 11" }, good: true, note: { en: "break-even point", es: "punto de equilibrio" } },
 ];
 const paybackCurve = Array.from({ length: 19 }, (_, m) => ({ m: `M${m}`, acum: +(-830 + m * 88).toFixed(0) }));
 function UnitEconTab() {
+  const { L } = useSession();
   return <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-    <Panel title="Unit economics" tag="por cliente" h={360}>
+    <Panel title="Unit economics" tag={L("per customer", "por cliente")} h={360}>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {unitData.map((u, i) => (
           <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: i < unitData.length - 1 ? `1px solid ${PAL.line}` : "none", paddingBottom: 9 }}>
-            <div><div style={{ fontSize: FS.body, fontWeight: 500 }}>{u.k}</div><div style={{ fontSize: FS.label, color: PAL.sub }}>{u.note}</div></div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: u.good ? PAL.d4 : PAL.bad }}>{u.v}</div>
+            <div><div style={{ fontSize: FS.body, fontWeight: 500 }}>{L(u.k.en, u.k.es)}</div><div style={{ fontSize: FS.label, color: PAL.sub }}>{L(u.note.en, u.note.es)}</div></div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: u.good ? PAL.d4 : PAL.bad }}>{L(u.v.en, u.v.es)}</div>
           </div>))}
       </div>
     </Panel>
-    <Panel title="Curva de payback del CAC" tag="recuperación acumulada" h={360}>
+    <Panel title={L("CAC payback curve", "Curva de payback del CAC")} tag={L("cumulative recovery", "recuperación acumulada")} h={360}>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={paybackCurve} margin={{ top: 10, right: 14, bottom: 0, left: -2 }}>
           <CartesianGrid vertical={false} stroke={PAL.line} />
           <XAxis dataKey="m" tick={{ fontSize: FS.axis, fill: PAL.sub }} interval={2} />
           <YAxis tick={{ fontSize: FS.axis, fill: PAL.sub }} tickFormatter={(v) => `$${v}`} />
           <Tooltip content={<TipBox />} />
-          <Line dataKey="acum" stroke={PAL.brand} strokeWidth={2.6} dot={false} name="Flujo acumulado" isAnimationActive={false} />
+          <Line dataKey="acum" stroke={PAL.brand} strokeWidth={2.6} dot={false} name={L("Cumulative cash flow", "Flujo acumulado")} isAnimationActive={false} />
           <Line dataKey={() => 0} stroke={PAL.sub} strokeWidth={1} strokeDasharray="4 3" dot={false} name="Break-even" isAnimationActive={false} />
         </ComposedChart></ResponsiveContainer>
-      <div style={{ fontSize: FS.axis, color: PAL.sub, marginTop: 4, textAlign: "center" }}>El cliente repaga su CAC en el mes 11 y genera valor neto después</div>
+      <div style={{ fontSize: FS.axis, color: PAL.sub, marginTop: 4, textAlign: "center" }}>{L("The customer repays their CAC at month 11 and generates net value after that", "El cliente repaga su CAC en el mes 11 y genera valor neto después")}</div>
     </Panel>
   </div>;
 }
 
 // ---- Vista contenedora ----
 function FinanceView() {
+  const { L } = useSession();
   return <div>
-    <H1 title="Modelado financiero" sub="P&L, runway y escenarios. Información para decidir — no es consejo de inversión." />
+    <H1 title={L("Financial modeling", "Modelado financiero")} sub={L("P&L, runway and scenarios. Information to decide — not investment advice.", "P&L, runway y escenarios. Información para decidir — no es consejo de inversión.")} />
     <Tabs tabs={[
-      { label: "P&L proyectado", content: <PnLTab /> },
+      { label: L("Projected P&L", "P&L proyectado"), content: <PnLTab /> },
       { label: "Runway & burn", content: <RunwayTab /> },
       { label: "Monte Carlo", content: <MonteCarloTab /> },
       { label: "Unit economics", content: <UnitEconTab /> },
