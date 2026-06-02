@@ -26,6 +26,7 @@ const SessionContext = createContext(null);
 export function SessionProvider({ children }) {
   const [seed, setSeed] = useState(BASELINE_SEED);
   const [company, setCompany] = useState("");
+  const [inputs, setInputs] = useState({});
   const [connected, setConnected] = useState(false);
 
   // Tras montar (solo cliente): restaura la sesión SI ya estaba conectada.
@@ -37,6 +38,7 @@ export function SessionProvider({ children }) {
         if (saved && saved.connected && saved.seed) {
           setSeed(saved.seed);
           setCompany(saved.company || "");
+          setInputs(saved.inputs || {});
           setConnected(true);
         }
       }
@@ -55,20 +57,21 @@ export function SessionProvider({ children }) {
 
   // Conecta una fuente (simulada). Siembra desde el nombre de empresa si lo
   // hay (determinista y "suyo"); si no, una semilla aleatoria por sesión.
-  const connect = (companyName) => {
+  const connect = (companyName, businessInputs = {}) => {
     const name = (companyName || "").trim();
     const s = name ? `co:${name.toLowerCase()}` : newSeed();
     setSeed(s);
     setCompany(name);
+    setInputs(businessInputs);
     setConnected(true);
-    persist({ seed: s, company: name, connected: true });
+    persist({ seed: s, company: name, inputs: businessInputs, connected: true });
   };
 
   // Re-siembra manteniendo la conexión (otro "set" de datos simulados).
   const reseed = () => {
     const s = newSeed();
     setSeed(s);
-    persist({ seed: s, company, connected });
+    persist({ seed: s, company, inputs, connected });
   };
 
   // Desconecta (cerrar sesión): vuelve al estado vacío y permite re-demostrar
@@ -76,6 +79,7 @@ export function SessionProvider({ children }) {
   const disconnect = () => {
     setConnected(false);
     setCompany("");
+    setInputs({});
     setSeed(BASELINE_SEED);
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -84,10 +88,10 @@ export function SessionProvider({ children }) {
     }
   };
 
-  const dataset = useMemo(() => generateDataset(seed), [seed]);
+  const dataset = useMemo(() => generateDataset(seed, undefined, inputs), [seed, inputs]);
   const value = useMemo(
-    () => ({ seed, dataset, company, connected, connect, reseed, disconnect }),
-    [seed, dataset, company, connected]
+    () => ({ seed, dataset, company, inputs, connected, connect, reseed, disconnect }),
+    [seed, dataset, company, inputs, connected]
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

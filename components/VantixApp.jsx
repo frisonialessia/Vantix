@@ -389,13 +389,13 @@ function RootCauseView() {
 
 // 3) SIMULADOR WHAT-IF
 function SimulatorView() {
+  const { dataset } = useSession();
+  const base = dataset.simulator.baseMrrK;          // MRR k (escalado a las cifras del usuario)
+  const atRiskMrr = dataset.simulator.atRiskMrrK;   // MRR concentrado en el segmento At-Risk
   const [atRiskRed, setAtRiskRed] = useState(2);   // reducción de churn del segmento At-Risk (pts)
   const [churnRed, setChurnRed] = useState(1);     // reducción de churn general (pts)
-  const [nrr, setNrr] = useState(112);
+  const [nrr, setNrr] = useState(Math.round(dataset.metrics.nrr));
   const [reactivation, setReactivation] = useState(15);
-  const base = 480; // MRR k
-  // El segmento At-Risk concentra ~$84K MRR; cada punto de churn evitado recupera proporción
-  const atRiskMrr = 84;
   const proj = useMemo(() => {
     return Array.from({ length: 12 }, (_, i) => {
       const m = i + 1;
@@ -406,7 +406,7 @@ function SimulatorView() {
       const reactEffect = 1 + (reactivation - 15) * 0.0008 * m;
       return { m: `M${m}`, baseline: +baseline.toFixed(0), scenario: +(baseline * atRiskEffect * churnEffect * nrrEffect * reactEffect).toFixed(0) };
     });
-  }, [atRiskRed, churnRed, nrr, reactivation]);
+  }, [atRiskRed, churnRed, nrr, reactivation, base, atRiskMrr]);
   const liftM12 = proj[11].scenario - proj[11].baseline;
   const arrLift = Math.round(liftM12 * 12);
   // ARR atribuible específicamente al slider de At-Risk (aislando su efecto)
@@ -429,7 +429,7 @@ function SimulatorView() {
       <Panel title="Palancas de decisión" tag="what-if" h={440}>
         <div style={{ padding: "10px 12px", background: `${PAL.bad}0D`, border: `1px solid ${PAL.bad}30`, borderRadius: 10, marginBottom: 16 }}>
           <Slider label="↓ Churn segmento At-Risk" val={atRiskRed} set={setAtRiskRed} min={0} max={5} step={0.5} fmt={(v) => `−${v} pts`} accent={PAL.bad} />
-          <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: -8 }}>La palanca de mayor impacto: At-Risk concentra $84K MRR.</div>
+          <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: -8 }}>La palanca de mayor impacto: At-Risk concentra ${atRiskMrr}K MRR.</div>
         </div>
         <Slider label="↓ Churn general" val={churnRed} set={setChurnRed} min={0} max={5} step={0.5} fmt={(v) => `−${v} pts`} />
         <Slider label="Net Revenue Retention" val={nrr} set={setNrr} min={95} max={125} step={1} fmt={(v) => `${v}%`} />
@@ -1428,7 +1428,7 @@ function RevenueAtRiskPanel() {
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.bad }} />
           <span style={{ fontSize: FS.h2, fontWeight: 600 }}>Revenue at Risk</span></div>
-        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-.5px", marginTop: 8 }}>${revenueAtRisk.totalK}K <span style={{ fontSize: FS.body, fontWeight: 600, color: PAL.bad }}>en CLV de {revenueAtRisk.accounts} cuentas</span></div>
+        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-.5px", marginTop: 8 }}>{revenueAtRisk.totalLabel} <span style={{ fontSize: FS.body, fontWeight: 600, color: PAL.bad }}>en CLV de {revenueAtRisk.accounts} cuentas</span></div>
         <div style={{ fontSize: FS.body, color: PAL.sub, marginTop: 4 }}>Concentrado en 3 segmentos. El modelo puede proponer un plan de retención priorizado por impacto.</div>
       </div>
       {!generated && <button onClick={generate} disabled={loading} style={{ flexShrink: 0, fontSize: FS.body, fontWeight: 600, color: "#fff", background: loading ? PAL.sub : PAL.brand, border: "none", borderRadius: 10, padding: "12px 20px", cursor: loading ? "default" : "pointer", fontFamily: FONT }}>
@@ -1546,8 +1546,8 @@ function ConnectionsView() {
 
 // ---- Datos base del P&L (proyección trimestral, en miles $) ----
 const pnlQuarters = ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8"];
-function buildPnL() {
-  let mrr = 480; const rows = [];
+function buildPnL(startMrr = 480) {
+  let mrr = startMrr; const rows = [];
   pnlQuarters.forEach((q, i) => {
     const grow = 1 + (0.13 - i * 0.006);          // crecimiento que se modera
     mrr = i === 0 ? mrr : mrr * grow;
@@ -1564,8 +1564,6 @@ function buildPnL() {
   });
   return rows;
 }
-const PNL = buildPnL();
-
 // ---- Monte Carlo: miles de trayectorias de ARR a 18 meses ----
 function monteCarlo(runs, months, p) {
   // p: { startArr, growthMean, growthSd, churnMean, churnSd }
@@ -1599,6 +1597,8 @@ function monteCarlo(runs, months, p) {
 
 // ---- Componente: P&L ----
 function PnLTab() {
+  const { dataset } = useSession();
+  const PNL = useMemo(() => buildPnL(dataset.finance.startMrrK), [dataset.finance.startMrrK]);
   const lines = [
     { k: "revenue", l: "Ingreso", strong: true, c: PAL.text },
     { k: "cogs", l: "(−) COGS", c: PAL.sub },
@@ -1703,16 +1703,19 @@ function RunwayTab() {
 
 // ---- Componente: Monte Carlo ----
 function MonteCarloTab() {
+  const { dataset } = useSession();
+  const startArr = dataset.finance.startMrrK * 12;   // ARR inicial (escalado al MRR del usuario)
+  const fmtArr = (v) => (v >= 1000 ? `$${(v / 1000).toFixed(1)}M` : `$${Math.round(v)}k`);
   const [growth, setGrowth] = useState(8);
   const [churn, setChurn] = useState(3);
   const [vol, setVol] = useState(4);
   const months = 18;
   const sim = useMemo(() => monteCarlo(400, months, {
-    startArr: 5760, growthMean: growth, growthSd: vol, churnMean: churn, churnSd: vol * 0.6,
-  }), [growth, churn, vol]);
+    startArr, growthMean: growth, growthSd: vol, churnMean: churn, churnSd: vol * 0.6,
+  }), [growth, churn, vol, startArr]);
   // muestra de 60 trayectorias para dibujar el "abanico"
   const sample = sim.paths.filter((_, i) => i % 7 === 0).slice(0, 60);
-  const target = 9000; // objetivo ARR $9M
+  const target = Math.round(startArr * 1.5625);   // objetivo ARR (~1.56× el inicial)
   const final = sim.paths.map(p => p[months]);
   const probTarget = (final.filter(v => v >= target).length / final.length * 100).toFixed(0);
   const W = 600, H = 280, padL = 44, padR = 12, padT = 12, padB = 24;
@@ -1731,7 +1734,7 @@ function MonteCarloTab() {
       <Slider label="Churn mensual medio" val={churn} set={setChurn} min={0} max={10} step={0.5} fmt={(v) => `${v}%`} />
       <Slider label="Volatilidad" val={vol} set={setVol} min={1} max={10} step={0.5} fmt={(v) => `±${v}%`} />
       <div style={{ marginTop: 20, padding: 16, background: `${PAL.brand}10`, borderRadius: 12, border: `1px solid ${PAL.brand}40` }}>
-        <div style={{ fontSize: FS.label, color: PAL.sub }}>Probabilidad de superar $9M ARR en 18m</div>
+        <div style={{ fontSize: FS.label, color: PAL.sub }}>Probabilidad de superar {fmtArr(target)} ARR en 18m</div>
         <div style={{ fontSize: 32, fontWeight: 800, color: PAL.brand, letterSpacing: "-1px" }}>{probTarget}%</div>
         <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: 2 }}>Mediana proyectada: ${(sim.bands[months].p50/1000).toFixed(1)}M</div></div>
     </Panel>
@@ -1745,7 +1748,7 @@ function MonteCarloTab() {
         <polyline points={sim.bands.map(b => `${px(b.m).toFixed(1)},${py(b.p50).toFixed(1)}`).join(" ")} fill="none" stroke={PAL.brand} strokeWidth={2.6} />
         {/* línea objetivo */}
         <line x1={padL} y1={py(target)} x2={W - padR} y2={py(target)} stroke={PAL.d4} strokeWidth={1.2} strokeDasharray="4 3" />
-        <text x={W - padR} y={py(target) - 4} textAnchor="end" fontSize={FS.axis} fill={PAL.d4} fontFamily="Inter">Objetivo $9M</text>
+        <text x={W - padR} y={py(target) - 4} textAnchor="end" fontSize={FS.axis} fill={PAL.d4} fontFamily="Inter">Objetivo {fmtArr(target)}</text>
         {/* ejes */}
         {[0, 6, 12, 18].map(m => <text key={m} x={px(m)} y={H - 8} textAnchor="middle" fontSize={FS.axis} fill={PAL.sub} fontFamily="Inter">M{m}</text>)}
         {[0, allMax/2, allMax].map((v, i) => <text key={i} x={padL - 6} y={py(v) + 3} textAnchor="end" fontSize={FS.axis} fill={PAL.sub} fontFamily="Inter">${(v/1000).toFixed(0)}M</text>)}
@@ -2161,62 +2164,101 @@ function useHashRoute(defaultSlug) {
 // PUERTA DE CONEXIÓN — primer contacto del usuario. Llega sin datos; elige una
 // fuente (simulada) y, opcionalmente, el nombre de su empresa → el dashboard se
 // puebla con datos sintéticos "suyos". Sin integración real, costo cero.
+// Bandas de negocio → valores representativos para escalar el dashboard.
+const MRR_BANDS = [
+  { label: "Menos de $10k", mrrK: 5 },
+  { label: "$10k – $50k", mrrK: 30 },
+  { label: "$50k – $200k", mrrK: 120 },
+  { label: "$200k – $1M", mrrK: 500 },
+  { label: "Más de $1M", mrrK: 2000 },
+];
+const CUST_BANDS = [
+  { label: "Menos de 100", v: 50 },
+  { label: "100 – 1.000", v: 500 },
+  { label: "1.000 – 10.000", v: 4000 },
+  { label: "Más de 10.000", v: 40000 },
+];
+const INDUSTRIES = ["SaaS / Software", "E-commerce", "Fintech", "Marketplace", "Salud", "Educación", "Servicios", "Otro"];
+
 function ConnectGate({ onBack }) {
   const { connect } = useSession();
+  const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
+  const [industry, setIndustry] = useState(INDUSTRIES[0]);
+  const [mrrIdx, setMrrIdx] = useState(2);
+  const [custIdx, setCustIdx] = useState(1);
+  const [consent, setConsent] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [step, setStep] = useState(0);
+  const [error, setError] = useState("");
   const steps = [
     "Autenticando conexión segura…",
     "Leyendo transacciones históricas…",
     "Calculando RFM, CLV y probabilidad de churn…",
-    "Generando tu inteligencia…",
+    `Generando la inteligencia de ${company || "tu negocio"}…`,
   ];
-  const sources = [
-    { t: "Stripe", c: PAL.indigo, d: "Billing & suscripciones" },
-    { t: "Subir CSV", c: PAL.teal, d: "Export de tu CRM/ERP" },
-    { t: "Snowflake", c: PAL.green, d: "Data warehouse" },
-  ];
-  const run = () => {
+  const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
+  const submit = () => {
     if (connecting) return;
+    if (!emailOk) { setError("Ingresa un email de trabajo válido."); return; }
+    if (!consent) { setError("Necesitamos tu consentimiento para continuar."); return; }
+    setError("");
+    const inputs = { mrrK: MRR_BANDS[mrrIdx].mrrK, customers: CUST_BANDS[custIdx].v, industry };
+    // Captura del lead — no bloquea la demo si el endpoint falla o no está configurado.
+    try {
+      fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(), company: company.trim(), industry,
+          mrr_band: MRR_BANDS[mrrIdx].label, customers_band: CUST_BANDS[custIdx].label,
+        }),
+      }).catch(() => {});
+    } catch { /* noop */ }
     setConnecting(true);
     setStep(0);
     let i = 0;
     const iv = setInterval(() => { i = Math.min(i + 1, steps.length - 1); setStep(i); }, 720);
-    setTimeout(() => { clearInterval(iv); connect(company); }, 2950);
+    setTimeout(() => { clearInterval(iv); connect(company, inputs); }, 2950);
   };
+  const fld = { width: "100%", fontSize: FS.body, padding: "11px 13px", borderRadius: 10, border: `1px solid ${PAL.line}`, fontFamily: FONT, outline: "none", background: PAL.panel };
+  const lbl = { fontSize: FS.label, fontWeight: 600, color: PAL.sub, display: "block", marginBottom: 5 };
   return <div style={{ fontFamily: FONT, color: PAL.text, minHeight: "100vh", background: PAL.panel2, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
     <style>{`@keyframes cgspin{to{transform:rotate(360deg)}}`}</style>
-    <div style={{ width: "100%", maxWidth: 560, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 18, padding: "34px 36px 28px", boxShadow: "0 24px 60px -20px rgba(16,17,22,.18)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+    <div style={{ width: "100%", maxWidth: 580, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 18, padding: "32px 34px 26px", boxShadow: "0 24px 60px -20px rgba(16,17,22,.18)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
         <Logo size={40} />
         <div><div style={{ fontSize: 18, fontWeight: 700, fontFamily: '"Space Grotesk", sans-serif', letterSpacing: "-.3px" }}>Vantix</div>
-          <div style={{ fontSize: FS.label, color: PAL.sub }}>Conecta tu primera fuente de datos</div></div>
+          <div style={{ fontSize: FS.label, color: PAL.sub }}>Prueba la inteligencia con los números de tu negocio</div></div>
       </div>
       {!connecting ? <>
-        <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-.5px", margin: "0 0 8px" }}>Genera la inteligencia de tu negocio</h1>
-        <p style={{ fontSize: FS.body, color: PAL.sub, lineHeight: 1.55, margin: "0 0 22px" }}>Vantix calcula churn, CLV y segmentación sobre tus transacciones. Conecta una fuente y tendrás tu dashboard en segundos. <strong style={{ color: PAL.text }}>Es una demo: los datos se simulan para tu marca, sin tocar nada real.</strong></p>
-        <label style={{ fontSize: FS.label, fontWeight: 600, color: PAL.sub }}>Nombre de tu empresa</label>
-        <input value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") run(); }} placeholder="ej. Acme Inc."
-          style={{ width: "100%", fontSize: FS.body, padding: "12px 14px", borderRadius: 10, border: `1px solid ${PAL.line}`, fontFamily: FONT, outline: "none", margin: "6px 0 22px", background: PAL.panel }} />
-        <div style={{ fontSize: FS.label, fontWeight: 600, color: PAL.sub, marginBottom: 10 }}>Elige una fuente para conectar</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
-          {sources.map((s) => (
-            <button key={s.t} onClick={run} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 12, padding: "16px 12px", cursor: "pointer", fontFamily: FONT, textAlign: "center", transition: "border-color .15s, transform .15s" }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = s.c; e.currentTarget.style.transform = "translateY(-2px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = PAL.line; e.currentTarget.style.transform = "none"; }}>
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: `${s.c}1A`, color: s.c, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px", fontWeight: 700, fontSize: 16 }}>{s.t[0]}</div>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>{s.t}</div>
-              <div style={{ fontSize: 10.5, color: PAL.sub, marginTop: 2 }}>{s.d}</div>
-            </button>))}
+        <h1 style={{ fontSize: 23, fontWeight: 800, letterSpacing: "-.5px", margin: "0 0 8px" }}>Genera tu dashboard a medida</h1>
+        <p style={{ fontSize: FS.body, color: PAL.sub, lineHeight: 1.55, margin: "0 0 20px" }}>Dinos unos datos de tu negocio y Vantix genera un dashboard escalado a tus cifras. <strong style={{ color: PAL.text }}>Los datos son simulados a partir de lo que ingresas — no procesamos información real.</strong></p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+          <div><label style={lbl}>Email de trabajo *</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@empresa.com" style={fld} /></div>
+          <div><label style={lbl}>Empresa</label>
+            <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="ej. Acme Inc." style={fld} /></div>
+          <div><label style={lbl}>Industria</label>
+            <select value={industry} onChange={(e) => setIndustry(e.target.value)} style={{ ...fld, cursor: "pointer" }}>{INDUSTRIES.map((x) => <option key={x}>{x}</option>)}</select></div>
+          <div><label style={lbl}>MRR aproximado</label>
+            <select value={mrrIdx} onChange={(e) => setMrrIdx(+e.target.value)} style={{ ...fld, cursor: "pointer" }}>{MRR_BANDS.map((b, i) => <option key={i} value={i}>{b.label}</option>)}</select></div>
+          <div style={{ gridColumn: "span 2" }}><label style={lbl}>Nº de clientes</label>
+            <select value={custIdx} onChange={(e) => setCustIdx(+e.target.value)} style={{ ...fld, cursor: "pointer" }}>{CUST_BANDS.map((b, i) => <option key={i} value={i}>{b.label}</option>)}</select></div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 22 }}>
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: FS.label, color: PAL.sub, cursor: "pointer", lineHeight: 1.5, marginBottom: error ? 8 : 16 }}>
+          <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 1, accentColor: PAL.brand, flexShrink: 0 }} />
+          <span>Acepto que Vantix guarde mi email y me contacte sobre el producto. Sin spam; baja cuando quieras.</span>
+        </label>
+        {error && <div style={{ fontSize: FS.label, color: PAL.bad, marginBottom: 12 }}>{error}</div>}
+        <button onClick={submit} style={{ width: "100%", fontSize: FS.body, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 11, padding: "13px", cursor: "pointer", fontFamily: FONT }}>Generar mi dashboard</button>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
           <span onClick={onBack} style={{ fontSize: FS.label, color: PAL.sub, cursor: "pointer" }}>← Volver al inicio</span>
-          <span style={{ fontSize: FS.label, color: PAL.sub, display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />Conexión cifrada · demo</span>
+          <span style={{ fontSize: FS.label, color: PAL.sub, display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />Datos simulados · sin tarjeta</span>
         </div>
-      </> : <div style={{ textAlign: "center", padding: "28px 10px 22px" }}>
+      </> : <div style={{ textAlign: "center", padding: "30px 10px 24px" }}>
         <div style={{ display: "inline-block", width: 34, height: 34, border: `3px solid ${PAL.line}`, borderTopColor: PAL.brand, borderRadius: "50%", animation: "cgspin .8s linear infinite" }} />
-        <div style={{ fontSize: 16, fontWeight: 700, marginTop: 18 }}>{company ? `Conectando los datos de ${company}…` : "Conectando tu fuente de datos…"}</div>
+        <div style={{ fontSize: 16, fontWeight: 700, marginTop: 18 }}>{company ? `Construyendo el dashboard de ${company}…` : "Construyendo tu dashboard…"}</div>
         <div style={{ fontSize: FS.body, color: PAL.sub, marginTop: 8, minHeight: 20 }}>{steps[step]}</div>
         <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 18 }}>
           {steps.map((_, i) => <span key={i} style={{ width: 26, height: 4, borderRadius: 2, background: i <= step ? PAL.brand : PAL.line, transition: "background .3s" }} />)}
