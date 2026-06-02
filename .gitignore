@@ -1,0 +1,15 @@
+# dependencias
+/node_modules
+
+# builds de Next.js
+/.next
+/out
+
+# variables de entorno — NUNCA subir la API key real al repo
+.env
+.env.local
+.env*.local
+
+# logs y sistema
+*.log
+.DS_Store
