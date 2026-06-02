@@ -1467,10 +1467,10 @@ function RevenueAtRiskPanel() {
 }
 
 function OverviewView() {
-  const { dataset } = useSession();
+  const { dataset, company } = useSession();
   const { kpis } = dataset;
   return <div>
-    <H1 title="Customer Intelligence" sub="Churn prediction · CLV modeling · RFM & forecast" />
+    <H1 title="Customer Intelligence" sub={`${company ? company + " · " : ""}Churn prediction · CLV modeling · RFM & forecast`} />
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14 }}>
       {kpis.map((k) => (
         <div key={k.label} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 16 }}>
@@ -2158,7 +2158,76 @@ function useHashRoute(defaultSlug) {
   return [slug, go];
 }
 
+// PUERTA DE CONEXIÓN — primer contacto del usuario. Llega sin datos; elige una
+// fuente (simulada) y, opcionalmente, el nombre de su empresa → el dashboard se
+// puebla con datos sintéticos "suyos". Sin integración real, costo cero.
+function ConnectGate({ onBack }) {
+  const { connect } = useSession();
+  const [company, setCompany] = useState("");
+  const [connecting, setConnecting] = useState(false);
+  const [step, setStep] = useState(0);
+  const steps = [
+    "Autenticando conexión segura…",
+    "Leyendo transacciones históricas…",
+    "Calculando RFM, CLV y probabilidad de churn…",
+    "Generando tu inteligencia…",
+  ];
+  const sources = [
+    { t: "Stripe", c: PAL.indigo, d: "Billing & suscripciones" },
+    { t: "Subir CSV", c: PAL.teal, d: "Export de tu CRM/ERP" },
+    { t: "Snowflake", c: PAL.green, d: "Data warehouse" },
+  ];
+  const run = () => {
+    if (connecting) return;
+    setConnecting(true);
+    setStep(0);
+    let i = 0;
+    const iv = setInterval(() => { i = Math.min(i + 1, steps.length - 1); setStep(i); }, 720);
+    setTimeout(() => { clearInterval(iv); connect(company); }, 2950);
+  };
+  return <div style={{ fontFamily: FONT, color: PAL.text, minHeight: "100vh", background: PAL.panel2, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <style>{`@keyframes cgspin{to{transform:rotate(360deg)}}`}</style>
+    <div style={{ width: "100%", maxWidth: 560, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 18, padding: "34px 36px 28px", boxShadow: "0 24px 60px -20px rgba(16,17,22,.18)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+        <Logo size={40} />
+        <div><div style={{ fontSize: 18, fontWeight: 700, fontFamily: '"Space Grotesk", sans-serif', letterSpacing: "-.3px" }}>Vantix</div>
+          <div style={{ fontSize: FS.label, color: PAL.sub }}>Conecta tu primera fuente de datos</div></div>
+      </div>
+      {!connecting ? <>
+        <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-.5px", margin: "0 0 8px" }}>Genera la inteligencia de tu negocio</h1>
+        <p style={{ fontSize: FS.body, color: PAL.sub, lineHeight: 1.55, margin: "0 0 22px" }}>Vantix calcula churn, CLV y segmentación sobre tus transacciones. Conecta una fuente y tendrás tu dashboard en segundos. <strong style={{ color: PAL.text }}>Es una demo: los datos se simulan para tu marca, sin tocar nada real.</strong></p>
+        <label style={{ fontSize: FS.label, fontWeight: 600, color: PAL.sub }}>Nombre de tu empresa</label>
+        <input value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") run(); }} placeholder="ej. Acme Inc."
+          style={{ width: "100%", fontSize: FS.body, padding: "12px 14px", borderRadius: 10, border: `1px solid ${PAL.line}`, fontFamily: FONT, outline: "none", margin: "6px 0 22px", background: PAL.panel }} />
+        <div style={{ fontSize: FS.label, fontWeight: 600, color: PAL.sub, marginBottom: 10 }}>Elige una fuente para conectar</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          {sources.map((s) => (
+            <button key={s.t} onClick={run} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 12, padding: "16px 12px", cursor: "pointer", fontFamily: FONT, textAlign: "center", transition: "border-color .15s, transform .15s" }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = s.c; e.currentTarget.style.transform = "translateY(-2px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = PAL.line; e.currentTarget.style.transform = "none"; }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: `${s.c}1A`, color: s.c, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px", fontWeight: 700, fontSize: 16 }}>{s.t[0]}</div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>{s.t}</div>
+              <div style={{ fontSize: 10.5, color: PAL.sub, marginTop: 2 }}>{s.d}</div>
+            </button>))}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 22 }}>
+          <span onClick={onBack} style={{ fontSize: FS.label, color: PAL.sub, cursor: "pointer" }}>← Volver al inicio</span>
+          <span style={{ fontSize: FS.label, color: PAL.sub, display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />Conexión cifrada · demo</span>
+        </div>
+      </> : <div style={{ textAlign: "center", padding: "28px 10px 22px" }}>
+        <div style={{ display: "inline-block", width: 34, height: 34, border: `3px solid ${PAL.line}`, borderTopColor: PAL.brand, borderRadius: "50%", animation: "cgspin .8s linear infinite" }} />
+        <div style={{ fontSize: 16, fontWeight: 700, marginTop: 18 }}>{company ? `Conectando los datos de ${company}…` : "Conectando tu fuente de datos…"}</div>
+        <div style={{ fontSize: FS.body, color: PAL.sub, marginTop: 8, minHeight: 20 }}>{steps[step]}</div>
+        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 18 }}>
+          {steps.map((_, i) => <span key={i} style={{ width: 26, height: 4, borderRadius: 2, background: i <= step ? PAL.brand : PAL.line, transition: "background .3s" }} />)}
+        </div>
+      </div>}
+    </div>
+  </div>;
+}
+
 function Dashboard({ onLogout }) {
+  const { connected, company } = useSession();
   const [slug, go] = useHashRoute("overview");
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -2175,6 +2244,9 @@ function Dashboard({ onLogout }) {
     const close = () => setMenuOpen(false);
     if (menuOpen) { window.addEventListener("click", close); return () => window.removeEventListener("click", close); }
   }, [menuOpen]);
+
+  // Puerta de conexión: sin fuente conectada no hay datos que mostrar.
+  if (!connected) return <ConnectGate onBack={onLogout} />;
 
   const current = ROUTE_INDEX.find(i => i.slug === slug) || ROUTE_INDEX[0];
   const results = query.length > 0 ? ALL_ITEMS.filter(i => i.label.toLowerCase().includes(query.toLowerCase())) : [];
@@ -2227,6 +2299,7 @@ function Dashboard({ onLogout }) {
       <header style={{ background: PAL.panel, borderBottom: `1px solid ${PAL.line}`, padding: "11px 18px", display: "flex", alignItems: "center", gap: 12, position: "sticky", top: 0, zIndex: 50 }}>
         {isMobile && <button onClick={() => setMobileOpen(true)} style={{ background: PAL.panel2, border: `1px solid ${PAL.line}`, borderRadius: 8, width: 36, height: 36, fontSize: 16, cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>☰</button>}
         <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, flexShrink: 0 }}>
+          {company && <><span style={{ fontSize: 11.5, fontWeight: 700, color: PAL.brand, background: `${PAL.brand}12`, padding: "3px 9px", borderRadius: 7, whiteSpace: "nowrap" }}>{company}</span><span style={{ color: PAL.line }}>/</span></>}
           {!isMobile && <><span style={{ color: PAL.sub }}>{current.sec}</span><span style={{ color: PAL.line }}>/</span></>}
           <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{current.label}</span>
         </div>
@@ -2275,11 +2348,14 @@ function Dashboard({ onLogout }) {
 
 /* =================== ROOT: FLUJO DE SESIÓN =================== */
 function AppShell() {
-  // estados de sesión: "landing" → "login" → "app"
+  // Entrada en 1 clic: 'Probar demo' va directo al dashboard; la puerta de
+  // conexión vive dentro (mientras connected sea false). El login se conserva
+  // en código pero queda fuera del flujo por defecto.
+  const { disconnect } = useSession();
   const [stage, setStage] = useState("landing");
-  if (stage === "landing") return <LandingView onEnter={() => setStage("login")} />;
+  if (stage === "landing") return <LandingView onEnter={() => { window.location.hash = "/overview"; setStage("app"); }} />;
   if (stage === "login") return <LoginView onLogin={() => { window.location.hash = "/overview"; setStage("app"); }} onBack={() => setStage("landing")} />;
-  return <Dashboard onLogout={() => { window.location.hash = ""; setStage("landing"); }} />;
+  return <Dashboard onLogout={() => { disconnect(); window.location.hash = ""; setStage("landing"); }} />;
 }
 
 // El SessionProvider envuelve todo: la landing (preview), el login y el dashboard

@@ -2,60 +2,93 @@
 // ============================================================
 // SESSION PROVIDER — estado por sesión del lado del cliente
 // ------------------------------------------------------------
-// Origen de verdad: una SEMILLA. El dataset se DERIVA de ella, así
-// que persistir la semilla (no el dataset) basta para que un visitante
-// que vuelve vea "sus" mismos números. Costo cero: solo localStorage.
+// Origen de verdad: una SEMILLA + si el usuario ya "conectó" una fuente.
+// El dataset se DERIVA de la semilla; persistir { seed, company, connected }
+// basta para que un visitante que vuelve (sin cerrar sesión) recupere su
+// dashboard. Costo cero: solo localStorage, sin backend.
 //
-// SSR-safe: el servidor y el primer render del cliente usan una semilla
-// baseline determinista (mismo HTML en ambos lados → sin hydration
-// mismatch). Tras montar, se reemplaza por la semilla de la sesión.
+// Pipeline: el visitante llega DESCONECTADO (semilla baseline → la UI
+// muestra la puerta de conexión). Al "conectar" una fuente sembramos desde
+// el nombre de su empresa (determinista: Acme siempre ve el mismo dashboard)
+// y marcamos connected=true → el dashboard se puebla con datos "suyos".
+//
+// SSR-safe: server y primer render usan la semilla baseline determinista
+// (mismo HTML en ambos lados → sin hydration mismatch).
 // ============================================================
 import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { generateDataset, newSeed } from "../lib/synth";
 
 const STORAGE_KEY = "vantix:session:v1";
-const BASELINE_SEED = "vantix-baseline"; // determinista para SSR + primer render
+const BASELINE_SEED = "vantix-baseline"; // determinista para SSR + estado vacío
 
 const SessionContext = createContext(null);
 
 export function SessionProvider({ children }) {
   const [seed, setSeed] = useState(BASELINE_SEED);
+  const [company, setCompany] = useState("");
+  const [connected, setConnected] = useState(false);
 
-  // Tras montar (solo cliente): lee o crea la semilla de la sesión.
+  // Tras montar (solo cliente): restaura la sesión SI ya estaba conectada.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const saved = JSON.parse(raw);
-        if (saved && saved.seed) {
+        if (saved && saved.connected && saved.seed) {
           setSeed(saved.seed);
-          return;
+          setCompany(saved.company || "");
+          setConnected(true);
         }
       }
-      const s = newSeed();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ seed: s }));
-      setSeed(s);
     } catch {
-      // localStorage no disponible (modo privado, etc.) → semilla efímera
-      setSeed(newSeed());
+      /* sin storage (modo privado) → arranca desconectado, datos baseline */
     }
   }, []);
 
-  // Re-siembra: nueva semilla = dataset distinto. Lo usará "Conectar fuente".
+  const persist = (next) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* ignora si no hay storage */
+    }
+  };
+
+  // Conecta una fuente (simulada). Siembra desde el nombre de empresa si lo
+  // hay (determinista y "suyo"); si no, una semilla aleatoria por sesión.
+  const connect = (companyName) => {
+    const name = (companyName || "").trim();
+    const s = name ? `co:${name.toLowerCase()}` : newSeed();
+    setSeed(s);
+    setCompany(name);
+    setConnected(true);
+    persist({ seed: s, company: name, connected: true });
+  };
+
+  // Re-siembra manteniendo la conexión (otro "set" de datos simulados).
   const reseed = () => {
     const s = newSeed();
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const saved = raw ? JSON.parse(raw) : {};
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...saved, seed: s }));
-    } catch {
-      /* ignora persistencia si no hay storage */
-    }
     setSeed(s);
+    persist({ seed: s, company, connected });
+  };
+
+  // Desconecta (cerrar sesión): vuelve al estado vacío y permite re-demostrar
+  // el flujo de conexión. Los datos son re-derivables del nombre de empresa.
+  const disconnect = () => {
+    setConnected(false);
+    setCompany("");
+    setSeed(BASELINE_SEED);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* ignora */
+    }
   };
 
   const dataset = useMemo(() => generateDataset(seed), [seed]);
-  const value = useMemo(() => ({ seed, dataset, reseed }), [seed, dataset]);
+  const value = useMemo(
+    () => ({ seed, dataset, company, connected, connect, reseed, disconnect }),
+    [seed, dataset, company, connected]
+  );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
