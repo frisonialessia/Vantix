@@ -594,12 +594,12 @@ const shap = [
 function AssistantView({ previewHeight } = {}) {
   const isPreview = !!previewHeight;
   const { dataset, company, credits, spendCredits } = useSession();
-  // Estado de la conversación: arranca con los mensajes de ejemplo.
-  const [msgs, setMsgs] = useState(aiMessages.map(m => ({
-    role: m.role === "user" ? "user" : "assistant",
-    content: m.text,
-    actions: m.actions,
-  })));
+  // La conversación arranca distinta según el contexto:
+  // - preview de la landing: los mensajes de ejemplo (se ve "lleno").
+  // - asistente real: un saludo personalizado con las cifras de la sesión.
+  const [msgs, setMsgs] = useState(() => isPreview
+    ? aiMessages.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text, actions: m.actions }))
+    : [{ role: "assistant", content: `Hola${company ? `, equipo de ${company}` : ""}. Tengo cargado el análisis de tu negocio: ${dataset.revenueAtRisk.totalLabel} de CLV en riesgo en ${dataset.revenueAtRisk.accounts} cuentas, NRR ${dataset.metrics.nrr}% y CLV:CAC ${dataset.metrics.clvCac}:1. Pregúntame qué priorizar, por qué se va un cliente, o dónde reasignar presupuesto.` }]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = React.useRef(null);
