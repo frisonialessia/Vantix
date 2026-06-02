@@ -536,12 +536,12 @@ function AttributionView() {
 
 // === DATOS NUEVOS ===
 const aiMessages = [
-  { role: "user", text: "¿Por qué cayó la retención de la cohorte de marzo?" },
-  { role: "ai", text: "La cohorte de marzo retiene 9 puntos por debajo de febrero al mes 3 (74% vs 85%). El modelo atribuye el 68% de la caída a un cambio en el flujo de onboarding desplegado el 4 de marzo: el paso de activación de feature core pasó de la pantalla 2 a la 5, y la tasa de activación cayó del 81% al 62%. Las cuentas que no activaron en los primeros 7 días churnean 4.8x más.", insight: true,
-    actions: ["Ver cohorte completa", "Revertir cambio de onboarding"] },
-  { role: "user", text: "¿Cuánto MRR está en riesgo si no lo arreglamos?" },
-  { role: "ai", text: "Si la tasa de activación se mantiene en 62%, proyecto una pérdida incremental de $84K en MRR durante los próximos 6 meses, concentrada en las cohortes de marzo a mayo. Revertir el cambio de onboarding recuperaría ~$71K de eso. El ROI de revertir es inmediato: no tiene costo de desarrollo más allá de un rollback.", insight: true,
-    actions: ["Ver proyección detallada", "Crear tarea para el equipo"] },
+  { role: "user", text: { en: "Why did the March cohort's retention drop?", es: "¿Por qué cayó la retención de la cohorte de marzo?" } },
+  { role: "ai", text: { en: "The March cohort retains 9 points below February at month 3 (74% vs 85%). The model attributes 68% of the drop to an onboarding change deployed on March 4: the core-feature activation step moved from screen 2 to screen 5, and the activation rate fell from 81% to 62%. Accounts that don't activate in the first 7 days churn 4.8x more.", es: "La cohorte de marzo retiene 9 puntos por debajo de febrero al mes 3 (74% vs 85%). El modelo atribuye el 68% de la caída a un cambio en el flujo de onboarding desplegado el 4 de marzo: el paso de activación de feature core pasó de la pantalla 2 a la 5, y la tasa de activación cayó del 81% al 62%. Las cuentas que no activaron en los primeros 7 días churnean 4.8x más." }, insight: true,
+    actions: [{ en: "View full cohort", es: "Ver cohorte completa" }, { en: "Revert onboarding change", es: "Revertir cambio de onboarding" }] },
+  { role: "user", text: { en: "How much MRR is at risk if we don't fix it?", es: "¿Cuánto MRR está en riesgo si no lo arreglamos?" } },
+  { role: "ai", text: { en: "If the activation rate stays at 62%, I project an incremental loss of $84K in MRR over the next 6 months, concentrated in the March–May cohorts. Reverting the onboarding change would recover ~$71K of that. The ROI of reverting is immediate: no development cost beyond a rollback.", es: "Si la tasa de activación se mantiene en 62%, proyecto una pérdida incremental de $84K en MRR durante los próximos 6 meses, concentrada en las cohortes de marzo a mayo. Revertir el cambio de onboarding recuperaría ~$71K de eso. El ROI de revertir es inmediato: no tiene costo de desarrollo más allá de un rollback." }, insight: true,
+    actions: [{ en: "View detailed projection", es: "Ver proyección detallada" }, { en: "Create task for the team", es: "Crear tarea para el equipo" }] },
 ];
 // narrative ahora se genera por sesión → dataset.narrative (lib/synth.js)
 const _rndAnom = makeRng("vtx-anom");
@@ -603,7 +603,7 @@ function AssistantView({ previewHeight } = {}) {
   // - preview de la landing: los mensajes de ejemplo (se ve "lleno").
   // - asistente real: un saludo personalizado con las cifras de la sesión.
   const [msgs, setMsgs] = useState(() => isPreview
-    ? aiMessages.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text, actions: m.actions }))
+    ? aiMessages.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: L(m.text.en, m.text.es), actions: m.actions && m.actions.map(a => L(a.en, a.es)) }))
     : [{ role: "assistant", content: L(
         `Hi${company ? `, ${company} team` : ""}. I've loaded your business analysis: ${dataset.revenueAtRisk.totalLabel} of CLV at risk across ${dataset.revenueAtRisk.accounts} accounts, NRR ${dataset.metrics.nrr}% and CLV:CAC ${dataset.metrics.clvCac}:1. Ask me what to prioritize, why a customer is leaving, or where to reallocate budget.`,
         `Hola${company ? `, equipo de ${company}` : ""}. Tengo cargado el análisis de tu negocio: ${dataset.revenueAtRisk.totalLabel} de CLV en riesgo en ${dataset.revenueAtRisk.accounts} cuentas, NRR ${dataset.metrics.nrr}% y CLV:CAC ${dataset.metrics.clvCac}:1. Pregúntame qué priorizar, por qué se va un cliente, o dónde reasignar presupuesto.`
@@ -1855,7 +1855,7 @@ function FinanceView() {
 
 /* =================== CUENTA: CONFIGURACIÓN Y LOGOUT =================== */
 function SettingsView() {
-  const { email, userName, userInitials, company } = useSession();
+  const { email, userName, userInitials, company, lang, setLang, L } = useSession();
   const [tab, setTab] = useState(0);
   const Row = ({ label, desc, children }) => (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: `1px solid ${PAL.line}` }}>
@@ -1867,32 +1867,32 @@ function SettingsView() {
       <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: on ? 18 : 2, transition: "left .2s", boxShadow: "0 1px 2px rgba(0,0,0,.2)" }} /></div>);
   const sel = { fontSize: FS.body, padding: "8px 12px", borderRadius: 9, border: `1px solid ${PAL.line}`, background: PAL.panel, fontFamily: FONT, cursor: "pointer" };
   return <div>
-    <H1 title="Configuración" sub="Tu cuenta, preferencias del producto y notificaciones." />
+    <H1 title={L("Settings", "Configuración")} sub={L("Your account, product preferences and notifications.", "Tu cuenta, preferencias del producto y notificaciones.")} />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
       <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: "18px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 4 }}>
           <div style={{ width: 52, height: 52, borderRadius: "50%", background: `${PAL.brand}1A`, color: PAL.brand, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 18 }}>{userInitials}</div>
-          <div><div style={{ fontSize: 16, fontWeight: 600 }}>{userName}</div><div style={{ fontSize: FS.label, color: PAL.sub }}>{company ? `${company} · Acceso total` : "Acceso total"}</div></div>
+          <div><div style={{ fontSize: 16, fontWeight: 600 }}>{userName}</div><div style={{ fontSize: FS.label, color: PAL.sub }}>{company ? L(`${company} · Full access`, `${company} · Acceso total`) : L("Full access", "Acceso total")}</div></div>
         </div>
-        <Row label="Nombre" desc="Como apareces en el equipo"><input key={userName} defaultValue={userName} style={{ ...sel, width: 160 }} /></Row>
-        <Row label="Email" desc="Para alertas y reportes"><input key={email} defaultValue={email} style={{ ...sel, width: 200 }} /></Row>
-        <Row label="Idioma" desc="Idioma de la interfaz"><select style={sel}><option>Español</option><option>English</option></select></Row>
-        <Row label="Zona horaria" desc="Para fechas y reportes"><select style={sel}><option>GMT-6 (CDMX)</option><option>GMT-5 (Bogotá)</option><option>GMT+1 (Madrid)</option></select></Row>
+        <Row label={L("Name", "Nombre")} desc={L("How you appear to the team", "Como apareces en el equipo")}><input key={userName} defaultValue={userName} style={{ ...sel, width: 160 }} /></Row>
+        <Row label="Email" desc={L("For alerts and reports", "Para alertas y reportes")}><input key={email} defaultValue={email} style={{ ...sel, width: 200 }} /></Row>
+        <Row label={L("Language", "Idioma")} desc={L("Interface language", "Idioma de la interfaz")}><select value={lang} onChange={(e) => setLang(e.target.value)} style={{ ...sel }}><option value="en">English</option><option value="es">Español</option></select></Row>
+        <Row label={L("Time zone", "Zona horaria")} desc={L("For dates and reports", "Para fechas y reportes")}><select style={sel}><option>GMT-6 (CDMX)</option><option>GMT-5 (Bogotá)</option><option>GMT+1 (Madrid)</option></select></Row>
       </div>
       <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: "18px 20px" }}>
-        <div style={{ fontSize: FS.h2, fontWeight: 600, marginBottom: 4 }}>Preferencias</div>
-        <Row label="Notificaciones por email" desc="Alertas críticas a tu inbox"><Toggle on={true} /></Row>
-        <Row label="Resumen semanal" desc="Cada lunes a las 9:00"><Toggle on={true} /></Row>
-        <Row label="Alertas en tiempo real" desc="Cuentas que cruzan a riesgo"><Toggle on={true} /></Row>
-        <Row label="Modo oscuro" desc="Próximamente"><Toggle on={false} /></Row>
-        <Row label="Rango por defecto" desc="Al abrir el dashboard"><select style={sel}><option>Últimos 30 días</option><option>Último trimestre</option></select></Row>
+        <div style={{ fontSize: FS.h2, fontWeight: 600, marginBottom: 4 }}>{L("Preferences", "Preferencias")}</div>
+        <Row label={L("Email notifications", "Notificaciones por email")} desc={L("Critical alerts to your inbox", "Alertas críticas a tu inbox")}><Toggle on={true} /></Row>
+        <Row label={L("Weekly summary", "Resumen semanal")} desc={L("Every Monday at 9:00", "Cada lunes a las 9:00")}><Toggle on={true} /></Row>
+        <Row label={L("Real-time alerts", "Alertas en tiempo real")} desc={L("Accounts crossing into risk", "Cuentas que cruzan a riesgo")}><Toggle on={true} /></Row>
+        <Row label={L("Dark mode", "Modo oscuro")} desc={L("Coming soon", "Próximamente")}><Toggle on={false} /></Row>
+        <Row label={L("Default range", "Rango por defecto")} desc={L("When opening the dashboard", "Al abrir el dashboard")}><select style={sel}>{lang === "es" ? <><option>Últimos 30 días</option><option>Último trimestre</option></> : <><option>Last 30 days</option><option>Last quarter</option></>}</select></Row>
       </div>
     </div>
     <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: "18px 20px" }}>
-      <div style={{ fontSize: FS.h2, fontWeight: 600, marginBottom: 4 }}>Seguridad</div>
-      <Row label="Contraseña" desc="Última actualización hace 3 meses"><button style={{ ...sel, fontWeight: 600, color: PAL.brand, borderColor: PAL.brand }}>Cambiar</button></Row>
-      <Row label="Autenticación de dos factores" desc="Capa extra de seguridad"><Toggle on={true} /></Row>
-      <Row label="Sesiones activas" desc="2 dispositivos conectados"><button style={{ ...sel }}>Gestionar</button></Row>
+      <div style={{ fontSize: FS.h2, fontWeight: 600, marginBottom: 4 }}>{L("Security", "Seguridad")}</div>
+      <Row label={L("Password", "Contraseña")} desc={L("Last updated 3 months ago", "Última actualización hace 3 meses")}><button style={{ ...sel, fontWeight: 600, color: PAL.brand, borderColor: PAL.brand }}>{L("Change", "Cambiar")}</button></Row>
+      <Row label={L("Two-factor authentication", "Autenticación de dos factores")} desc={L("Extra security layer", "Capa extra de seguridad")}><Toggle on={true} /></Row>
+      <Row label={L("Active sessions", "Sesiones activas")} desc={L("2 connected devices", "2 dispositivos conectados")}><button style={{ ...sel }}>{L("Manage", "Gestionar")}</button></Row>
     </div>
   </div>;
 }
@@ -1939,35 +1939,36 @@ function LangToggle({ lang, setLang }) {
 
 // Preview interactivo del producto: navegación real (completa) dentro del marco
 function ProductPreview() {
+  const { L } = useSession();
   const groups = [
-    { sec: "INTELIGENCIA", items: [
-      { label: "Overview", view: <OverviewView /> },
-      { label: "Asistente IA", view: <AssistantView previewHeight={620} /> },
-      { label: "Resumen & Alertas", view: <PulseView /> },
-      { label: "Mapas", view: <MapsView /> },
+    { sec: { en: "INTELLIGENCE", es: "INTELIGENCIA" }, items: [
+      { label: { en: "Overview", es: "Overview" }, view: <OverviewView /> },
+      { label: { en: "AI Assistant", es: "Asistente IA" }, view: <AssistantView previewHeight={620} /> },
+      { label: { en: "Summary & Alerts", es: "Resumen & Alertas" }, view: <PulseView /> },
+      { label: { en: "Maps", es: "Mapas" }, view: <MapsView /> },
     ]},
-    { sec: "ANÁLISIS", items: [
-      { label: "Análisis de red", view: <NetworkView /> },
-      { label: "Causa raíz de churn", view: <RootCauseView /> },
-      { label: "Cohortes vivas", view: <CohortsView /> },
-      { label: "Forecast & Ciclos", view: <div><H1 title="Forecast & Ciclos" sub="Proyección de MRR con banda de confianza + descomposición estacional." /><Panel title="MRR — proyección + estacionalidad" tag="prophet-style" h={480}><Forecast /></Panel></div> },
+    { sec: { en: "ANALYSIS", es: "ANÁLISIS" }, items: [
+      { label: { en: "Network analysis", es: "Análisis de red" }, view: <NetworkView /> },
+      { label: { en: "Churn root cause", es: "Causa raíz de churn" }, view: <RootCauseView /> },
+      { label: { en: "Live cohorts", es: "Cohortes vivas" }, view: <CohortsView /> },
+      { label: { en: "Forecast & Cycles", es: "Forecast & Ciclos" }, view: <ForecastCyclesView /> },
     ]},
-    { sec: "MERCADO & DECISIÓN", items: [
-      { label: "Micro-estudios", view: <MicroStudyView /> },
-      { label: "Tabla multidimensional", view: <PivotView /> },
-      { label: "Atribución CLV", view: <AttributionView /> },
-      { label: "Simulador what-if", view: <SimulatorView /> },
-      { label: "Next Best Action", view: <NbaView /> },
+    { sec: { en: "MARKET & DECISION", es: "MERCADO & DECISIÓN" }, items: [
+      { label: { en: "Micro-studies", es: "Micro-estudios" }, view: <MicroStudyView /> },
+      { label: { en: "Multidimensional table", es: "Tabla multidimensional" }, view: <PivotView /> },
+      { label: { en: "CLV attribution", es: "Atribución CLV" }, view: <AttributionView /> },
+      { label: { en: "What-if simulator", es: "Simulador what-if" }, view: <SimulatorView /> },
+      { label: { en: "Next Best Action", es: "Next Best Action" }, view: <NbaView /> },
     ]},
-    { sec: "FINANZAS", items: [
-      { label: "Modelado financiero", view: <FinanceView /> },
+    { sec: { en: "FINANCE", es: "FINANZAS" }, items: [
+      { label: { en: "Financial modeling", es: "Modelado financiero" }, view: <FinanceView /> },
     ]},
-    { sec: "PLATAFORMA", items: [
-      { label: "Conexiones", view: <ConnectionsView /> },
-      { label: "Equipo & RBAC", view: <TeamView /> },
-      { label: "Gobernanza", view: <GovernanceView /> },
-      { label: "Créditos & uso", view: <BillingView /> },
-      { label: "Onboarding", view: <OnboardingView /> },
+    { sec: { en: "PLATFORM", es: "PLATAFORMA" }, items: [
+      { label: { en: "Connections", es: "Conexiones" }, view: <ConnectionsView /> },
+      { label: { en: "Team & RBAC", es: "Equipo & RBAC" }, view: <TeamView /> },
+      { label: { en: "Governance", es: "Gobernanza" }, view: <GovernanceView /> },
+      { label: { en: "Credits & usage", es: "Créditos & uso" }, view: <BillingView /> },
+      { label: { en: "Onboarding", es: "Onboarding" }, view: <OnboardingView /> },
     ]},
   ];
   const flat = groups.flatMap(g => g.items);
@@ -1994,10 +1995,10 @@ function ProductPreview() {
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 16, padding: "0 4px" }}>
           <Logo size={22} /><span style={{ fontSize: 13, fontWeight: 700, fontFamily: '"Space Grotesk", sans-serif' }}>Vantix</span></div>
         {groups.map((g) => (
-          <div key={g.sec} style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: PAL.sub, letterSpacing: ".5px", padding: "0 8px", marginBottom: 4, opacity: .7 }}>{g.sec}</div>
+          <div key={g.sec.en} style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: PAL.sub, letterSpacing: ".5px", padding: "0 8px", marginBottom: 4, opacity: .7 }}>{L(g.sec.en, g.sec.es)}</div>
             {g.items.map((it) => { idx++; const i = idx; return (
-              <div key={it.label} onClick={() => setActive(i)} style={{ fontSize: 12, padding: "7px 9px", borderRadius: 7, marginBottom: 1, cursor: "pointer", color: active === i ? PAL.brand : PAL.sub, background: active === i ? `${PAL.brand}12` : "transparent", fontWeight: active === i ? 600 : 450, borderLeft: active === i ? `2px solid ${PAL.brand}` : "2px solid transparent", transition: "background .12s" }}>{it.label}</div>);
+              <div key={it.label.en} onClick={() => setActive(i)} style={{ fontSize: 12, padding: "7px 9px", borderRadius: 7, marginBottom: 1, cursor: "pointer", color: active === i ? PAL.brand : PAL.sub, background: active === i ? `${PAL.brand}12` : "transparent", fontWeight: active === i ? 600 : 450, borderLeft: active === i ? `2px solid ${PAL.brand}` : "2px solid transparent", transition: "background .12s" }}>{L(it.label.en, it.label.es)}</div>);
             })}
           </div>))}
       </div>
@@ -2137,28 +2138,29 @@ function LandingView({ onEnter }) {
 }
 
 function LoginView({ onLogin, onBack }) {
+  const { L } = useSession();
   return <div style={{ fontFamily: FONT, color: PAL.text, minHeight: "100vh", display: "flex", background: PAL.panel2 }}>
     {/* panel izq — marca */}
     <div style={{ flex: 1, background: `linear-gradient(150deg, ${PAL.brandDk}, ${PAL.brand} 55%, #22B5C4)`, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 60px", color: "#fff" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 30 }}>
         <div style={{ background: "rgba(255,255,255,.18)", borderRadius: 12, padding: 4 }}><Logo size={36} /></div>
         <span style={{ fontWeight: 700, fontSize: 24, fontFamily: '"Space Grotesk", sans-serif' }}>Vantix</span></div>
-      <h2 style={{ fontSize: 32, fontWeight: 800, letterSpacing: "-.8px", lineHeight: 1.2, margin: 0, maxWidth: 380 }}>De los datos a la decisión.</h2>
-      <p style={{ fontSize: 16, opacity: .9, lineHeight: 1.6, marginTop: 18, maxWidth: 380 }}>Predice churn, modela el valor de tus clientes y genera micro-estudios al instante.</p>
+      <h2 style={{ fontSize: 32, fontWeight: 800, letterSpacing: "-.8px", lineHeight: 1.2, margin: 0, maxWidth: 380 }}>{L("From data to decision.", "De los datos a la decisión.")}</h2>
+      <p style={{ fontSize: 16, opacity: .9, lineHeight: 1.6, marginTop: 18, maxWidth: 380 }}>{L("Predict churn, model your customers' value and generate micro-studies instantly.", "Predice churn, modela el valor de tus clientes y genera micro-estudios al instante.")}</p>
     </div>
     {/* panel der — formulario */}
     <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 40px" }}>
       <div style={{ width: "100%", maxWidth: 360 }}>
-        <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-.3px" }}>Inicia sesión</div>
-        <div style={{ fontSize: 14, color: PAL.sub, marginTop: 6, marginBottom: 26 }}>Bienvenido de vuelta a Vantix</div>
+        <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-.3px" }}>{L("Sign in", "Inicia sesión")}</div>
+        <div style={{ fontSize: 14, color: PAL.sub, marginTop: 6, marginBottom: 26 }}>{L("Welcome back to Vantix", "Bienvenido de vuelta a Vantix")}</div>
         <label style={{ fontSize: 13, fontWeight: 500, color: PAL.sub }}>Email</label>
         <input defaultValue="ana@empresa.com" style={{ width: "100%", fontSize: 14, padding: "12px 14px", borderRadius: 10, border: `1px solid ${PAL.line}`, fontFamily: FONT, outline: "none", margin: "6px 0 16px", background: PAL.panel }} />
-        <label style={{ fontSize: 13, fontWeight: 500, color: PAL.sub }}>Contraseña</label>
+        <label style={{ fontSize: 13, fontWeight: 500, color: PAL.sub }}>{L("Password", "Contraseña")}</label>
         <input type="password" defaultValue="vantix2026" style={{ width: "100%", fontSize: 14, padding: "12px 14px", borderRadius: 10, border: `1px solid ${PAL.line}`, fontFamily: FONT, outline: "none", margin: "6px 0 8px", background: PAL.panel }} />
-        <div style={{ textAlign: "right", marginBottom: 18 }}><span style={{ fontSize: 13, color: PAL.brand, cursor: "pointer" }}>¿Olvidaste tu contraseña?</span></div>
-        <button onClick={onLogin} style={{ width: "100%", fontSize: 15, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: "13px", cursor: "pointer", fontFamily: FONT }}>Entrar al dashboard</button>
-        <div style={{ textAlign: "center", fontSize: 13, color: PAL.sub, marginTop: 18 }}>¿No tienes cuenta? <span onClick={onLogin} style={{ color: PAL.brand, cursor: "pointer", fontWeight: 600 }}>Empieza gratis</span></div>
-        <div style={{ textAlign: "center", marginTop: 24 }}><span onClick={onBack} style={{ fontSize: 13, color: PAL.sub, cursor: "pointer" }}>← Volver a la página principal</span></div>
+        <div style={{ textAlign: "right", marginBottom: 18 }}><span style={{ fontSize: 13, color: PAL.brand, cursor: "pointer" }}>{L("Forgot your password?", "¿Olvidaste tu contraseña?")}</span></div>
+        <button onClick={onLogin} style={{ width: "100%", fontSize: 15, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: "13px", cursor: "pointer", fontFamily: FONT }}>{L("Enter the dashboard", "Entrar al dashboard")}</button>
+        <div style={{ textAlign: "center", fontSize: 13, color: PAL.sub, marginTop: 18 }}>{L("No account?", "¿No tienes cuenta?")} <span onClick={onLogin} style={{ color: PAL.brand, cursor: "pointer", fontWeight: 600 }}>{L("Start free", "Empieza gratis")}</span></div>
+        <div style={{ textAlign: "center", marginTop: 24 }}><span onClick={onBack} style={{ fontSize: 13, color: PAL.sub, cursor: "pointer" }}>{L("← Back to the home page", "← Volver a la página principal")}</span></div>
       </div>
     </div>
   </div>;
