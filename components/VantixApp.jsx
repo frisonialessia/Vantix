@@ -2080,11 +2080,11 @@ function LandingView({ onEnter }) {
       <ProductPreview />
     </header>
 
-    {/* PRUEBA SOCIAL */}
+    {/* IMPULSADO POR — los modelos de IA sobre los que corre la plataforma */}
     <div style={{ ...section, paddingBottom: 50, textAlign: "center" }}>
-      <div style={{ fontSize: 12.5, color: PAL.sub, letterSpacing: ".5px", marginBottom: 18 }}>{L("DATA & FINANCE TEAMS THAT TRUST VANTIX", "EQUIPOS DE DATOS Y FINANZAS QUE CONFÍAN EN VANTIX")}</div>
-      <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", opacity: .55 }}>
-        {["Northwind", "Acme", "Globex", "Initech", "Umbrella"].map(n => <span key={n} style={{ fontSize: 18, fontWeight: 700, color: PAL.sub, letterSpacing: "-.3px" }}>{n}</span>)}
+      <div style={{ fontSize: 12.5, color: PAL.sub, letterSpacing: ".5px", marginBottom: 18 }}>{L("POWERED BY FRONTIER AI MODELS", "IMPULSADO POR MODELOS DE IA DE FRONTERA")}</div>
+      <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", opacity: .6 }}>
+        {["OpenAI", "Anthropic", "Google Gemini", "Mistral", "Meta Llama"].map(n => <span key={n} style={{ fontSize: 18, fontWeight: 700, color: PAL.sub, letterSpacing: "-.3px" }}>{n}</span>)}
       </div>
     </div>
 
@@ -2149,13 +2149,6 @@ function LandingView({ onEnter }) {
           <div style={{ textAlign: "center", fontSize: 12.5, color: PAL.sub, marginTop: 12 }}>{L("Credits reflect the real compute cost of the AI models. Transparent, no surprises.", "Los créditos reflejan el costo real de cómputo de los modelos de IA. Transparente y sin sorpresas.")}</div>
         </div>
       </div>
-    </section>
-
-    {/* CTA FINAL */}
-    <section style={{ ...section, padding: isMobile ? "56px 24px" : "80px 24px", textAlign: "center" }}>
-      <h2 style={{ fontSize: "clamp(28px, 5.5vw, 40px)", fontWeight: 800, letterSpacing: "-1px", margin: 0, maxWidth: 640, marginLeft: "auto", marginRight: "auto" }}>{L("Start deciding with data today", "Empieza a decidir con datos hoy")}</h2>
-      <p style={{ fontSize: 18, color: PAL.sub, marginTop: 16 }}>{L("Explore the full Vantix. Start with 500 free credits.", "Explora Vantix completo. Empieza con 500 créditos gratis.")}</p>
-      <button onClick={onEnter} style={{ fontSize: 16, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 12, padding: "15px 34px", cursor: "pointer", fontFamily: FONT, marginTop: 28 }}>{L("Start free", "Empezar gratis")}</button>
     </section>
 
     {/* FOOTER */}
