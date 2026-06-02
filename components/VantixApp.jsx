@@ -2081,21 +2081,21 @@ function LandingView({ onEnter }) {
     </header>
 
     {/* MARCAS — IA que mueve la plataforma + stack de datos/BI con el que se integra.
-       Lockups (monograma de color + wordmark): se ve enterprise sin falsear logos. */}
+       Lockups MONOCROMOS (grises, sin color): look "trusted by" enterprise y uniforme. */}
     <div style={{ ...section, paddingBottom: 56, textAlign: "center" }}>
       {[
         { label: { en: "POWERED BY FRONTIER AI", es: "IMPULSADO POR IA DE FRONTERA" },
-          marks: [["OpenAI", "#0E8C6E"], ["Anthropic", "#C15F3C"], ["Google Gemini", "#1A73E8"]] },
+          marks: ["OpenAI", "Anthropic", "Google Gemini"] },
         { label: { en: "CONNECTS WITH YOUR STACK", es: "SE CONECTA CON TU STACK" },
-          marks: [["Snowflake", "#1A9BD7"], ["BigQuery", "#3B6FD4"], ["Power BI", "#C99A00"], ["Salesforce", "#0089C7"], ["Stripe", "#635BFF"]] },
+          marks: ["Snowflake", "BigQuery", "Power BI", "Salesforce", "Stripe"] },
       ].map((row, ri) => (
         <div key={ri} style={{ marginTop: ri ? 28 : 0 }}>
           <div style={{ fontSize: 11.5, color: PAL.sub, letterSpacing: ".8px", fontWeight: 600, marginBottom: 14 }}>{L(row.label.en, row.label.es)}</div>
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: isMobile ? 16 : 30, flexWrap: "wrap" }}>
-            {row.marks.map(([name, c]) => (
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: isMobile ? 16 : 30, flexWrap: "wrap", opacity: .9 }}>
+            {row.marks.map((name) => (
               <div key={name} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 22, height: 22, borderRadius: 6, background: `${c}1A`, color: c, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>{name[0]}</span>
-                <span style={{ fontSize: 15.5, fontWeight: 600, color: "#3A3F47", letterSpacing: "-.2px" }}>{name}</span>
+                <span style={{ width: 22, height: 22, borderRadius: 6, background: "#ECEEF1", color: "#585E66", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>{name[0]}</span>
+                <span style={{ fontSize: 15.5, fontWeight: 600, color: "#4B5158", letterSpacing: "-.2px" }}>{name}</span>
               </div>))}
           </div>
         </div>))}
