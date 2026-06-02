@@ -1,84 +1,98 @@
-# Vantix
+# Vantix — Market & Customer Intelligence
 
-Plataforma de **Market & Customer Intelligence**. Predice churn y CLV, y lo traduce en decisiones que protegen y hacen crecer los ingresos.
+> Predictive intelligence that turns **churn** and **customer lifetime value (CLV)** into decisions that protect and grow revenue.
 
-Stack: **Next.js 14** (App Router) · React · Recharts · proxy serverless de LLM (Gemini por defecto, configurable).
+**Live demo:** https://vantix-inky.vercel.app · **Proof of concept** — all figures are synthetic; no real data is processed.
+
+Vantix shows what a modern churn & customer-intelligence platform can *feel* like: you arrive with an empty dashboard, "connect" your business (name + a few parameters), and instantly get a dashboard **scaled to your numbers** — backed by a **real AI assistant** grounded on your session data. Built in public as one experiment in a "SaaS Factory".
 
 ---
 
-## Desarrollo local
+## ✨ Highlights
+
+- **Personalized in one click** — no signup. Enter a company + business size and the whole dashboard is generated, deterministically, from a seed derived from your inputs.
+- **Real AI assistant** — Google Gemini behind a server-side proxy, grounded on a snapshot of your session data, with credits and rate-limiting.
+- **40+ analytics views** — churn root cause, CLV attribution & bridge, live cohorts, RFM value×risk matrix, forecasting + seasonality, Monte Carlo, network analysis, micro-studies, what-if simulator, Next Best Action, financial modeling, governance/RBAC, and more.
+- **Bilingual (EN/ES)** — English-primary with a live language toggle; every string is co-located in both languages.
+- **Fully responsive** — landing, connect gate and the entire dashboard adapt from desktop to tablet to phone (Stripe-style).
+- **Zero-cost by design** — synthetic data, free tiers, and only **three** runtime dependencies.
+
+---
+
+## 🧱 Tech stack
+
+| Layer | Choice |
+|-------|--------|
+| Framework | **Next.js 14.2** (App Router) |
+| UI | **React 18** + JSX, **inline styles** (no CSS framework) |
+| Charts | **Recharts 2.12** + hand-authored SVG visualizations |
+| AI | **Google Gemini** (`gemini-2.5-flash`) via a provider-agnostic proxy |
+| Lead store | **Supabase** (Postgres) via REST, RLS insert-only |
+| Hosting / CI | **Vercel** — every push to `main` auto-deploys to production |
+| Languages | **JavaScript (ES2020+)**, **JSX**, **CSS**, **SQL**, **Markdown** |
+
+> Only **3 runtime dependencies**: `next`, `react`, `recharts`. No LLM SDK, no Supabase SDK, no UI kit — the AI and database calls are plain `fetch` to keep the surface (and cost) minimal and the API keys server-side.
+
+---
+
+## 📚 Documentation
+
+- **[Executive Summary](docs/EXECUTIVE_SUMMARY.md)** — the what & why, in one page.
+- **[Architecture (master doc)](docs/ARCHITECTURE.md)** — the full system: layers, subsystems, data flow, security, cost, decisions.
+
+---
+
+## 🚀 Quickstart
 
 ```bash
-npm install          # instala dependencias
-cp .env.example .env.local   # crea tu archivo de variables
-# edita .env.local y pega tu GEMINI_API_KEY
-npm run dev          # arranca en http://localhost:3000
+npm install
+cp .env.example .env.local      # then paste your keys
+npm run dev                     # http://localhost:3000
 ```
 
-Sin API key, el asistente funciona en **modo demo** (respuestas pre-generadas, costo cero):
-en `.env.local` pon `LLM_PROVIDER=demo`.
+Without an API key the assistant runs in **demo mode** (pre-generated answers, zero cost): set `LLM_PROVIDER=demo`.
 
 ---
 
-## Variables de entorno
+## 🔑 Environment variables
 
-| Variable | Qué es | Ejemplo |
-|----------|--------|---------|
-| `LLM_PROVIDER` | Proveedor activo | `gemini` o `demo` |
-| `GEMINI_API_KEY` | Tu clave de Google AI Studio | `AIza...` |
-| `GEMINI_MODEL` | Modelo a usar | `gemini-2.5-flash` |
+| Variable | What it is | Example |
+|----------|------------|---------|
+| `LLM_PROVIDER` | Active LLM provider | `gemini` or `demo` |
+| `GEMINI_API_KEY` | Google AI Studio key | `AIza…` |
+| `GEMINI_MODEL` | Model id | `gemini-2.5-flash` |
+| `SUPABASE_URL` | Project URL (optional; lead capture) | `https://<ref>.supabase.co` |
+| `SUPABASE_ANON_KEY` | Anon/public key (optional) | `eyJ…` |
 
-La API key **nunca** se sube al repo (la excluye `.gitignore`). Vive solo en `.env.local`
-(local) o en las variables de entorno de Vercel (producción).
-
----
-
-## Subir a GitHub
-
-```bash
-git init
-git add .
-git commit -m "Vantix: migración inicial a Next.js"
-git branch -M main
-git remote add origin https://github.com/TU_USUARIO/vantix.git
-git push -u origin main
-```
-
-(Crea primero el repositorio vacío en github.com con el nombre `vantix`.)
+Keys live only in `.env.local` (local) or Vercel env vars (production) — **never** in the repo. If Supabase vars are absent, the demo still works; it just doesn't store leads.
 
 ---
 
-## Desplegar en Vercel
-
-1. Entra a [vercel.com](https://vercel.com) e inicia sesión con tu cuenta de GitHub.
-2. **Add New → Project** y selecciona el repo `vantix`.
-3. Vercel detecta Next.js automáticamente. No cambies nada de la configuración.
-4. Antes de desplegar, abre **Environment Variables** y agrega:
-   - `LLM_PROVIDER` = `gemini`
-   - `GEMINI_API_KEY` = (tu clave de https://aistudio.google.com/apikey)
-   - `GEMINI_MODEL` = `gemini-2.5-flash`
-5. **Deploy**. En ~1 minuto tendrás tu URL pública (`vantix-xxx.vercel.app`).
-
-Cada `git push` a `main` redespliega automáticamente.
-
----
-
-## Estructura
+## 🗂️ Project structure
 
 ```
 vantix/
 ├── app/
-│   ├── api/assistant/route.js   # proxy serverless del LLM (la API key vive aquí)
-│   ├── layout.js                # layout raíz + fuentes
-│   ├── page.js                  # monta la app
-│   └── globals.css
+│   ├── api/assistant/route.js   # LLM proxy (server-side key + rate-limit)
+│   ├── api/lead/route.js        # lead capture → Supabase REST
+│   ├── globals.css              # base + responsive rules
+│   ├── icon.svg                 # favicon
+│   ├── layout.js                # root layout + fonts + metadata
+│   └── page.js                  # mounts the app
 ├── components/
-│   └── VantixApp.jsx            # toda la UI (landing + login + dashboard)
+│   ├── VantixApp.jsx            # the entire UI (landing + gate + dashboard)
+│   └── session.jsx              # SessionProvider, persistence, useIsMobile
 ├── lib/
-│   └── llm.js                   # cliente LLM configurable (núcleo reutilizable)
-├── .env.example                 # plantilla de variables (sin secretos)
-└── .gitignore                   # excluye node_modules, builds y .env
+│   ├── synth.js                 # seeded synthetic-data engine
+│   └── llm.js                   # provider-agnostic LLM client
+├── docs/                        # executive summary + architecture
+└── .env.example                 # env template (no secrets)
 ```
 
-El cliente LLM (`lib/llm.js`) es la pieza pensada para reutilizarse entre Vantix
-y los siguientes SaaS de la Factory.
+---
+
+## 🧪 Status
+
+**Proof of concept**, for demonstration only. All figures are synthetic and generated from your inputs — no real customer data is processed. Brand names shown on the landing illustrate the AI models and integrations and do not imply any partnership or endorsement.
+
+Built in public — feedback and ideas welcome.
