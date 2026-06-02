@@ -655,13 +655,13 @@ function AssistantView({ previewHeight } = {}) {
     <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${PAL.line}`, flexShrink: 0 }}>
       <Logo size={36} />
       <div>
-        <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-.3px" }}>Asistente Vantix</div>
-        <div style={{ fontSize: FS.label, color: PAL.sub }}>Pregunta en lenguaje natural — responde con la causa y la acción</div>
+        <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-.3px" }}>{L("Vantix Assistant", "Asistente Vantix")}</div>
+        <div style={{ fontSize: FS.label, color: PAL.sub }}>{L("Ask in natural language — it answers with the cause and the action", "Pregunta en lenguaje natural — responde con la causa y la acción")}</div>
       </div>
       <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-        {!isPreview && <span style={{ fontSize: FS.label, color: PAL.brand, fontWeight: 600 }}>{credits} créditos</span>}
+        {!isPreview && <span style={{ fontSize: FS.label, color: PAL.brand, fontWeight: 600 }}>{credits} {L("credits", "créditos")}</span>}
         <span style={{ fontSize: FS.label, color: PAL.good, display: "flex", alignItems: "center", gap: 6, fontWeight: 500 }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />En línea</span>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />{L("Online", "En línea")}</span>
       </div>
     </div>
     {/* mensajes (scroll) */}
@@ -671,7 +671,7 @@ function AssistantView({ previewHeight } = {}) {
           <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
             <div style={{ maxWidth: "84%" }}>
               {m.role === "assistant" && <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
-                <Logo size={22} /><span style={{ fontSize: 11.5, fontWeight: 600, color: PAL.sub }}>Asistente</span></div>}
+                <Logo size={22} /><span style={{ fontSize: 11.5, fontWeight: 600, color: PAL.sub }}>{L("Assistant", "Asistente")}</span></div>}
               <div style={{ background: m.role === "user" ? PAL.brand : PAL.panel, color: m.role === "user" ? "#fff" : PAL.text, padding: "13px 17px", borderRadius: 14, fontSize: FS.body, lineHeight: 1.6, border: m.role === "assistant" ? `1px solid ${PAL.line}` : "none", boxShadow: m.role === "assistant" ? "0 1px 2px rgba(16,17,22,.04)" : "none" }}>{m.content}</div>
               {m.actions && <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
                 {m.actions.map((a, j) => <button key={j} style={{ fontSize: 12, fontWeight: 600, color: j === 0 ? PAL.brand : PAL.text, background: PAL.panel, border: `1px solid ${j === 0 ? PAL.brand : PAL.line}`, borderRadius: 8, padding: "7px 13px", cursor: "pointer", fontFamily: FONT }}>{a}</button>)}
@@ -679,7 +679,7 @@ function AssistantView({ previewHeight } = {}) {
             </div></div>))}
         {sending && <div style={{ display: "flex", justifyContent: "flex-start" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <Logo size={22} /><span style={{ fontSize: FS.body, color: PAL.sub, fontStyle: "italic" }}>escribiendo…</span></div>
+            <Logo size={22} /><span style={{ fontSize: FS.body, color: PAL.sub, fontStyle: "italic" }}>{L("typing…", "escribiendo…")}</span></div>
         </div>}
       </div>
     </div>
@@ -690,10 +690,10 @@ function AssistantView({ previewHeight } = {}) {
           {suggestions.map((s, i) => <button key={i} onClick={() => setInput(s)} style={{ fontSize: 11.5, color: PAL.sub, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 20, padding: "7px 13px", cursor: "pointer", fontFamily: FONT }}>{s}</button>)}
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") send(); }} placeholder="Pregunta sobre tus datos…" style={{ flex: 1, fontSize: FS.body, padding: "14px 16px", borderRadius: 12, border: `1px solid ${PAL.line}`, fontFamily: FONT, outline: "none", background: PAL.panel }} />
-          <button onClick={send} disabled={sending} style={{ fontSize: FS.body, fontWeight: 600, color: "#fff", background: sending ? PAL.sub : PAL.brand, border: "none", borderRadius: 12, padding: "0 24px", cursor: sending ? "default" : "pointer", fontFamily: FONT }}>Enviar</button>
+          <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") send(); }} placeholder={L("Ask about your data…", "Pregunta sobre tus datos…")} style={{ flex: 1, fontSize: FS.body, padding: "14px 16px", borderRadius: 12, border: `1px solid ${PAL.line}`, fontFamily: FONT, outline: "none", background: PAL.panel }} />
+          <button onClick={send} disabled={sending} style={{ fontSize: FS.body, fontWeight: 600, color: "#fff", background: sending ? PAL.sub : PAL.brand, border: "none", borderRadius: 12, padding: "0 24px", cursor: sending ? "default" : "pointer", fontFamily: FONT }}>{L("Send", "Enviar")}</button>
         </div>
-        <div style={{ fontSize: 10, color: PAL.sub, textAlign: "center", marginTop: 8 }}>El asistente responde sobre tus datos. Información para decidir, no consejo de inversión.</div>
+        <div style={{ fontSize: 10, color: PAL.sub, textAlign: "center", marginTop: 8 }}>{L("The assistant answers about your data. Information to decide, not investment advice.", "El asistente responde sobre tus datos. Información para decidir, no consejo de inversión.")}</div>
       </div>
     </div>
   </div>;
@@ -1869,13 +1869,14 @@ function SettingsView() {
 }
 
 function LogoutView({ onCancel, onConfirm }) {
+  const { L } = useSession();
   return <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "calc(100vh - 160px)", textAlign: "center" }}>
     <Logo size={56} />
-    <div style={{ fontSize: 22, fontWeight: 700, marginTop: 20, letterSpacing: "-.3px" }}>¿Cerrar sesión?</div>
-    <div style={{ fontSize: FS.body, color: PAL.sub, marginTop: 8, maxWidth: 360 }}>Saldrás de tu cuenta de Vantix. Tendrás que volver a iniciar sesión para acceder a tus datos.</div>
+    <div style={{ fontSize: 22, fontWeight: 700, marginTop: 20, letterSpacing: "-.3px" }}>{L("Log out?", "¿Cerrar sesión?")}</div>
+    <div style={{ fontSize: FS.body, color: PAL.sub, marginTop: 8, maxWidth: 360 }}>{L("You'll sign out of your Vantix account. You'll need to sign in again to access your data.", "Saldrás de tu cuenta de Vantix. Tendrás que volver a iniciar sesión para acceder a tus datos.")}</div>
     <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
-      <button onClick={onCancel} style={{ fontSize: FS.body, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 10, padding: "11px 22px", cursor: "pointer", fontFamily: FONT }}>Cancelar</button>
-      <button onClick={onConfirm} style={{ fontSize: FS.body, fontWeight: 600, color: "#fff", background: PAL.bad, border: "none", borderRadius: 10, padding: "11px 22px", cursor: "pointer", fontFamily: FONT }}>Cerrar sesión</button>
+      <button onClick={onCancel} style={{ fontSize: FS.body, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 10, padding: "11px 22px", cursor: "pointer", fontFamily: FONT }}>{L("Cancel", "Cancelar")}</button>
+      <button onClick={onConfirm} style={{ fontSize: FS.body, fontWeight: 600, color: "#fff", background: PAL.bad, border: "none", borderRadius: 10, padding: "11px 22px", cursor: "pointer", fontFamily: FONT }}>{L("Log out", "Cerrar sesión")}</button>
     </div>
   </div>;
 }
@@ -2136,42 +2137,51 @@ function LoginView({ onLogin, onBack }) {
 
 /* =================== APP SHELL: RESPONSIVE + SIDEBAR COLAPSABLE =================== */
 
+function ForecastCyclesView() {
+  const { L } = useSession();
+  return <div>
+    <H1 title={L("Forecast & Cycles", "Forecast & Ciclos")} sub={L("MRR projection with confidence band + seasonal decomposition.", "Proyección de MRR con banda de confianza + descomposición estacional.")} />
+    <Panel title={L("MRR — projection + seasonality", "MRR — proyección + estacionalidad")} tag="prophet-style" h={480}><Forecast /></Panel>
+  </div>;
+}
+
+// Etiquetas de nav bilingües: { en, es }.
 const NAV = [
-  { sec: "INTELIGENCIA", items: [
-    { label: "Overview", slug: "overview", view: () => <OverviewView /> },
-    { label: "Asistente IA", slug: "asistente", view: () => <AssistantView /> },
-    { label: "Resumen & Alertas", slug: "pulso", view: () => <PulseView /> },
-    { label: "Mapas", slug: "mapas", view: () => <MapsView /> },
+  { sec: { en: "INTELLIGENCE", es: "INTELIGENCIA" }, items: [
+    { label: { en: "Overview", es: "Overview" }, slug: "overview", view: () => <OverviewView /> },
+    { label: { en: "AI Assistant", es: "Asistente IA" }, slug: "asistente", view: () => <AssistantView /> },
+    { label: { en: "Summary & Alerts", es: "Resumen & Alertas" }, slug: "pulso", view: () => <PulseView /> },
+    { label: { en: "Maps", es: "Mapas" }, slug: "mapas", view: () => <MapsView /> },
   ]},
-  { sec: "ANÁLISIS", items: [
-    { label: "Análisis de red", slug: "red", view: () => <NetworkView /> },
-    { label: "Causa raíz de churn", slug: "causa-raiz", view: () => <RootCauseView /> },
-    { label: "Cohortes vivas", slug: "cohortes", view: () => <CohortsView /> },
-    { label: "Forecast & Ciclos", slug: "forecast", view: () => <div><H1 title="Forecast & Ciclos" sub="Proyección de MRR con banda de confianza + descomposición estacional." /><Panel title="MRR — proyección + estacionalidad" tag="prophet-style" h={480}><Forecast /></Panel></div> },
+  { sec: { en: "ANALYSIS", es: "ANÁLISIS" }, items: [
+    { label: { en: "Network analysis", es: "Análisis de red" }, slug: "red", view: () => <NetworkView /> },
+    { label: { en: "Churn root cause", es: "Causa raíz de churn" }, slug: "causa-raiz", view: () => <RootCauseView /> },
+    { label: { en: "Live cohorts", es: "Cohortes vivas" }, slug: "cohortes", view: () => <CohortsView /> },
+    { label: { en: "Forecast & Cycles", es: "Forecast & Ciclos" }, slug: "forecast", view: () => <ForecastCyclesView /> },
   ]},
-  { sec: "MERCADO & DECISIÓN", items: [
-    { label: "Micro-estudios", slug: "estudios", view: () => <MicroStudyView /> },
-    { label: "Tabla multidimensional", slug: "pivote", view: () => <PivotView /> },
-    { label: "Atribución CLV", slug: "atribucion", view: () => <AttributionView /> },
-    { label: "Simulador what-if", slug: "simulador", view: () => <SimulatorView /> },
-    { label: "Next Best Action", slug: "nba", view: () => <NbaView /> },
+  { sec: { en: "MARKET & DECISION", es: "MERCADO & DECISIÓN" }, items: [
+    { label: { en: "Micro-studies", es: "Micro-estudios" }, slug: "estudios", view: () => <MicroStudyView /> },
+    { label: { en: "Multidimensional table", es: "Tabla multidimensional" }, slug: "pivote", view: () => <PivotView /> },
+    { label: { en: "CLV attribution", es: "Atribución CLV" }, slug: "atribucion", view: () => <AttributionView /> },
+    { label: { en: "What-if simulator", es: "Simulador what-if" }, slug: "simulador", view: () => <SimulatorView /> },
+    { label: { en: "Next Best Action", es: "Next Best Action" }, slug: "nba", view: () => <NbaView /> },
   ]},
-  { sec: "FINANZAS", items: [
-    { label: "Modelado financiero", slug: "finanzas", view: () => <FinanceView /> },
+  { sec: { en: "FINANCE", es: "FINANZAS" }, items: [
+    { label: { en: "Financial modeling", es: "Modelado financiero" }, slug: "finanzas", view: () => <FinanceView /> },
   ]},
-  { sec: "PLATAFORMA", items: [
-    { label: "Conexiones", slug: "conexiones", view: () => <ConnectionsView /> },
-    { label: "Equipo & RBAC", slug: "equipo", view: () => <TeamView /> },
-    { label: "Gobernanza", slug: "gobernanza", view: () => <GovernanceView /> },
-    { label: "Créditos & uso", slug: "planes", view: () => <BillingView /> },
-    { label: "Onboarding", slug: "onboarding", view: () => <OnboardingView /> },
+  { sec: { en: "PLATFORM", es: "PLATAFORMA" }, items: [
+    { label: { en: "Connections", es: "Conexiones" }, slug: "conexiones", view: () => <ConnectionsView /> },
+    { label: { en: "Team & RBAC", es: "Equipo & RBAC" }, slug: "equipo", view: () => <TeamView /> },
+    { label: { en: "Governance", es: "Gobernanza" }, slug: "gobernanza", view: () => <GovernanceView /> },
+    { label: { en: "Credits & usage", es: "Créditos & uso" }, slug: "planes", view: () => <BillingView /> },
+    { label: { en: "Onboarding", es: "Onboarding" }, slug: "onboarding", view: () => <OnboardingView /> },
   ]},
 ];
 const ALL_ITEMS = NAV.flatMap(g => g.items.map(it => ({ ...it, sec: g.sec })));
 // Rutas de cuenta: accesibles por slug pero no en el sidebar principal
 const ACCOUNT_ROUTES = [
-  { label: "Configuración", slug: "settings", sec: "CUENTA", view: () => <SettingsView /> },
-  { label: "Cerrar sesión", slug: "logout", sec: "CUENTA", view: (go, onLogout) => <LogoutView onCancel={() => go("overview")} onConfirm={onLogout} /> },
+  { label: { en: "Settings", es: "Configuración" }, slug: "settings", sec: { en: "ACCOUNT", es: "CUENTA" }, view: () => <SettingsView /> },
+  { label: { en: "Log out", es: "Cerrar sesión" }, slug: "logout", sec: { en: "ACCOUNT", es: "CUENTA" }, view: (go, onLogout) => <LogoutView onCancel={() => go("overview")} onConfirm={onLogout} /> },
 ];
 const ROUTE_INDEX = [...ALL_ITEMS, ...ACCOUNT_ROUTES];
 
@@ -2306,7 +2316,7 @@ function ConnectGate({ onBack }) {
 }
 
 function Dashboard({ onLogout }) {
-  const { connected, company, email, userName, userInitials } = useSession();
+  const { connected, company, email, userName, userInitials, lang, setLang, L } = useSession();
   const [slug, go] = useHashRoute("overview");
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -2328,11 +2338,12 @@ function Dashboard({ onLogout }) {
   if (!connected) return <ConnectGate onBack={onLogout} />;
 
   const current = ROUTE_INDEX.find(i => i.slug === slug) || ROUTE_INDEX[0];
-  const results = query.length > 0 ? ALL_ITEMS.filter(i => i.label.toLowerCase().includes(query.toLowerCase())) : [];
+  const q = query.toLowerCase();
+  const results = query.length > 0 ? ALL_ITEMS.filter(i => `${i.label.en} ${i.label.es}`.toLowerCase().includes(q)) : [];
   const nav = (s) => { go(s); setMobileOpen(false); };
 
   const itemRow = (it) => { const on = it.slug === slug;
-    return <div key={it.slug} onClick={() => nav(it.slug)} style={{ padding: "7px 10px", borderRadius: 8, fontSize: 12.5, marginBottom: 1, cursor: "pointer", background: on ? `${PAL.brand}14` : "transparent", color: on ? PAL.brand : PAL.sub, fontWeight: on ? 600 : 450, borderLeft: on ? `2px solid ${PAL.brand}` : "2px solid transparent", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{it.label}</div>; };
+    return <div key={it.slug} onClick={() => nav(it.slug)} style={{ padding: "7px 10px", borderRadius: 8, fontSize: 12.5, marginBottom: 1, cursor: "pointer", background: on ? `${PAL.brand}14` : "transparent", color: on ? PAL.brand : PAL.sub, fontWeight: on ? 600 : 450, borderLeft: on ? `2px solid ${PAL.brand}` : "2px solid transparent", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{L(it.label.en, it.label.es)}</div>; };
 
   const SidebarInner = () => <>
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, padding: "0 8px" }}>
@@ -2340,12 +2351,12 @@ function Dashboard({ onLogout }) {
       <div><div style={{ fontWeight: 700, fontSize: 15.5, letterSpacing: "-.3px", fontFamily: '"Space Grotesk", sans-serif' }}>Vantix</div>
         <div style={{ fontSize: 8.5, color: PAL.sub, letterSpacing: ".6px" }}>MARKET & CUSTOMER INTELLIGENCE</div></div></div>
     {NAV.map((g) => (
-      <div key={g.sec} style={{ marginBottom: 13 }}>
-        <div style={{ fontSize: 9, color: PAL.sub, letterSpacing: "1px", padding: "0 8px 5px", fontWeight: 700 }}>{g.sec}</div>
+      <div key={g.sec.en} style={{ marginBottom: 13 }}>
+        <div style={{ fontSize: 9, color: PAL.sub, letterSpacing: "1px", padding: "0 8px 5px", fontWeight: 700 }}>{L(g.sec.en, g.sec.es)}</div>
         {g.items.map(itemRow)}
       </div>))}
     <div style={{ marginTop: 12, padding: "10px 12px", background: PAL.panel2, borderRadius: 10, fontSize: 10.5, color: PAL.good, display: "flex", alignItems: "center", gap: 6, fontWeight: 500 }}>
-      <span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />Modelo activo · 2.4M tx/día</div>
+      <span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />{L("Model active · 2.4M tx/day", "Modelo activo · 2.4M tx/día")}</div>
   </>;
 
   return <div style={{ display: "flex", minHeight: "100vh", background: PAL.panel2, fontFamily: FONT, color: PAL.text }}>
@@ -2379,22 +2390,25 @@ function Dashboard({ onLogout }) {
         {isMobile && <button onClick={() => setMobileOpen(true)} style={{ background: PAL.panel2, border: `1px solid ${PAL.line}`, borderRadius: 8, width: 36, height: 36, fontSize: 16, cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>☰</button>}
         <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, flexShrink: 0 }}>
           {company && <><span style={{ fontSize: 11.5, fontWeight: 700, color: PAL.brand, background: `${PAL.brand}12`, padding: "3px 9px", borderRadius: 7, whiteSpace: "nowrap" }}>{company}</span><span style={{ color: PAL.line }}>/</span></>}
-          {!isMobile && <><span style={{ color: PAL.sub }}>{current.sec}</span><span style={{ color: PAL.line }}>/</span></>}
-          <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{current.label}</span>
+          {!isMobile && <><span style={{ color: PAL.sub }}>{L(current.sec.en, current.sec.es)}</span><span style={{ color: PAL.line }}>/</span></>}
+          <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{L(current.label.en, current.label.es)}</span>
         </div>
         {!isMobile && <div style={{ position: "relative", flex: 1, maxWidth: 340 }}>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar…"
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={L("Search…", "Buscar…")}
             style={{ width: "100%", fontSize: 12.5, padding: "8px 12px 8px 30px", borderRadius: 9, border: `1px solid ${PAL.line}`, background: PAL.panel2, fontFamily: FONT, outline: "none" }} />
           <span style={{ position: "absolute", left: 10, top: 8, color: PAL.sub, fontSize: 13 }}>⌕</span>
           {results.length > 0 && <div style={{ position: "absolute", top: 38, left: 0, right: 0, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 10, boxShadow: "0 8px 24px rgba(16,17,22,.12)", overflow: "hidden", zIndex: 60 }}>
             {results.slice(0, 6).map(r => <div key={r.slug} onClick={() => { nav(r.slug); setQuery(""); }} style={{ padding: "9px 14px", fontSize: 12.5, cursor: "pointer", display: "flex", justifyContent: "space-between" }}
               onMouseEnter={(e) => e.currentTarget.style.background = PAL.panel2} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-              <span style={{ fontWeight: 500 }}>{r.label}</span><span style={{ color: PAL.sub, fontSize: 10.5 }}>{r.sec}</span></div>)}
+              <span style={{ fontWeight: 500 }}>{L(r.label.en, r.label.es)}</span><span style={{ color: PAL.sub, fontSize: 10.5 }}>{L(r.sec.en, r.sec.es)}</span></div>)}
           </div>}
         </div>}
         <div style={{ flex: 1 }} />
+        {!isMobile && <LangToggle lang={lang} setLang={setLang} />}
         {!isMobile && <select style={{ fontSize: 12, padding: "7px 12px", borderRadius: 9, border: `1px solid ${PAL.line}`, background: PAL.panel, color: PAL.text, fontFamily: FONT, cursor: "pointer" }}>
-          <option>Últimos 30 días</option><option>Último trimestre</option><option>Últimos 12 meses</option>
+          {lang === "es"
+            ? <><option>Últimos 30 días</option><option>Último trimestre</option><option>Últimos 12 meses</option></>
+            : <><option>Last 30 days</option><option>Last quarter</option><option>Last 12 months</option></>}
         </select>}
         <div style={{ position: "relative" }} onClick={(e) => e.stopPropagation()}>
           <div onClick={() => setMenuOpen(o => !o)} style={{ width: 32, height: 32, borderRadius: "50%", background: `${PAL.brand}1A`, color: PAL.brand, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12, flexShrink: 0, cursor: "pointer", userSelect: "none" }}>{userInitials}</div>
@@ -2402,24 +2416,24 @@ function Dashboard({ onLogout }) {
             <div style={{ padding: "14px 16px", borderBottom: `1px solid ${PAL.line}` }}>
               <div style={{ fontSize: FS.body, fontWeight: 600 }}>{userName}</div>
               <div style={{ fontSize: FS.label, color: PAL.sub, overflow: "hidden", textOverflow: "ellipsis" }}>{email}</div>
-              <div style={{ fontSize: 10, color: PAL.brand, marginTop: 4, fontWeight: 600 }}>{company ? `${company} · Acceso total` : "Acceso total"}</div>
+              <div style={{ fontSize: 10, color: PAL.brand, marginTop: 4, fontWeight: 600 }}>{company ? L(`${company} · Full access`, `${company} · Acceso total`) : L("Full access", "Acceso total")}</div>
             </div>
             <div onClick={() => { nav("settings"); setMenuOpen(false); }} style={{ padding: "11px 16px", fontSize: FS.body, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}
               onMouseEnter={(e) => e.currentTarget.style.background = PAL.panel2} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-              <span style={{ color: PAL.sub }}>⚙</span> Configuración</div>
+              <span style={{ color: PAL.sub }}>⚙</span> {L("Settings", "Configuración")}</div>
             <div onClick={() => { nav("planes"); setMenuOpen(false); }} style={{ padding: "11px 16px", fontSize: FS.body, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}
               onMouseEnter={(e) => e.currentTarget.style.background = PAL.panel2} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-              <span style={{ color: PAL.sub }}>◫</span> Créditos & uso</div>
+              <span style={{ color: PAL.sub }}>◫</span> {L("Credits & usage", "Créditos & uso")}</div>
             <div onClick={() => { nav("logout"); setMenuOpen(false); }} style={{ padding: "11px 16px", fontSize: FS.body, cursor: "pointer", color: PAL.bad, fontWeight: 500, borderTop: `1px solid ${PAL.line}`, display: "flex", alignItems: "center", gap: 10 }}
               onMouseEnter={(e) => e.currentTarget.style.background = `${PAL.bad}0D`} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-              <span>⏻</span> Cerrar sesión</div>
+              <span>⏻</span> {L("Log out", "Cerrar sesión")}</div>
           </div>}
         </div>
       </header>
 
       <main style={{ flex: 1, padding: isMobile ? "16px 14px" : "22px 24px", overflow: "auto" }}>
         {current.view(go, onLogout)}
-        <div style={{ marginTop: 22, fontSize: 9.5, color: PAL.sub, textAlign: "center" }}>Modelo CLV BG/NBD + Gamma-Gamma · ruta: <code style={{ fontFamily: "monospace" }}>#/{slug}</code></div>
+        <div style={{ marginTop: 22, fontSize: 9.5, color: PAL.sub, textAlign: "center" }}>{L("CLV model BG/NBD + Gamma-Gamma · route:", "Modelo CLV BG/NBD + Gamma-Gamma · ruta:")} <code style={{ fontFamily: "monospace" }}>#/{slug}</code></div>
       </main>
     </div>
   </div>;
