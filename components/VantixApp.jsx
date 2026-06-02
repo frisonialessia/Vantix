@@ -6,6 +6,8 @@ import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ScatterChart, Scatter, ZAxis
 } from "recharts";
+import { SessionProvider, useSession } from "./session";
+import { makeRng } from "../lib/synth";
 
 /* ============================================================
    VANTIX — SISTEMA DE DISEÑO ESTÁNDAR
@@ -111,8 +113,9 @@ function heatColor(vi, ri) {
   if (vi === 2) return PAL.lime; return PAL.line;
 }
 const demo = [{ age: "18–24", v: 12 }, { age: "25–34", v: 34 }, { age: "35–44", v: 27 }, { age: "45–54", v: 16 }, { age: "55–64", v: 8 }, { age: "65+", v: 3 }];
+const _rndEcon = makeRng("vtx-econ"); // sembrado → determinista (SSR-safe, sin hydration mismatch)
 const econ = Array.from({ length: 60 }, () => {
-  const income = 20 + Math.random() * 180; const spend = income * (0.1 + Math.random() * 0.5);
+  const income = 20 + _rndEcon() * 180; const spend = income * (0.1 + _rndEcon() * 0.5);
   return { income: +income.toFixed(0), spend: +spend.toFixed(1), z: spend, c: spend > 60 ? PAL.teal : spend > 30 ? PAL.indigo : PAL.amber };
 });
 const psycho = [{ trait: "Innovación", A: 88, B: 42 }, { trait: "Lealtad", A: 74, B: 55 }, { trait: "Precio-sens.", A: 30, B: 82 }, { trait: "Status", A: 81, B: 38 }, { trait: "Exploración", A: 69, B: 47 }, { trait: "Riesgo", A: 58, B: 71 }];
@@ -123,21 +126,7 @@ const fc = Array.from({ length: 24 }, (_, i) => {
   return { m: `M${i + 1}`, actual, forecast, lo: forecast ? forecast - band : null, range: forecast ? band * 2 : null };
 });
 const seasonal = Array.from({ length: 12 }, (_, i) => ({ m: ["E","F","M","A","M","J","J","A","S","O","N","D"][i], s: +(Math.sin((i / 12) * Math.PI * 2) * 28).toFixed(1) }));
-const kpis = [
-  { label: "Revenue at Risk", val: "$847.2K", d: "-12.4%", good: false, spark: [40,38,42,39,35,33,31,29] },
-  { label: "Net Revenue Retention", val: "112.6%", d: "+4.1%", good: true, spark: [98,101,103,105,108,110,111,113] },
-  { label: "Predicted CLV : CAC", val: "4.3 : 1", d: "+0.6", good: true, spark: [3.1,3.4,3.6,3.8,4.0,4.1,4.2,4.3] },
-  { label: "Churn Probability", val: "6.8%", d: "-1.9%", good: true, spark: [11,10,9.5,9,8.2,7.6,7.1,6.8] },
-];
-
-// Alertas
-const alerts = [
-  { sev: "critical", c: PAL.red, title: "12 cuentas de alto valor cruzaron a riesgo crítico", meta: "$214K CLV en juego · últimas 168h", action: "Ver lista de rescate" },
-  { sev: "critical", c: PAL.red, title: "Tasa de fallo de pago +38% en plan Premium", meta: "47 suscripciones afectadas · dunning activo", action: "Revisar facturación" },
-  { sev: "warning", c: PAL.amber, title: "Cohorte de marzo retiene 9pts por debajo de febrero", meta: "Posible regresión de onboarding", action: "Comparar cohortes" },
-  { sev: "warning", c: PAL.amber, title: "Engagement del segmento Loyal cayó 14% en 30 días", meta: "Indicador adelantado de churn", action: "Ver causa raíz" },
-  { sev: "info", c: PAL.blue, title: "Canal Referral ahora top en CLV:CAC (5.1:1)", meta: "Considera reasignar presupuesto de Paid", action: "Ver atribución" },
-];
+// KPIs y Alertas ahora se generan por sesión → dataset.kpis / dataset.alerts (lib/synth.js)
 
 // Causa raíz de churn (factores correlacionados con churn)
 const churnDrivers = [
@@ -166,30 +155,14 @@ const nbaRows = [
 ];
 
 // Cohortes vivas (retención por mes desde adquisición)
-const cohortMonths = ["Ene","Feb","Mar","Abr","May","Jun"];
-const cohortGrid = [
-  { name: "Ene 25", vals: [100, 88, 81, 76, 72, 70] },
-  { name: "Feb 25", vals: [100, 91, 85, 80, 77, null] },
-  { name: "Mar 25", vals: [100, 82, 74, 68, null, null] },
-  { name: "Abr 25", vals: [100, 93, 88, null, null, null] },
-  { name: "May 25", vals: [100, 94, null, null, null, null] },
-  { name: "Jun 25", vals: [100, null, null, null, null, null] },
-];
+// cohortMonths / cohortGrid ahora se generan por sesión → dataset.* (lib/synth.js)
 function cohortColor(v) {
   if (v == null) return "transparent";
   if (v >= 90) return PAL.teal; if (v >= 80) return PAL.green; if (v >= 72) return PAL.lime;
   if (v >= 65) return PAL.amber; return PAL.orange;
 }
 
-// Atribución CLV por canal
-const channels = [
-  { ch: "Referral", cac: 90, clv: 459, ratio: 5.1, vol: 420, c: PAL.teal },
-  { ch: "Organic", cac: 70, clv: 322, ratio: 4.6, vol: 980, c: PAL.green },
-  { ch: "Content", cac: 140, clv: 511, ratio: 3.65, vol: 310, c: PAL.indigo },
-  { ch: "Paid Social", cac: 220, clv: 540, ratio: 2.45, vol: 760, c: PAL.amber },
-  { ch: "Paid Search", cac: 310, clv: 620, ratio: 2.0, vol: 540, c: PAL.orange },
-  { ch: "Display", cac: 280, clv: 392, ratio: 1.4, vol: 290, c: PAL.red },
-];
+// Atribución CLV por canal → dataset.channels (lib/synth.js)
 
 /* =================== PRIMITIVAS =================== */
 function Spark({ data, color }) {
@@ -356,11 +329,18 @@ function Forecast() {
 
 // 1) ALERTAS & TRIGGERS
 function AlertsView({ embedded } = {}) {
+  const { dataset } = useSession();
+  const { alerts } = dataset;
   const sevLabel = { critical: "Crítico", warning: "Atención", info: "Insight" };
+  const summary = [
+    { n: alerts.filter((a) => a.sev === "critical").length, t: "Críticas", c: PAL.red },
+    { n: alerts.filter((a) => a.sev === "warning").length, t: "Atención", c: PAL.amber },
+    { n: alerts.filter((a) => a.sev === "info").length, t: "Insights", c: PAL.blue },
+  ];
   return <div>
     {!embedded && <H1 title="Alertas & Triggers" sub="El sistema vigila por ti. Cada alerta apunta a una decisión, no solo a un dato." />}
     <div style={{ display: "flex", gap: 12, marginBottom: 18 }}>
-      {[{ n: 2, t: "Críticas", c: PAL.red }, { n: 2, t: "Atención", c: PAL.amber }, { n: 1, t: "Insights", c: PAL.blue }].map((s) => (
+      {summary.map((s) => (
         <div key={s.t} style={{ flex: 1, background: PAL.panel, border: `1px solid ${PAL.line}`, borderLeft: `3px solid ${s.c}`, borderRadius: 12, padding: 16 }}>
           <div style={{ fontSize: 28, fontWeight: 700, color: s.c }}>{s.n}</div>
           <div style={{ fontSize: 12, color: PAL.sub, marginTop: 2 }}>{s.t} activas</div></div>))}</div>
@@ -494,6 +474,8 @@ function NbaView() {
 
 // 5) COHORTES VIVAS
 function CohortsView() {
+  const { dataset } = useSession();
+  const { cohortMonths, cohortGrid } = dataset;
   return <div>
     <H1 title="Cohortes vivas" sub="Cada cohorte de adquisición y cómo se desgasta su retención. La forma más honesta de saber si el producto mejora." />
     <Panel title="Retención por cohorte (% activos)" tag="heatmap de retención" h={360}>
@@ -513,6 +495,8 @@ function CohortsView() {
 
 // 6) ATRIBUCIÓN CLV POR CANAL
 function AttributionView() {
+  const { dataset } = useSession();
+  const { channels } = dataset;
   return <div>
     <H1 title="Atribución de CLV por canal" sub="No optimices por volumen ni por CAC barato. Optimiza por CLV:CAC — qué canal trae clientes valiosos." />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
@@ -554,15 +538,12 @@ const aiMessages = [
   { role: "ai", text: "Si la tasa de activación se mantiene en 62%, proyecto una pérdida incremental de $84K en MRR durante los próximos 6 meses, concentrada en las cohortes de marzo a mayo. Revertir el cambio de onboarding recuperaría ~$71K de eso. El ROI de revertir es inmediato: no tiene costo de desarrollo más allá de un rollback.", insight: true,
     actions: ["Ver proyección detallada", "Crear tarea para el equipo"] },
 ];
-const narrative = [
-  { tag: "GANADO", c: PAL.good, text: "Referral superó a Paid Search en CLV:CAC (5.1:1 vs 2.0:1). Reasignar $40K de presupuesto generaría ~$190K en CLV incremental." },
-  { tag: "RIESGO", c: PAL.bad, text: "12 cuentas de alto valor ($214K CLV) cruzaron a riesgo crítico esta semana, +140% vs media de 8 semanas. Concentradas en plan Premium con fallos de pago." },
-  { tag: "TENDENCIA", c: PAL.indigo, text: "NRR subió a 112.6% (+4.1pts trimestre). La expansión de cuentas Core compensa el churn de Marginal — señal de product-market fit saludable." },
-];
+// narrative ahora se genera por sesión → dataset.narrative (lib/synth.js)
+const _rndAnom = makeRng("vtx-anom");
 const anomalies = Array.from({ length: 40 }, (_, i) => {
   const base = 100 + Math.sin(i / 3) * 15 + i * 0.6;
   const isAnom = i === 24 || i === 31;
-  const v = isAnom ? base + (i === 24 ? 48 : -38) : base + (Math.random() - 0.5) * 8;
+  const v = isAnom ? base + (i === 24 ? 48 : -38) : base + (_rndAnom() - 0.5) * 8;
   return { d: i, v: +v.toFixed(1), anom: isAnom };
 });
 const integrations = [
@@ -705,6 +686,8 @@ function AssistantView({ previewHeight } = {}) {
 
 // === MÓDULO: NARRATIVAS + ANOMALÍAS ===
 function NarrativeView({ embedded } = {}) {
+  const { dataset } = useSession();
+  const { narrative } = dataset;
   return <div>
     {!embedded && <H1 title="Resumen ejecutivo" sub="Generado automáticamente cada lunes. Qué cambió, por qué importa y qué hacer — sin descifrar gráficos." />}
     <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 14 }}>
@@ -967,9 +950,10 @@ function GeoHeatmap() {
 
 // Heatmap tipo calendario (actividad de cuentas por día — estilo GitHub)
 const calWeeks = 26, calDays = 7;
+const _rndCal = makeRng("vtx-cal");
 const calData = Array.from({ length: calWeeks * calDays }, (_, i) => {
   const base = Math.sin(i / 18) * 0.4 + 0.5;
-  const v = Math.max(0, Math.min(1, base + (Math.random() - 0.5) * 0.6));
+  const v = Math.max(0, Math.min(1, base + (_rndCal() - 0.5) * 0.6));
   return { i, v, week: Math.floor(i / calDays), day: i % calDays };
 });
 function calColor(v) {
@@ -997,9 +981,10 @@ function CalendarHeatmap() {
 // Heatmap matricial profesional: cohorte hora×día (cuándo compran)
 const hours = ["0","3","6","9","12","15","18","21"];
 const days7 = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+const _rndMatrix = makeRng("vtx-matrix");
 const matrixData = days7.map((d, di) => hours.map((h, hi) => {
   const peak = Math.exp(-((hi - 4.5) ** 2) / 6) * (di < 5 ? 1 : 0.55);
-  return { d, h, di, hi, v: +(peak * 100 + Math.random() * 12).toFixed(0) };
+  return { d, h, di, hi, v: +(peak * 100 + _rndMatrix() * 12).toFixed(0) };
 }));
 function matrixColor(v) {
   const t = Math.min(v / 100, 1);
@@ -1429,16 +1414,10 @@ function NetworkView() {
 }
 
 /* =================== OVERVIEW (dashboard original) =================== */
-// Panel destacado: Revenue at Risk + generador de plan de retención accionable
-const retentionPlan = [
-  { seg: "At-Risk Premium", accounts: 12, clv: 214, color: PAL.bad,
-    action: "Llamada del account manager + oferta de retención 15%", impact: 182, effort: "Alto", window: "7 días" },
-  { seg: "Cooling VIP", accounts: 8, clv: 156, color: PAL.warn,
-    action: "Upgrade a plan anual con descuento de fidelidad", impact: 118, effort: "Medio", window: "14 días" },
-  { seg: "Loyal en declive", accounts: 23, clv: 98, color: PAL.warn,
-    action: "Campaña de reactivación + tutorial de feature core", impact: 64, effort: "Bajo", window: "30 días" },
-];
+// Panel destacado: Revenue at Risk + plan de retención → dataset.retentionPlan (lib/synth.js)
 function RevenueAtRiskPanel() {
+  const { dataset } = useSession();
+  const { retentionPlan, revenueAtRisk } = dataset;
   const [generated, setGenerated] = useState(false);
   const [loading, setLoading] = useState(false);
   const totalRecover = retentionPlan.reduce((a, p) => a + p.impact, 0);
@@ -1449,7 +1428,7 @@ function RevenueAtRiskPanel() {
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.bad }} />
           <span style={{ fontSize: FS.h2, fontWeight: 600 }}>Revenue at Risk</span></div>
-        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-.5px", marginTop: 8 }}>$847.2K <span style={{ fontSize: FS.body, fontWeight: 600, color: PAL.bad }}>en CLV de 43 cuentas</span></div>
+        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-.5px", marginTop: 8 }}>${revenueAtRisk.totalK}K <span style={{ fontSize: FS.body, fontWeight: 600, color: PAL.bad }}>en CLV de {revenueAtRisk.accounts} cuentas</span></div>
         <div style={{ fontSize: FS.body, color: PAL.sub, marginTop: 4 }}>Concentrado en 3 segmentos. El modelo puede proponer un plan de retención priorizado por impacto.</div>
       </div>
       {!generated && <button onClick={generate} disabled={loading} style={{ flexShrink: 0, fontSize: FS.body, fontWeight: 600, color: "#fff", background: loading ? PAL.sub : PAL.brand, border: "none", borderRadius: 10, padding: "12px 20px", cursor: loading ? "default" : "pointer", fontFamily: FONT }}>
@@ -1488,6 +1467,8 @@ function RevenueAtRiskPanel() {
 }
 
 function OverviewView() {
+  const { dataset } = useSession();
+  const { kpis } = dataset;
   return <div>
     <H1 title="Customer Intelligence" sub="Churn prediction · CLV modeling · RFM & forecast" />
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14 }}>
@@ -2293,10 +2274,20 @@ function Dashboard({ onLogout }) {
 }
 
 /* =================== ROOT: FLUJO DE SESIÓN =================== */
-export default function App() {
+function AppShell() {
   // estados de sesión: "landing" → "login" → "app"
   const [stage, setStage] = useState("landing");
   if (stage === "landing") return <LandingView onEnter={() => setStage("login")} />;
   if (stage === "login") return <LoginView onLogin={() => { window.location.hash = "/overview"; setStage("app"); }} onBack={() => setStage("landing")} />;
   return <Dashboard onLogout={() => { window.location.hash = ""; setStage("landing"); }} />;
+}
+
+// El SessionProvider envuelve todo: la landing (preview), el login y el dashboard
+// comparten el mismo dataset sintético por sesión.
+export default function App() {
+  return (
+    <SessionProvider>
+      <AppShell />
+    </SessionProvider>
+  );
 }
