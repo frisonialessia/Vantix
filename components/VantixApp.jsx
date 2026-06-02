@@ -1884,18 +1884,27 @@ function LogoutView({ onCancel, onConfirm }) {
 /* =================== LANDING PAGE + LOGIN =================== */
 
 const landingFeatures = [
-  { t: "Customer Intelligence", d: "Predice churn y CLV por cliente con modelos BG/NBD. Segmenta por comportamiento, no por intuición.", icon: "◉" },
-  { t: "Micro-estudios de mercado", d: "Análisis estratégicos al instante: expansión, precio, competencia. Con veredicto y recomendación.", icon: "◎" },
-  { t: "Modelado financiero", d: "P&L proyectado, runway y simulación Monte Carlo. Lo que un CFO necesita antes de una junta.", icon: "◈" },
-  { t: "Asistente IA", d: "Pregunta en lenguaje natural. Responde con la causa y la acción, no con un gráfico que descifrar.", icon: "◐" },
-  { t: "Análisis de red", d: "Descubre comunidades de clientes con clustering. Los segmentos emergen de los datos.", icon: "◍" },
-  { t: "Mapas en tiempo real", d: "Actividad geográfica en vivo y heatmaps de concentración de ingreso por región.", icon: "◓" },
+  { t: { en: "Customer Intelligence", es: "Customer Intelligence" }, d: { en: "Predict churn and CLV per customer with BG/NBD models. Segment by behavior, not intuition.", es: "Predice churn y CLV por cliente con modelos BG/NBD. Segmenta por comportamiento, no por intuición." }, icon: "◉" },
+  { t: { en: "Market micro-studies", es: "Micro-estudios de mercado" }, d: { en: "Instant strategic analysis: expansion, pricing, competition. With a verdict and a recommendation.", es: "Análisis estratégicos al instante: expansión, precio, competencia. Con veredicto y recomendación." }, icon: "◎" },
+  { t: { en: "Financial modeling", es: "Modelado financiero" }, d: { en: "Projected P&L, runway and Monte Carlo simulation. What a CFO needs before a board meeting.", es: "P&L proyectado, runway y simulación Monte Carlo. Lo que un CFO necesita antes de una junta." }, icon: "◈" },
+  { t: { en: "AI Assistant", es: "Asistente IA" }, d: { en: "Ask in natural language. It answers with the cause and the action, not a chart to decode.", es: "Pregunta en lenguaje natural. Responde con la causa y la acción, no con un gráfico que descifrar." }, icon: "◐" },
+  { t: { en: "Network analysis", es: "Análisis de red" }, d: { en: "Discover customer communities with clustering. Segments emerge from the data.", es: "Descubre comunidades de clientes con clustering. Los segmentos emergen de los datos." }, icon: "◍" },
+  { t: { en: "Real-time maps", es: "Mapas en tiempo real" }, d: { en: "Live geographic activity and revenue-concentration heatmaps by region.", es: "Actividad geográfica en vivo y heatmaps de concentración de ingreso por región." }, icon: "◓" },
 ];
 const landingSteps = [
-  { n: 1, t: "Conecta tus datos", d: "Stripe, Snowflake o un CSV. Mapeo automático de columnas en minutos." },
-  { n: 2, t: "El motor analiza", d: "RFM, CLV, churn y segmentación corren en background sobre tus transacciones." },
-  { n: 3, t: "Decides con datos", d: "Alertas, next-best-action y escenarios. De la analítica a la acción." },
+  { n: 1, t: { en: "Connect your data", es: "Conecta tus datos" }, d: { en: "Stripe, Snowflake or a CSV. Automatic column mapping in minutes.", es: "Stripe, Snowflake o un CSV. Mapeo automático de columnas en minutos." } },
+  { n: 2, t: { en: "The engine analyzes", es: "El motor analiza" }, d: { en: "RFM, CLV, churn and segmentation run in the background over your transactions.", es: "RFM, CLV, churn y segmentación corren en background sobre tus transacciones." } },
+  { n: 3, t: { en: "You decide with data", es: "Decides con datos" }, d: { en: "Alerts, next-best-action and scenarios. From analytics to action.", es: "Alertas, next-best-action y escenarios. De la analítica a la acción." } },
 ];
+
+// Toggle de idioma reutilizable (EN | ES)
+function LangToggle({ lang, setLang }) {
+  return <div style={{ display: "inline-flex", border: `1px solid ${PAL.line}`, borderRadius: 8, overflow: "hidden", fontFamily: FONT }}>
+    {["en", "es"].map((l) => (
+      <button key={l} onClick={() => setLang(l)} style={{ fontSize: 11.5, fontWeight: 600, padding: "6px 10px", border: "none", cursor: "pointer", background: lang === l ? PAL.brand : "transparent", color: lang === l ? "#fff" : PAL.sub, fontFamily: FONT }}>{l.toUpperCase()}</button>
+    ))}
+  </div>;
+}
 
 
 // Preview interactivo del producto: navegación real (completa) dentro del marco
@@ -1976,6 +1985,7 @@ function ProductPreview() {
 }
 
 function LandingView({ onEnter }) {
+  const { L, lang, setLang } = useSession();
   const navLink = { fontSize: 14, color: PAL.sub, cursor: "pointer", fontWeight: 500, textDecoration: "none" };
   const section = { maxWidth: 1080, margin: "0 auto", padding: "0 24px" };
   return <div style={{ fontFamily: FONT, color: PAL.text, background: PAL.panel }}>
@@ -1985,9 +1995,10 @@ function LandingView({ onEnter }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Logo size={32} /><span style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-.3px", fontFamily: '"Space Grotesk", sans-serif' }}>Vantix</span></div>
         <div style={{ flex: 1 }} />
-        <a style={navLink} onClick={() => document.getElementById("feat")?.scrollIntoView({ behavior: "smooth" })}>Producto</a>
-        <a style={navLink} onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>Créditos</a>
-        <button onClick={onEnter} style={{ fontSize: 14, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>Probar demo</button>
+        <a style={navLink} onClick={() => document.getElementById("feat")?.scrollIntoView({ behavior: "smooth" })}>{L("Product", "Producto")}</a>
+        <a style={navLink} onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>{L("Credits", "Créditos")}</a>
+        <LangToggle lang={lang} setLang={setLang} />
+        <button onClick={onEnter} style={{ fontSize: 14, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>{L("Try demo", "Probar demo")}</button>
       </div>
     </nav>
 
@@ -1995,20 +2006,20 @@ function LandingView({ onEnter }) {
     <header style={{ ...section, paddingTop: 80, paddingBottom: 60, textAlign: "center" }}>
       <div style={{ display: "inline-block", fontSize: 12.5, fontWeight: 600, color: PAL.brand, background: `${PAL.brand}12`, padding: "6px 14px", borderRadius: 20, marginBottom: 22 }}>Market & Customer Intelligence</div>
       <h1 style={{ fontSize: 52, fontWeight: 800, letterSpacing: "-1.5px", lineHeight: 1.08, margin: 0, maxWidth: 820, marginLeft: "auto", marginRight: "auto" }}>
-        Inteligencia predictiva para maximizar el <span style={{ color: PAL.brand }}>valor financiero</span></h1>
+        {L(<>Predictive intelligence to maximize <span style={{ color: PAL.brand }}>financial value</span></>, <>Inteligencia predictiva para maximizar el <span style={{ color: PAL.brand }}>valor financiero</span></>)}</h1>
       <p style={{ fontSize: 19, color: PAL.sub, lineHeight: 1.5, maxWidth: 640, margin: "22px auto 0" }}>
-        Vantix predice el churn y el valor de vida de cada cliente, y lo traduce en decisiones que protegen y hacen crecer tus ingresos.</p>
+        {L("Vantix predicts churn and the lifetime value of every customer, and turns it into decisions that protect and grow your revenue.", "Vantix predice el churn y el valor de vida de cada cliente, y lo traduce en decisiones que protegen y hacen crecer tus ingresos.")}</p>
       <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 34 }}>
-        <button onClick={() => document.getElementById("feat")?.scrollIntoView({ behavior: "smooth" })} style={{ fontSize: 15, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 12, padding: "14px 28px", cursor: "pointer", fontFamily: FONT }}>Cómo funciona</button>
-        <button onClick={onEnter} style={{ fontSize: 15, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 12, padding: "14px 28px", cursor: "pointer", fontFamily: FONT }}>Ver demo</button>
+        <button onClick={() => document.getElementById("feat")?.scrollIntoView({ behavior: "smooth" })} style={{ fontSize: 15, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 12, padding: "14px 28px", cursor: "pointer", fontFamily: FONT }}>{L("How it works", "Cómo funciona")}</button>
+        <button onClick={onEnter} style={{ fontSize: 15, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 12, padding: "14px 28px", cursor: "pointer", fontFamily: FONT }}>{L("See demo", "Ver demo")}</button>
       </div>
-      <div style={{ fontSize: 13, color: PAL.sub, marginTop: 16 }}>Explora el producto completo · Configúralo en 10 minutos</div>
+      <div style={{ fontSize: 13, color: PAL.sub, marginTop: 16 }}>{L("Explore the full product · Set it up in 10 minutes", "Explora el producto completo · Configúralo en 10 minutos")}</div>
       <ProductPreview />
     </header>
 
     {/* PRUEBA SOCIAL */}
     <div style={{ ...section, paddingBottom: 50, textAlign: "center" }}>
-      <div style={{ fontSize: 12.5, color: PAL.sub, letterSpacing: ".5px", marginBottom: 18 }}>EQUIPOS DE DATOS Y FINANZAS QUE CONFÍAN EN VANTIX</div>
+      <div style={{ fontSize: 12.5, color: PAL.sub, letterSpacing: ".5px", marginBottom: 18 }}>{L("DATA & FINANCE TEAMS THAT TRUST VANTIX", "EQUIPOS DE DATOS Y FINANZAS QUE CONFÍAN EN VANTIX")}</div>
       <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", opacity: .55 }}>
         {["Northwind", "Acme", "Globex", "Initech", "Umbrella"].map(n => <span key={n} style={{ fontSize: 18, fontWeight: 700, color: PAL.sub, letterSpacing: "-.3px" }}>{n}</span>)}
       </div>
@@ -2018,15 +2029,15 @@ function LandingView({ onEnter }) {
     <section id="feat" style={{ background: PAL.panel2, padding: "70px 0" }}>
       <div style={section}>
         <div style={{ textAlign: "center", marginBottom: 44 }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>Todo lo que necesitas para decidir</h2>
-          <p style={{ fontSize: 17, color: PAL.sub, marginTop: 12 }}>Una plataforma, no diez herramientas sueltas.</p>
+          <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>{L("Everything you need to decide", "Todo lo que necesitas para decidir")}</h2>
+          <p style={{ fontSize: 17, color: PAL.sub, marginTop: 12 }}>{L("One platform, not ten scattered tools.", "Una plataforma, no diez herramientas sueltas.")}</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18 }}>
           {landingFeatures.map((f, i) => (
             <div key={i} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 24 }}>
               <div style={{ width: 44, height: 44, borderRadius: 11, background: `${PAL.brand}12`, color: PAL.brand, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, marginBottom: 14 }}>{f.icon}</div>
-              <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 7 }}>{f.t}</div>
-              <div style={{ fontSize: 14, color: PAL.sub, lineHeight: 1.55 }}>{f.d}</div>
+              <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 7 }}>{L(f.t.en, f.t.es)}</div>
+              <div style={{ fontSize: 14, color: PAL.sub, lineHeight: 1.55 }}>{L(f.d.en, f.d.es)}</div>
             </div>))}
         </div>
       </div>
@@ -2035,14 +2046,14 @@ function LandingView({ onEnter }) {
     {/* CÓMO FUNCIONA */}
     <section style={{ ...section, padding: "70px 24px" }}>
       <div style={{ textAlign: "center", marginBottom: 44 }}>
-        <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>De los datos a la decisión en 3 pasos</h2>
+        <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>{L("From data to decision in 3 steps", "De los datos a la decisión en 3 pasos")}</h2>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
         {landingSteps.map((s) => (
           <div key={s.n} style={{ textAlign: "center" }}>
             <div style={{ width: 48, height: 48, borderRadius: "50%", background: PAL.brand, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 700, margin: "0 auto 16px" }}>{s.n}</div>
-            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{s.t}</div>
-            <div style={{ fontSize: 14.5, color: PAL.sub, lineHeight: 1.55, maxWidth: 280, margin: "0 auto" }}>{s.d}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{L(s.t.en, s.t.es)}</div>
+            <div style={{ fontSize: 14.5, color: PAL.sub, lineHeight: 1.55, maxWidth: 280, margin: "0 auto" }}>{L(s.d.en, s.d.es)}</div>
           </div>))}
       </div>
     </section>
@@ -2051,34 +2062,37 @@ function LandingView({ onEnter }) {
     <section id="pricing" style={{ background: PAL.panel2, padding: "70px 0" }}>
       <div style={section}>
         <div style={{ textAlign: "center", marginBottom: 44 }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>Acceso basado en créditos</h2>
-          <p style={{ fontSize: 17, color: PAL.sub, marginTop: 12, maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>Empieza gratis. Cada análisis consume créditos — sin suscripción, sin tarjeta. Pagas solo por el cómputo que usas.</p>
+          <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", margin: 0 }}>{L("Credit-based access", "Acceso basado en créditos")}</h2>
+          <p style={{ fontSize: 17, color: PAL.sub, marginTop: 12, maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>{L("Start free. Each analysis consumes credits — no subscription, no card. You only pay for the compute you use.", "Empieza gratis. Cada análisis consume créditos — sin suscripción, sin tarjeta. Pagas solo por el cómputo que usas.")}</p>
         </div>
         <div style={{ maxWidth: 720, margin: "0 auto", background: PAL.panel, border: `2px solid ${PAL.brand}`, borderRadius: 16, padding: 32, position: "relative" }}>
-          <div style={{ position: "absolute", top: -11, left: 32, fontSize: 11, fontWeight: 700, color: "#fff", background: PAL.brand, padding: "4px 12px", borderRadius: 20 }}>EARLY ACCESS · GRATIS</div>
+          <div style={{ position: "absolute", top: -11, left: 32, fontSize: 11, fontWeight: 700, color: "#fff", background: PAL.brand, padding: "4px 12px", borderRadius: 20 }}>{L("EARLY ACCESS · FREE", "EARLY ACCESS · GRATIS")}</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px" }}>500 créditos</span>
-            <span style={{ fontSize: 16, color: PAL.sub }}>/ mes · renovados gratis</span>
+            <span style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px" }}>{L("500 credits", "500 créditos")}</span>
+            <span style={{ fontSize: 16, color: PAL.sub }}>{L("/ month · renewed free", "/ mes · renovados gratis")}</span>
           </div>
-          <div style={{ fontSize: 14.5, color: PAL.sub, marginTop: 8, marginBottom: 24 }}>Suficiente para explorar todo el producto. Sin compromiso durante el lanzamiento.</div>
+          <div style={{ fontSize: 14.5, color: PAL.sub, marginTop: 8, marginBottom: 24 }}>{L("Enough to explore the whole product. No commitment during launch.", "Suficiente para explorar todo el producto. Sin compromiso durante el lanzamiento.")}</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14, marginBottom: 26 }}>
-            {[["Consulta al Asistente IA", "1 crédito"], ["Micro-estudio de mercado", "25 créditos"], ["Plan de retención", "15 créditos"], ["Simulación Monte Carlo", "5 créditos"], ["Dashboards & analítica", "Siempre incluido"], ["Conexiones de datos", "Siempre incluido"]].map(([k, v], i) => (
+            {(lang === "es"
+              ? [["Consulta al Asistente IA","1 crédito",true],["Micro-estudio de mercado","25 créditos",true],["Plan de retención","15 créditos",true],["Simulación Monte Carlo","5 créditos",true],["Dashboards & analítica","Siempre incluido",false],["Conexiones de datos","Siempre incluido",false]]
+              : [["AI Assistant query","1 credit",true],["Market micro-study","25 credits",true],["Retention plan","15 credits",true],["Monte Carlo simulation","5 credits",true],["Dashboards & analytics","Always included",false],["Data connections","Always included",false]]
+            ).map(([k, v, isCredit], i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${PAL.line}`, paddingBottom: 9 }}>
                 <span style={{ fontSize: 14 }}>{k}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: v.includes("crédito") ? PAL.brand : PAL.good }}>{v}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: isCredit ? PAL.brand : PAL.good }}>{v}</span>
               </div>))}
           </div>
-          <button onClick={onEnter} style={{ width: "100%", fontSize: 15, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: "14px", cursor: "pointer", fontFamily: FONT }}>Empezar gratis con 500 créditos</button>
-          <div style={{ textAlign: "center", fontSize: 12.5, color: PAL.sub, marginTop: 12 }}>Los créditos reflejan el costo real de cómputo de los modelos de IA. Transparente y sin sorpresas.</div>
+          <button onClick={onEnter} style={{ width: "100%", fontSize: 15, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 10, padding: "14px", cursor: "pointer", fontFamily: FONT }}>{L("Start free with 500 credits", "Empezar gratis con 500 créditos")}</button>
+          <div style={{ textAlign: "center", fontSize: 12.5, color: PAL.sub, marginTop: 12 }}>{L("Credits reflect the real compute cost of the AI models. Transparent, no surprises.", "Los créditos reflejan el costo real de cómputo de los modelos de IA. Transparente y sin sorpresas.")}</div>
         </div>
       </div>
     </section>
 
     {/* CTA FINAL */}
     <section style={{ ...section, padding: "80px 24px", textAlign: "center" }}>
-      <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px", margin: 0, maxWidth: 640, marginLeft: "auto", marginRight: "auto" }}>Empieza a decidir con datos hoy</h2>
-      <p style={{ fontSize: 18, color: PAL.sub, marginTop: 16 }}>Explora Vantix completo. Empieza con 500 créditos gratis.</p>
-      <button onClick={onEnter} style={{ fontSize: 16, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 12, padding: "15px 34px", cursor: "pointer", fontFamily: FONT, marginTop: 28 }}>Empezar gratis</button>
+      <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px", margin: 0, maxWidth: 640, marginLeft: "auto", marginRight: "auto" }}>{L("Start deciding with data today", "Empieza a decidir con datos hoy")}</h2>
+      <p style={{ fontSize: 18, color: PAL.sub, marginTop: 16 }}>{L("Explore the full Vantix. Start with 500 free credits.", "Explora Vantix completo. Empieza con 500 créditos gratis.")}</p>
+      <button onClick={onEnter} style={{ fontSize: 16, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 12, padding: "15px 34px", cursor: "pointer", fontFamily: FONT, marginTop: 28 }}>{L("Start free", "Empezar gratis")}</button>
     </section>
 
     {/* FOOTER */}
@@ -2086,7 +2100,7 @@ function LandingView({ onEnter }) {
       <div style={{ ...section, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}><Logo size={26} /><span style={{ fontWeight: 700, fontSize: 15 }}>Vantix</span></div>
         <div style={{ fontSize: 13, color: PAL.sub }}>© 2026 Vantix · Market & Customer Intelligence</div>
-        <div style={{ display: "flex", gap: 20, fontSize: 13, color: PAL.sub }}><span>Privacidad</span><span>Términos</span><span>SOC 2</span></div>
+        <div style={{ display: "flex", gap: 20, fontSize: 13, color: PAL.sub }}><span>{L("Privacy", "Privacidad")}</span><span>{L("Terms", "Términos")}</span><span>SOC 2</span></div>
       </div>
     </footer>
   </div>;
