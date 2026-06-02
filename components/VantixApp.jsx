@@ -1147,83 +1147,84 @@ function IntelligentMap({ embedded } = {}) {
 }
 
 // ---------- 2) MICRO-ESTUDIOS DE MERCADO INMEDIATOS ----------
-const studyTemplates = {
-  "Expansión a nuevo segmento": {
-    verdict: "Oportunidad alta", vc: PAL.good,
-    score: 82,
+const studyTemplates = [
+  {
+    topic: { en: "Expansion to a new segment", es: "Expansión a nuevo segmento" },
+    verdict: { en: "High opportunity", es: "Oportunidad alta" }, vc: PAL.good, score: 82,
     findings: [
-      { k: "Tamaño de mercado (TAM)", v: "$340M", trend: "+12% anual", good: true },
-      { k: "Penetración actual", v: "3.2%", trend: "headroom amplio", good: true },
-      { k: "CAC estimado", v: "$210", trend: "−18% vs canal actual", good: true },
-      { k: "Competencia directa", v: "4 players", trend: "ninguno dominante", good: true },
+      { k: { en: "Market size (TAM)", es: "Tamaño de mercado (TAM)" }, v: "$340M", trend: { en: "+12% annually", es: "+12% anual" }, good: true },
+      { k: { en: "Current penetration", es: "Penetración actual" }, v: "3.2%", trend: { en: "ample headroom", es: "headroom amplio" }, good: true },
+      { k: { en: "Estimated CAC", es: "CAC estimado" }, v: "$210", trend: { en: "−18% vs current channel", es: "−18% vs canal actual" }, good: true },
+      { k: { en: "Direct competition", es: "Competencia directa" }, v: { en: "4 players", es: "4 players" }, trend: { en: "none dominant", es: "ninguno dominante" }, good: true },
     ],
-    bars: [{ n: "Tu segmento", v: 82, c: PAL.d1 }, { n: "Adyacente A", v: 64, c: PAL.d2 }, { n: "Adyacente B", v: 47, c: PAL.d3 }, { n: "Saturado", v: 28, c: PAL.d6 }],
-    rec: "El segmento de PYMEs de servicios tiene el mejor ratio oportunidad/competencia. Recomendación: piloto de 90 días con presupuesto acotado antes de escalar.",
+    bars: [{ n: { en: "Your segment", es: "Tu segmento" }, v: 82, c: PAL.d1 }, { n: { en: "Adjacent A", es: "Adyacente A" }, v: 64, c: PAL.d2 }, { n: { en: "Adjacent B", es: "Adyacente B" }, v: 47, c: PAL.d3 }, { n: { en: "Saturated", es: "Saturado" }, v: 28, c: PAL.d6 }],
+    rec: { en: "The SMB services segment has the best opportunity/competition ratio. Recommendation: a 90-day pilot with a capped budget before scaling.", es: "El segmento de PYMEs de servicios tiene el mejor ratio oportunidad/competencia. Recomendación: piloto de 90 días con presupuesto acotado antes de escalar." },
   },
-  "Sensibilidad al precio": {
-    verdict: "Margen para subir", vc: PAL.good,
-    score: 71,
+  {
+    topic: { en: "Price sensitivity", es: "Sensibilidad al precio" },
+    verdict: { en: "Room to raise", es: "Margen para subir" }, vc: PAL.good, score: 71,
     findings: [
-      { k: "Elasticidad estimada", v: "−0.6", trend: "inelástico", good: true },
-      { k: "Precio óptimo modelado", v: "$59/mes", trend: "+18% vs actual", good: true },
-      { k: "Churn proyectado", v: "+1.2pts", trend: "absorbible", good: false },
-      { k: "Ingreso neto", v: "+$1.4M ARR", trend: "tras ajuste", good: true },
+      { k: { en: "Estimated elasticity", es: "Elasticidad estimada" }, v: "−0.6", trend: { en: "inelastic", es: "inelástico" }, good: true },
+      { k: { en: "Modeled optimal price", es: "Precio óptimo modelado" }, v: { en: "$59/mo", es: "$59/mes" }, trend: { en: "+18% vs current", es: "+18% vs actual" }, good: true },
+      { k: { en: "Projected churn", es: "Churn proyectado" }, v: "+1.2pts", trend: { en: "absorbable", es: "absorbible" }, good: false },
+      { k: { en: "Net revenue", es: "Ingreso neto" }, v: "+$1.4M ARR", trend: { en: "after adjustment", es: "tras ajuste" }, good: true },
     ],
-    bars: [{ n: "$39 (actual)", v: 100, c: PAL.d3 }, { n: "$49", v: 118, c: PAL.d2 }, { n: "$59 (óptimo)", v: 132, c: PAL.d1 }, { n: "$69", v: 121, c: PAL.d6 }],
-    rec: "El modelo sugiere subir a $59 escalonadamente. La demanda es inelástica en tu segmento premium; el churn incremental se compensa 11x con el ingreso adicional.",
+    bars: [{ n: { en: "$39 (current)", es: "$39 (actual)" }, v: 100, c: PAL.d3 }, { n: { en: "$49", es: "$49" }, v: 118, c: PAL.d2 }, { n: { en: "$59 (optimal)", es: "$59 (óptimo)" }, v: 132, c: PAL.d1 }, { n: { en: "$69", es: "$69" }, v: 121, c: PAL.d6 }],
+    rec: { en: "The model suggests stepping up to $59. Demand is inelastic in your premium segment; the incremental churn is offset 11x by the additional revenue.", es: "El modelo sugiere subir a $59 escalonadamente. La demanda es inelástica en tu segmento premium; el churn incremental se compensa 11x con el ingreso adicional." },
   },
-  "Riesgo competitivo": {
-    verdict: "Vigilancia activa", vc: PAL.warn,
-    score: 58,
+  {
+    topic: { en: "Competitive risk", es: "Riesgo competitivo" },
+    verdict: { en: "Active monitoring", es: "Vigilancia activa" }, vc: PAL.warn, score: 58,
     findings: [
-      { k: "Nuevos entrantes (12m)", v: "3", trend: "uno con $40M funding", good: false },
-      { k: "Solapamiento de features", v: "64%", trend: "creciente", good: false },
-      { k: "Ventaja de retención", v: "+22pts NRR", trend: "tu foso", good: true },
-      { k: "Switching cost", v: "Alto", trend: "integraciones profundas", good: true },
+      { k: { en: "New entrants (12m)", es: "Nuevos entrantes (12m)" }, v: "3", trend: { en: "one with $40M funding", es: "uno con $40M funding" }, good: false },
+      { k: { en: "Feature overlap", es: "Solapamiento de features" }, v: "64%", trend: { en: "growing", es: "creciente" }, good: false },
+      { k: { en: "Retention advantage", es: "Ventaja de retención" }, v: "+22pts NRR", trend: { en: "your moat", es: "tu foso" }, good: true },
+      { k: { en: "Switching cost", es: "Switching cost" }, v: { en: "High", es: "Alto" }, trend: { en: "deep integrations", es: "integraciones profundas" }, good: true },
     ],
-    bars: [{ n: "Tu retención", v: 88, c: PAL.d1 }, { n: "Competidor X", v: 71, c: PAL.d3 }, { n: "Competidor Y", v: 66, c: PAL.d4 }, { n: "Nuevo entrante", v: 52, c: PAL.d6 }],
-    rec: "Tu foso es la retención y el switching cost, no las features. Recomendación: profundizar integraciones antes que competir en paridad de features.",
+    bars: [{ n: { en: "Your retention", es: "Tu retención" }, v: 88, c: PAL.d1 }, { n: { en: "Competitor X", es: "Competidor X" }, v: 71, c: PAL.d3 }, { n: { en: "Competitor Y", es: "Competidor Y" }, v: 66, c: PAL.d4 }, { n: { en: "New entrant", es: "Nuevo entrante" }, v: 52, c: PAL.d6 }],
+    rec: { en: "Your moat is retention and switching cost, not features. Recommendation: deepen integrations rather than compete on feature parity.", es: "Tu foso es la retención y el switching cost, no las features. Recomendación: profundizar integraciones antes que competir en paridad de features." },
   },
-};
+];
 function MicroStudyView() {
+  const { L } = useSession();
   const [topic, setTopic] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const run = (t) => {
-    setTopic(t); setLoading(true); setResult(null);
-    setTimeout(() => { setResult(studyTemplates[t]); setLoading(false); }, 1400);
+  const run = (tpl) => {
+    setTopic(tpl.topic.en); setLoading(true); setResult(null);
+    setTimeout(() => { setResult(tpl); setLoading(false); }, 1400);
   };
   return <div>
-    <H1 title="Micro-estudios de mercado" sub="Análisis estratégico al instante. Elige una pregunta de negocio y el motor genera el estudio con datos, veredicto y recomendación." />
+    <H1 title={L("Market micro-studies", "Micro-estudios de mercado")} sub={L("Instant strategic analysis. Pick a business question and the engine generates the study with data, a verdict and a recommendation.", "Análisis estratégico al instante. Elige una pregunta de negocio y el motor genera el estudio con datos, veredicto y recomendación.")} />
     <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 18 }}>
-      {Object.keys(studyTemplates).map(t => (
-        <button key={t} onClick={() => run(t)} style={{ fontSize: 13, fontWeight: 600, color: topic === t ? "#fff" : PAL.text, background: topic === t ? PAL.indigo : PAL.panel, border: `1px solid ${topic === t ? PAL.indigo : PAL.line}`, borderRadius: 10, padding: "11px 18px", cursor: "pointer", fontFamily: FONT }}>{t}</button>))}
+      {studyTemplates.map(tpl => (
+        <button key={tpl.topic.en} onClick={() => run(tpl)} style={{ fontSize: 13, fontWeight: 600, color: topic === tpl.topic.en ? "#fff" : PAL.text, background: topic === tpl.topic.en ? PAL.indigo : PAL.panel, border: `1px solid ${topic === tpl.topic.en ? PAL.indigo : PAL.line}`, borderRadius: 10, padding: "11px 18px", cursor: "pointer", fontFamily: FONT }}>{L(tpl.topic.en, tpl.topic.es)}</button>))}
     </div>
     {loading && <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 50, textAlign: "center" }}>
       <div style={{ display: "inline-block", width: 28, height: 28, border: `3px solid ${PAL.line}`, borderTopColor: PAL.indigo, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-      <div style={{ marginTop: 14, fontSize: 13, color: PAL.sub }}>Analizando mercado, competencia y datos internos…</div>
+      <div style={{ marginTop: 14, fontSize: 13, color: PAL.sub }}>{L("Analyzing market, competition and internal data…", "Analizando mercado, competencia y datos internos…")}</div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>}
     {result && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
       <div style={{ gridColumn: "span 2", background: PAL.panel, border: `1px solid ${PAL.line}`, borderLeft: `4px solid ${result.vc}`, borderRadius: 14, padding: "20px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div><div style={{ fontSize: 11.5, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".5px", fontWeight: 600 }}>Veredicto del motor</div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: result.vc, marginTop: 4 }}>{result.verdict}</div></div>
+        <div><div style={{ fontSize: 11.5, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".5px", fontWeight: 600 }}>{L("Engine verdict", "Veredicto del motor")}</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: result.vc, marginTop: 4 }}>{L(result.verdict.en, result.verdict.es)}</div></div>
         <div style={{ textAlign: "center" }}><div style={{ fontSize: 38, fontWeight: 800, letterSpacing: "-1px", color: result.vc }}>{result.score}</div>
           <div style={{ fontSize: 10.5, color: PAL.sub }}>score / 100</div></div>
       </div>
-      <Panel title="Hallazgos clave" tag="datos" h={280}>
+      <Panel title={L("Key findings", "Hallazgos clave")} tag={L("data", "datos")} h={280}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {result.findings.map((f, i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: i < result.findings.length - 1 ? `1px solid ${PAL.line}` : "none", paddingBottom: 10 }}>
-              <span style={{ fontSize: 12.5, color: PAL.sub }}>{f.k}</span>
-              <div style={{ textAlign: "right" }}><div style={{ fontSize: 15, fontWeight: 700 }}>{f.v}</div>
-                <div style={{ fontSize: 10.5, color: f.good ? PAL.good : PAL.warn }}>{f.trend}</div></div>
+              <span style={{ fontSize: 12.5, color: PAL.sub }}>{L(f.k.en, f.k.es)}</span>
+              <div style={{ textAlign: "right" }}><div style={{ fontSize: 15, fontWeight: 700 }}>{typeof f.v === "string" ? f.v : L(f.v.en, f.v.es)}</div>
+                <div style={{ fontSize: 10.5, color: f.good ? PAL.good : PAL.warn }}>{L(f.trend.en, f.trend.es)}</div></div>
             </div>))}
         </div>
       </Panel>
-      <Panel title="Comparativa modelada" tag="escenarios" h={280}>
+      <Panel title={L("Modeled comparison", "Comparativa modelada")} tag={L("scenarios", "escenarios")} h={280}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={result.bars} margin={{ top: 10, right: 10, bottom: 30, left: -16 }}>
+          <BarChart data={result.bars.map((b) => ({ ...b, n: L(b.n.en, b.n.es) }))} margin={{ top: 10, right: 10, bottom: 30, left: -16 }}>
             <CartesianGrid vertical={false} stroke={PAL.line} />
             <XAxis dataKey="n" tick={{ fontSize: 10, fill: PAL.sub }} angle={-15} textAnchor="end" height={50} interval={0} />
             <YAxis tick={{ fontSize: 10, fill: PAL.sub }} />
@@ -1232,11 +1233,11 @@ function MicroStudyView() {
           </BarChart></ResponsiveContainer>
       </Panel>
       <div style={{ gridColumn: "span 2", background: `${result.vc}0D`, border: `1px solid ${result.vc}40`, borderRadius: 14, padding: "16px 20px" }}>
-        <div style={{ fontSize: 12.5, fontWeight: 700, color: result.vc, marginBottom: 6 }}>Recomendación</div>
-        <div style={{ fontSize: 13.5, lineHeight: 1.55 }}>{result.rec}</div>
+        <div style={{ fontSize: 12.5, fontWeight: 700, color: result.vc, marginBottom: 6 }}>{L("Recommendation", "Recomendación")}</div>
+        <div style={{ fontSize: 13.5, lineHeight: 1.55 }}>{L(result.rec.en, result.rec.es)}</div>
       </div>
     </div>}
-    {!result && !loading && <div style={{ background: PAL.panel, border: `1px dashed ${PAL.line}`, borderRadius: 14, padding: 50, textAlign: "center", color: PAL.sub, fontSize: 13 }}>Elige una pregunta de negocio arriba para generar un micro-estudio.</div>}
+    {!result && !loading && <div style={{ background: PAL.panel, border: `1px dashed ${PAL.line}`, borderRadius: 14, padding: 50, textAlign: "center", color: PAL.sub, fontSize: 13 }}>{L("Pick a business question above to generate a micro-study.", "Elige una pregunta de negocio arriba para generar un micro-estudio.")}</div>}
   </div>;
 }
 
@@ -1250,10 +1251,13 @@ const rng = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280;
 regions.forEach(r => segs.forEach(s => chans.forEach(c => {
   pivotRaw.push({ region: r, seg: s, chan: c, revenue: Math.round(20 + rng() * 480), accounts: Math.round(5 + rng() * 95), churn: +(2 + rng() * 12).toFixed(1) });
 })));
-const DIMS = [{ k: "region", l: "Región" }, { k: "seg", l: "Segmento" }, { k: "chan", l: "Canal" }];
-const MEASURES = [{ k: "revenue", l: "Ingreso", fmt: (v) => `$${v}K`, agg: "sum" }, { k: "accounts", l: "Cuentas", fmt: (v) => v, agg: "sum" }, { k: "churn", l: "Churn %", fmt: (v) => `${v.toFixed(1)}%`, agg: "avg" }];
+const DIMS = [{ k: "region", l: { en: "Region", es: "Región" } }, { k: "seg", l: { en: "Segment", es: "Segmento" } }, { k: "chan", l: { en: "Channel", es: "Canal" } }];
+const MEASURES = [{ k: "revenue", l: { en: "Revenue", es: "Ingreso" }, fmt: (v) => `$${v}K`, agg: "sum" }, { k: "accounts", l: { en: "Accounts", es: "Cuentas" }, fmt: (v) => v, agg: "sum" }, { k: "churn", l: { en: "Churn %", es: "Churn %" }, fmt: (v) => `${v.toFixed(1)}%`, agg: "avg" }];
 
 function PivotView() {
+  const { L } = useSession();
+  // Localiza los VALORES de dimensión (las regiones están en español en los datos).
+  const locVal = (v) => L({ Norte: "North", Sur: "South", Este: "East", Oeste: "West" }[v] || v, v);
   const [rowDim, setRowDim] = useState("region");
   const [colDim, setColDim] = useState("seg");
   const [measure, setMeasure] = useState("revenue");
@@ -1282,34 +1286,34 @@ function PivotView() {
   const thirdDim = DIMS.find(d => d.k !== rowDim && d.k !== colDim).k;
 
   return <div>
-    <H1 title="Tabla multidimensional" sub="Pivota cualquier dimensión contra otra, cambia la métrica y haz drill-down. Tabla dinámica real, no una imagen." />
+    <H1 title={L("Multidimensional table", "Tabla multidimensional")} sub={L("Pivot any dimension against another, change the metric and drill down. A real pivot table, not an image.", "Pivota cualquier dimensión contra otra, cambia la métrica y haz drill-down. Tabla dinámica real, no una imagen.")} />
     <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 16, alignItems: "flex-end" }}>
-      <div><div style={{ fontSize: 10.5, color: PAL.sub, marginBottom: 5, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>Filas</div>
-        <select value={rowDim} onChange={e => setRowDim(e.target.value)} style={selStyle}>{DIMS.filter(d => d.k !== colDim).map(d => <option key={d.k} value={d.k}>{d.l}</option>)}</select></div>
-      <div><div style={{ fontSize: 10.5, color: PAL.sub, marginBottom: 5, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>Columnas</div>
-        <select value={colDim} onChange={e => setColDim(e.target.value)} style={selStyle}>{DIMS.filter(d => d.k !== rowDim).map(d => <option key={d.k} value={d.k}>{d.l}</option>)}</select></div>
-      <div><div style={{ fontSize: 10.5, color: PAL.sub, marginBottom: 5, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>Métrica</div>
-        <select value={measure} onChange={e => setMeasure(e.target.value)} style={selStyle}>{MEASURES.map(m => <option key={m.k} value={m.k}>{m.l}</option>)}</select></div>
-      <div style={{ fontSize: 11.5, color: PAL.sub, paddingBottom: 9 }}>Clic en una fila para drill-down por <strong style={{ color: PAL.text }}>{DIMS.find(d => d.k === thirdDim).l}</strong></div>
+      <div><div style={{ fontSize: 10.5, color: PAL.sub, marginBottom: 5, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>{L("Rows", "Filas")}</div>
+        <select value={rowDim} onChange={e => setRowDim(e.target.value)} style={selStyle}>{DIMS.filter(d => d.k !== colDim).map(d => <option key={d.k} value={d.k}>{L(d.l.en, d.l.es)}</option>)}</select></div>
+      <div><div style={{ fontSize: 10.5, color: PAL.sub, marginBottom: 5, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>{L("Columns", "Columnas")}</div>
+        <select value={colDim} onChange={e => setColDim(e.target.value)} style={selStyle}>{DIMS.filter(d => d.k !== rowDim).map(d => <option key={d.k} value={d.k}>{L(d.l.en, d.l.es)}</option>)}</select></div>
+      <div><div style={{ fontSize: 10.5, color: PAL.sub, marginBottom: 5, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>{L("Metric", "Métrica")}</div>
+        <select value={measure} onChange={e => setMeasure(e.target.value)} style={selStyle}>{MEASURES.map(m => <option key={m.k} value={m.k}>{L(m.l.en, m.l.es)}</option>)}</select></div>
+      <div style={{ fontSize: 11.5, color: PAL.sub, paddingBottom: 9 }}>{L("Click a row to drill down by", "Clic en una fila para drill-down por")} <strong style={{ color: PAL.text }}>{(() => { const d = DIMS.find(d => d.k === thirdDim); return L(d.l.en, d.l.es); })()}</strong></div>
     </div>
     <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, overflow: "hidden" }}>
       <div style={{ overflowX: "auto", maxWidth: "100%" }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 480 }}>
         <thead><tr style={{ background: PAL.panel2 }}>
-          <th style={{ ...thStyle, textAlign: "left" }}>{DIMS.find(d => d.k === rowDim).l}</th>
-          {colVals.map(cv => <th key={cv} style={thStyle}>{cv}</th>)}
+          <th style={{ ...thStyle, textAlign: "left" }}>{(() => { const d = DIMS.find(d => d.k === rowDim); return L(d.l.en, d.l.es); })()}</th>
+          {colVals.map(cv => <th key={cv} style={thStyle}>{locVal(cv)}</th>)}
           <th style={{ ...thStyle, background: `${PAL.indigo}10` }}>Total</th>
         </tr></thead>
         <tbody>
           {rowVals.map(rv => (<React.Fragment key={rv}>
             <tr onClick={() => setExpanded(e => ({ ...e, [rv]: !e[rv] }))} style={{ cursor: "pointer", borderTop: `1px solid ${PAL.line}` }}>
-              <td style={{ ...tdStyle, fontWeight: 600, textAlign: "left" }}><span style={{ display: "inline-block", width: 14, color: PAL.sub }}>{expanded[rv] ? "▾" : "▸"}</span>{rv}</td>
+              <td style={{ ...tdStyle, fontWeight: 600, textAlign: "left" }}><span style={{ display: "inline-block", width: 14, color: PAL.sub }}>{expanded[rv] ? "▾" : "▸"}</span>{locVal(rv)}</td>
               {colVals.map(cv => { const v = cellVal(rv, cv); return <td key={cv} style={{ ...tdStyle, background: heatBg(v), fontWeight: 500 }}>{meas.fmt(v)}</td>; })}
               <td style={{ ...tdStyle, fontWeight: 700, background: `${PAL.indigo}08` }}>{meas.fmt(rowTotal(rv))}</td>
             </tr>
             {expanded[rv] && [...new Set(pivotRaw.map(d => d[thirdDim]))].map(tv => (
               <tr key={tv} style={{ background: PAL.panel2 }}>
-                <td style={{ ...tdStyle, textAlign: "left", paddingLeft: 32, color: PAL.sub, fontSize: 11.5 }}>{DIMS.find(d => d.k === thirdDim).l}: {tv}</td>
+                <td style={{ ...tdStyle, textAlign: "left", paddingLeft: 32, color: PAL.sub, fontSize: 11.5 }}>{(() => { const d = DIMS.find(d => d.k === thirdDim); return L(d.l.en, d.l.es); })()}: {locVal(tv)}</td>
                 {colVals.map(cv => { const v = aggregate(pivotRaw.filter(d => d[rowDim] === rv && d[colDim] === cv && d[thirdDim] === tv)); return <td key={cv} style={{ ...tdStyle, color: PAL.sub, fontSize: 11.5 }}>{meas.fmt(v)}</td>; })}
                 <td style={{ ...tdStyle, color: PAL.sub, fontSize: 11.5 }}>{meas.fmt(aggregate(pivotRaw.filter(d => d[rowDim] === rv && d[thirdDim] === tv)))}</td>
               </tr>))}
@@ -1323,7 +1327,7 @@ function PivotView() {
       </table>
       </div>
     </div>
-    <div style={{ marginTop: 12, fontSize: 11.5, color: PAL.sub }}>Mostrando <strong style={{ color: PAL.text }}>{meas.l}</strong> · {rowVals.length}×{colVals.length} celdas · {pivotRaw.length} registros agregados en vivo</div>
+    <div style={{ marginTop: 12, fontSize: 11.5, color: PAL.sub }}>{L("Showing", "Mostrando")} <strong style={{ color: PAL.text }}>{L(meas.l.en, meas.l.es)}</strong> · {rowVals.length}×{colVals.length} {L("cells", "celdas")} · {L(`${pivotRaw.length} records aggregated live`, `${pivotRaw.length} registros agregados en vivo`)}</div>
   </div>;
 }
 const selStyle = { fontSize: 13, padding: "9px 14px", borderRadius: 9, border: "1px solid #E7E9EE", background: "#fff", fontFamily: '"Inter", sans-serif', cursor: "pointer", minWidth: 140 };
