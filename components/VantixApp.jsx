@@ -947,6 +947,7 @@ function geoColor(rev) {
 }
 
 function GeoHeatmap() {
+  const { L } = useSession();
   const [hover, setHover] = useState(null);
   const cell = 46, gap = 4;
   const cols = 12, rows = 7;
@@ -969,7 +970,7 @@ function GeoHeatmap() {
     </div>
     {hover && <div style={{ position: "absolute", top: 8, right: 8, background: "#FFFFFF", border: `1px solid #E7E9EE`, borderRadius: 10, padding: "10px 14px", boxShadow: "0 4px 14px rgba(16,17,22,.12)" }}>
       <div style={{ fontSize: 13, fontWeight: 700 }}>{hover.id}</div>
-      <div style={{ fontSize: 12, color: "#6B7280" }}>Ingresos: <strong style={{ color: "#1A1D23" }}>${hover.rev}K</strong></div>
+      <div style={{ fontSize: 12, color: "#6B7280" }}>{L("Revenue", "Ingresos")}: <strong style={{ color: "#1A1D23" }}>${hover.rev}K</strong></div>
     </div>}
   </div>;
 }
@@ -987,19 +988,21 @@ function calColor(v) {
   return `rgba(16,185,129,${0.3 + v * 0.7})`;
 }
 function CalendarHeatmap() {
+  const { L } = useSession();
   const cell = 13, gap = 3;
-  const months = ["Ene","Feb","Mar","Abr","May","Jun"];
+  const months = L(["Jan","Feb","Mar","Apr","May","Jun"], ["Ene","Feb","Mar","Abr","May","Jun"]);
+  const dayLabels = L(["M","","W","","F","",""], ["L","","X","","V","",""]);
   return <div>
     <svg viewBox={`0 0 ${calWeeks * (cell + gap) + 20} ${calDays * (cell + gap) + 22}`} style={{ width: "100%", height: "auto" }}>
-      {months.map((m, i) => <text key={m} x={20 + i * 4.3 * (cell + gap)} y={9} fontSize="9.5" fill="#6B7280" fontFamily="Inter">{m}</text>)}
-      {["L","","X","","V","",""].map((d, i) => d && <text key={i} x={2} y={28 + i * (cell + gap)} fontSize="8" fill="#6B7280" fontFamily="Inter">{d}</text>)}
+      {months.map((m, i) => <text key={i} x={20 + i * 4.3 * (cell + gap)} y={9} fontSize="9.5" fill="#6B7280" fontFamily="Inter">{m}</text>)}
+      {dayLabels.map((d, i) => d && <text key={i} x={2} y={28 + i * (cell + gap)} fontSize="8" fill="#6B7280" fontFamily="Inter">{d}</text>)}
       {calData.map((c) => (
         <rect key={c.i} x={20 + c.week * (cell + gap)} y={16 + c.day * (cell + gap)} width={cell} height={cell} rx={2.5} fill={calColor(c.v)}>
-          <title>{`Actividad: ${(c.v * 100).toFixed(0)}%`}</title>
+          <title>{`${L("Activity", "Actividad")}: ${(c.v * 100).toFixed(0)}%`}</title>
         </rect>))}
     </svg>
     <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end", marginTop: 8, fontSize: 10, color: "#6B7280" }}>
-      Menos {[0.05, 0.25, 0.45, 0.65, 0.9].map((v, i) => <span key={i} style={{ width: 11, height: 11, borderRadius: 2.5, background: calColor(v), display: "inline-block" }} />)} Más
+      {L("Less", "Menos")} {[0.05, 0.25, 0.45, 0.65, 0.9].map((v, i) => <span key={i} style={{ width: 11, height: 11, borderRadius: 2.5, background: calColor(v), display: "inline-block" }} />)} {L("More", "Más")}
     </div>
   </div>;
 }
@@ -1017,26 +1020,29 @@ function matrixColor(v) {
   return `rgba(99,102,241,${0.12 + t * 0.86})`;
 }
 function MatrixHeatmap() {
+  const { L } = useSession();
+  const dayNames = L(["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"]);
   return <div>
     <div style={{ display: "grid", gridTemplateColumns: `42px repeat(${hours.length}, 1fr)`, gap: 3 }}>
       <div />{hours.map(h => <div key={h} style={{ fontSize: 9.5, color: "#6B7280", textAlign: "center" }}>{h}h</div>)}
       {matrixData.map((row, di) => (<React.Fragment key={di}>
-        <div style={{ fontSize: 10, color: "#6B7280", display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 8 }}>{days7[di]}</div>
-        {row.map((c) => <div key={c.hi} title={`${c.d} ${c.h}h: ${c.v}`} style={{ background: matrixColor(c.v), borderRadius: 4, height: 30, cursor: "pointer" }} />)}
+        <div style={{ fontSize: 10, color: "#6B7280", display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 8 }}>{dayNames[di]}</div>
+        {row.map((c) => <div key={c.hi} title={`${dayNames[c.di]} ${c.h}h: ${c.v}`} style={{ background: matrixColor(c.v), borderRadius: 4, height: 30, cursor: "pointer" }} />)}
       </React.Fragment>))}
     </div>
-    <div style={{ fontSize: 10.5, color: "#6B7280", marginTop: 10, textAlign: "center" }}>Pico de compra: martes–jueves, 12–15h · usa esto para timing de campañas</div>
+    <div style={{ fontSize: 10.5, color: "#6B7280", marginTop: 10, textAlign: "center" }}>{L("Purchase peak: Tue–Thu, 12–3pm · use this for campaign timing", "Pico de compra: martes–jueves, 12–15h · usa esto para timing de campañas")}</div>
   </div>;
 }
 
 // === MÓDULO: MAPAS GEOGRÁFICOS ===
 function GeoView({ embedded } = {}) {
+  const { L } = useSession();
   return <div>
-    {!embedded && <H1 title="Mapas de calor geográficos" sub="Dónde está tu ingreso y tu riesgo. La concentración geográfica revela mercados a defender y a expandir." />}
+    {!embedded && <H1 title={L("Geographic heatmaps", "Mapas de calor geográficos")} sub={L("Where your revenue and risk live. Geographic concentration reveals markets to defend and to expand.", "Dónde está tu ingreso y tu riesgo. La concentración geográfica revela mercados a defender y a expandir.")} />}
     <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 14 }}>
-      <Panel title="Ingresos por estado" tag="coroplético · EE.UU." h={440}><GeoHeatmap /></Panel>
+      <Panel title={L("Revenue by state", "Ingresos por estado")} tag={L("choropleth · U.S.", "coroplético · EE.UU.")} h={440}><GeoHeatmap /></Panel>
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        <Panel title="Top mercados" tag="por ingreso" h={210}>
+        <Panel title={L("Top markets", "Top mercados")} tag={L("by revenue", "por ingreso")} h={210}>
           <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
             {[...usStates].sort((a, b) => b.rev - a.rev).slice(0, 6).map((s, i) => {
               const max = 920;
@@ -1049,19 +1055,19 @@ function GeoView({ embedded } = {}) {
             })}
           </div>
         </Panel>
-        <Panel title="Concentración" tag="regla de Pareto" h={210}>
+        <Panel title={L("Concentration", "Concentración")} tag={L("Pareto rule", "regla de Pareto")} h={210}>
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", height: "100%", gap: 14 }}>
             <div><div style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-.5px", color: PAL.brand }}>62%</div>
-              <div style={{ fontSize: 12, color: "#6B7280" }}>del ingreso viene de 5 estados (CA, TX, NY, FL, IL)</div></div>
-            <div style={{ borderTop: `1px solid #E7E9EE`, paddingTop: 12 }}><div style={{ fontSize: 13.5, fontWeight: 600, color: PAL.warn }}>Riesgo de concentración</div>
-              <div style={{ fontSize: 12, color: "#6B7280" }}>Una recesión regional en California impactaría el 22% del ARR</div></div>
+              <div style={{ fontSize: 12, color: "#6B7280" }}>{L("of revenue comes from 5 states (CA, TX, NY, FL, IL)", "del ingreso viene de 5 estados (CA, TX, NY, FL, IL)")}</div></div>
+            <div style={{ borderTop: `1px solid #E7E9EE`, paddingTop: 12 }}><div style={{ fontSize: 13.5, fontWeight: 600, color: PAL.warn }}>{L("Concentration risk", "Riesgo de concentración")}</div>
+              <div style={{ fontSize: 12, color: "#6B7280" }}>{L("A regional recession in California would hit 22% of ARR", "Una recesión regional en California impactaría el 22% del ARR")}</div></div>
           </div>
         </Panel>
       </div>
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 14 }}>
-      <Panel title="Actividad de cuentas" tag="heatmap calendario · 6 meses" h={200}><CalendarHeatmap /></Panel>
-      <Panel title="Patrón de compra" tag="hora × día de semana" h={200}><MatrixHeatmap /></Panel>
+      <Panel title={L("Account activity", "Actividad de cuentas")} tag={L("calendar heatmap · 6 months", "heatmap calendario · 6 meses")} h={200}><CalendarHeatmap /></Panel>
+      <Panel title={L("Purchase pattern", "Patrón de compra")} tag={L("hour × weekday", "hora × día de semana")} h={200}><MatrixHeatmap /></Panel>
     </div>
   </div>;
 }
@@ -1105,14 +1111,16 @@ function IntelligentMap({ embedded } = {}) {
     return () => clearInterval(iv);
   }, [running]);
 
+  const { L } = useSession();
   const nodeColor = (v) => v > 80 ? PAL.d1 : v > 60 ? PAL.d3 : v > 40 ? PAL.d4 : PAL.d5;
+  const metrics = [{ k: "revenue", en: "revenue", es: "revenue" }, { k: "cuentas", en: "accounts", es: "cuentas" }, { k: "riesgo", en: "risk", es: "riesgo" }];
   return <div>
-    {!embedded && <H1 title="Mapa inteligente en vivo" sub="Cada punto es una transacción llegando en tiempo real. Los nodos crecen y cambian de color según la actividad acumulada." />}
+    {!embedded && <H1 title={L("Live intelligent map", "Mapa inteligente en vivo")} sub={L("Each dot is a transaction arriving in real time. Nodes grow and change color with accumulated activity.", "Cada punto es una transacción llegando en tiempo real. Los nodos crecen y cambian de color según la actividad acumulada.")} />}
     <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 14 }}>
-      <Panel title="Actividad en tiempo real" tag={running ? "● streaming" : "pausado"} h={460}>
+      <Panel title={L("Real-time activity", "Actividad en tiempo real")} tag={running ? "● streaming" : L("paused", "pausado")} h={460}>
         <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-          <button onClick={() => setRunning(r => !r)} style={{ fontSize: 11.5, fontWeight: 600, color: running ? PAL.bad : PAL.good, background: PAL.panel, border: `1px solid ${running ? PAL.bad : PAL.good}`, borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: FONT }}>{running ? "Pausar stream" : "Reanudar"}</button>
-          {["revenue", "cuentas", "riesgo"].map(m => <button key={m} onClick={() => setMetric(m)} style={{ fontSize: 11.5, fontWeight: 500, color: metric === m ? "#fff" : PAL.sub, background: metric === m ? PAL.indigo : PAL.panel2, border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: FONT, textTransform: "capitalize" }}>{m}</button>)}
+          <button onClick={() => setRunning(r => !r)} style={{ fontSize: 11.5, fontWeight: 600, color: running ? PAL.bad : PAL.good, background: PAL.panel, border: `1px solid ${running ? PAL.bad : PAL.good}`, borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: FONT }}>{running ? L("Pause stream", "Pausar stream") : L("Resume", "Reanudar")}</button>
+          {metrics.map(m => <button key={m.k} onClick={() => setMetric(m.k)} style={{ fontSize: 11.5, fontWeight: 500, color: metric === m.k ? "#fff" : PAL.sub, background: metric === m.k ? PAL.indigo : PAL.panel2, border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontFamily: FONT, textTransform: "capitalize" }}>{L(m.en, m.es)}</button>)}
         </div>
         <div style={{ position: "relative", width: "100%", height: 360, background: "radial-gradient(circle at 50% 40%, #F0F4FA, #F6F7F9)", borderRadius: 12, overflow: "hidden", border: `1px solid ${PAL.line}` }}>
           <svg viewBox="0 0 100 90" style={{ width: "100%", height: "100%" }}>
@@ -1131,15 +1139,15 @@ function IntelligentMap({ embedded } = {}) {
             </g>)}
           </svg>
           <div style={{ position: "absolute", bottom: 10, left: 12, fontSize: 10, color: PAL.sub, display: "flex", gap: 10 }}>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.d1 }} />Alta</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.d3 }} />Media</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.d4 }} />Baja</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.d1 }} />{L("High", "Alta")}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.d3 }} />{L("Medium", "Media")}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.d4 }} />{L("Low", "Baja")}</span>
           </div>
         </div>
       </Panel>
-      <Panel title="Feed de eventos" tag="live" h={460}>
+      <Panel title={L("Event feed", "Feed de eventos")} tag="live" h={460}>
         <div style={{ display: "flex", flexDirection: "column", gap: 7, overflow: "hidden" }}>
-          {feed.length === 0 && <div style={{ fontSize: 12, color: PAL.sub, textAlign: "center", marginTop: 20 }}>Esperando eventos…</div>}
+          {feed.length === 0 && <div style={{ fontSize: 12, color: PAL.sub, textAlign: "center", marginTop: 20 }}>{L("Waiting for events…", "Esperando eventos…")}</div>}
           {feed.map((e, i) => (
             <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 11px", background: i === 0 ? `${PAL.indigo}0D` : PAL.panel2, borderRadius: 9, fontSize: 12, transition: "background .3s" }}>
               <div><div style={{ fontWeight: 600 }}>{e.city}</div><div style={{ fontSize: 10, color: PAL.sub }}>{e.t}</div></div>
