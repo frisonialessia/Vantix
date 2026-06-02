@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1030" font-family="DejaVu Sans, Arial, sans-serif">
+  <defs>
+    <linearGradient id="hdr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="55%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#22B5C4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="1600" height="1030" fill="#FFFFFF"/>
+
+  <!-- ===== HEADER ===== -->
+  <rect x="0" y="0" width="1600" height="130" fill="url(#hdr)"/>
+  <rect x="44" y="37" width="56" height="56" rx="16" fill="#FFFFFF" fill-opacity="0.16"/>
+  <path d="M60 55 L72 80 L84 55" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="84" cy="55" r="3.6" fill="#FFFFFF"/>
+  <text x="120" y="68" font-size="42" font-weight="bold" fill="#FFFFFF">Vantix</text>
+  <text x="122" y="100" font-size="18" fill="#FFFFFF" fill-opacity="0.88">Market &amp; Customer Intelligence — System Architecture</text>
+  <rect x="1372" y="46" width="188" height="38" rx="19" fill="#FFFFFF" fill-opacity="0.18"/>
+  <text x="1466" y="71" font-size="15" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">PROOF OF CONCEPT</text>
+
+  <!-- ===== USER FLOW ===== -->
+  <text x="40" y="173" font-size="15" font-weight="bold" fill="#6B7280" letter-spacing="1.5">USER FLOW</text>
+
+  <rect x="40"   y="188" width="330" height="66" rx="33" fill="#FFFFFF" stroke="#6366F1" stroke-width="1.5"/>
+  <text x="205"  y="229" font-size="22" fill="#1A1D23" text-anchor="middle">Visitor</text>
+  <rect x="417"  y="188" width="330" height="66" rx="33" fill="#FFFFFF" stroke="#6366F1" stroke-width="1.5"/>
+  <text x="582"  y="229" font-size="22" fill="#1A1D23" text-anchor="middle">Landing</text>
+  <rect x="794"  y="188" width="330" height="66" rx="33" fill="#FFFFFF" stroke="#6366F1" stroke-width="1.5"/>
+  <text x="959"  y="229" font-size="22" fill="#1A1D23" text-anchor="middle">Connect gate</text>
+  <rect x="1171" y="188" width="330" height="66" rx="33" fill="#FFFFFF" stroke="#6366F1" stroke-width="1.5"/>
+  <text x="1336" y="229" font-size="22" fill="#1A1D23" text-anchor="middle">Dashboard · 40+ views</text>
+
+  <!-- flow arrows -->
+  <g stroke="#9AA0AA" stroke-width="2.5" fill="#9AA0AA">
+    <line x1="378" y1="221" x2="405" y2="221"/><polygon points="405,216 415,221 405,226"/>
+    <line x1="755" y1="221" x2="782" y2="221"/><polygon points="782,216 792,221 782,226"/>
+    <line x1="1132" y1="221" x2="1159" y2="221"/><polygon points="1159,216 1169,221 1159,226"/>
+    <!-- branch down from Connect gate -->
+    <line x1="959" y1="254" x2="959" y2="282"/><polygon points="954,282 959,292 964,282"/>
+  </g>
+  <rect x="729" y="294" width="460" height="52" rx="12" fill="#FFFFFF" stroke="#E8EAEE" stroke-width="1.5"/>
+  <text x="959" y="326" font-size="17" fill="#1A1D23" text-anchor="middle">POST /api/lead  →  Supabase (RLS insert-only)</text>
+
+  <!-- ===== 4 LAYERS ===== -->
+  <text x="40" y="384" font-size="15" font-weight="bold" fill="#6B7280" letter-spacing="1.5">ARCHITECTURE · FOUR LAYERS</text>
+
+  <!-- Layer 4 -->
+  <rect x="40" y="400" width="1520" height="110" rx="14" fill="#FFFFFF" stroke="#E8EAEE" stroke-width="1.5"/>
+  <rect x="52" y="418" width="6" height="74" rx="3" fill="#AEB4BE"/>
+  <rect x="78" y="427" width="56" height="56" rx="14" fill="#EEF0F3"/>
+  <text x="106" y="465" font-size="30" font-weight="bold" fill="#8A909B" text-anchor="middle">4</text>
+  <text x="160" y="448" font-size="26" font-weight="bold" fill="#1A1D23">Real data — future</text>
+  <text x="160" y="482" font-size="18" fill="#6B7280">Swap the synthetic engine for warehouse / ETL connectors — same dataset shape.</text>
+
+  <!-- Layer 3 (highlight) -->
+  <rect x="40" y="522" width="1520" height="110" rx="14" fill="#EEF0FE" stroke="#6366F1" stroke-width="1.5"/>
+  <rect x="52" y="540" width="6" height="74" rx="3" fill="#6366F1"/>
+  <rect x="78" y="549" width="56" height="56" rx="14" fill="#E0E3FB"/>
+  <text x="106" y="587" font-size="30" font-weight="bold" fill="#4F46E5" text-anchor="middle">3</text>
+  <text x="160" y="570" font-size="26" font-weight="bold" fill="#1A1D23">Intelligence</text>
+  <text x="160" y="604" font-size="18" fill="#5B616B">Gemini assistant grounded on the session snapshot · credits · rate-limit (15/min/IP).</text>
+
+  <!-- Layer 2 -->
+  <rect x="40" y="644" width="1520" height="110" rx="14" fill="#FFFFFF" stroke="#E8EAEE" stroke-width="1.5"/>
+  <rect x="52" y="662" width="6" height="74" rx="3" fill="#22B5C4"/>
+  <rect x="78" y="671" width="56" height="56" rx="14" fill="#DDF3F6"/>
+  <text x="106" y="709" font-size="30" font-weight="bold" fill="#1597A6" text-anchor="middle">2</text>
+  <text x="160" y="692" font-size="26" font-weight="bold" fill="#1A1D23">Session</text>
+  <text x="160" y="726" font-size="18" fill="#6B7280">SessionProvider · localStorage persistence · connection gate · language · credits.</text>
+
+  <!-- Layer 1 -->
+  <rect x="40" y="766" width="1520" height="110" rx="14" fill="#FFFFFF" stroke="#E8EAEE" stroke-width="1.5"/>
+  <rect x="52" y="784" width="6" height="74" rx="3" fill="#10B981"/>
+  <rect x="78" y="793" width="56" height="56" rx="14" fill="#DCF4EC"/>
+  <text x="106" y="831" font-size="30" font-weight="bold" fill="#0B8F66" text-anchor="middle">1</text>
+  <text x="160" y="814" font-size="26" font-weight="bold" fill="#1A1D23">Synthetic data — deterministic</text>
+  <text x="160" y="848" font-size="18" fill="#6B7280">seed → xfnv1a hash → mulberry32 PRNG → dataset, scaled to the user's inputs.</text>
+
+  <!-- ===== PRINCIPLES ===== -->
+  <rect x="40" y="900" width="1520" height="56" rx="12" fill="#F7F8FA" stroke="#E8EAEE" stroke-width="1.5"/>
+  <text x="800" y="935" font-size="19" fill="#6B7280" text-anchor="middle">seed = source of truth&#160;&#160;&#160;·&#160;&#160;&#160;3 runtime dependencies&#160;&#160;&#160;·&#160;&#160;&#160;API keys server-side&#160;&#160;&#160;·&#160;&#160;&#160;$0 fixed cost</text>
+
+  <!-- ===== TECH ===== -->
+  <text x="800" y="1002" font-size="21" font-weight="bold" fill="#1A1D23" text-anchor="middle">Next.js 14&#160;&#160;·&#160;&#160;React 18&#160;&#160;·&#160;&#160;Recharts&#160;&#160;·&#160;&#160;Gemini 2.5 Flash&#160;&#160;·&#160;&#160;Supabase&#160;&#160;·&#160;&#160;Vercel</text>
+</svg>

@@ -2,6 +2,8 @@
 
 This document describes the complete system: the design philosophy, the stack, every subsystem, the data flow, and the decisions behind them. It is the technical companion to the [Executive Summary](EXECUTIVE_SUMMARY.md).
 
+![Vantix system architecture](architecture.png)
+
 ---
 
 ## 1. Design philosophy

@@ -6,6 +6,8 @@
 
 Vantix shows what a modern churn & customer-intelligence platform can *feel* like: you arrive with an empty dashboard, "connect" your business (name + a few parameters), and instantly get a dashboard **scaled to your numbers** — backed by a **real AI assistant** grounded on your session data. Built in public as one experiment in a "SaaS Factory".
 
+![Vantix system architecture](docs/architecture.png)
+
 ---
 
 ## ✨ Highlights
