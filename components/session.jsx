@@ -27,6 +27,7 @@ export function SessionProvider({ children }) {
   const [seed, setSeed] = useState(BASELINE_SEED);
   const [company, setCompany] = useState("");
   const [inputs, setInputs] = useState({});
+  const [credits, setCredits] = useState(500);
   const [connected, setConnected] = useState(false);
 
   // Tras montar (solo cliente): restaura la sesión SI ya estaba conectada.
@@ -39,6 +40,7 @@ export function SessionProvider({ children }) {
           setSeed(saved.seed);
           setCompany(saved.company || "");
           setInputs(saved.inputs || {});
+          setCredits(typeof saved.credits === "number" ? saved.credits : 500);
           setConnected(true);
         }
       }
@@ -63,15 +65,29 @@ export function SessionProvider({ children }) {
     setSeed(s);
     setCompany(name);
     setInputs(businessInputs);
+    setCredits(500);
     setConnected(true);
-    persist({ seed: s, company: name, inputs: businessInputs, connected: true });
+    persist({ seed: s, company: name, inputs: businessInputs, credits: 500, connected: true });
   };
 
   // Re-siembra manteniendo la conexión (otro "set" de datos simulados).
   const reseed = () => {
     const s = newSeed();
     setSeed(s);
-    persist({ seed: s, company, inputs, connected });
+    persist({ seed: s, company, inputs, credits, connected });
+  };
+
+  // Descuenta créditos por una acción (asistente, estudios…). Persiste el saldo.
+  const spendCredits = (n = 1) => {
+    if (credits < n) return false;
+    const next = credits - n;
+    setCredits(next);
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const cur = raw ? JSON.parse(raw) : {};
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, credits: next }));
+    } catch { /* ignora */ }
+    return true;
   };
 
   // Desconecta (cerrar sesión): vuelve al estado vacío y permite re-demostrar
@@ -80,6 +96,7 @@ export function SessionProvider({ children }) {
     setConnected(false);
     setCompany("");
     setInputs({});
+    setCredits(500);
     setSeed(BASELINE_SEED);
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -90,8 +107,8 @@ export function SessionProvider({ children }) {
 
   const dataset = useMemo(() => generateDataset(seed, undefined, inputs), [seed, inputs]);
   const value = useMemo(
-    () => ({ seed, dataset, company, inputs, connected, connect, reseed, disconnect }),
-    [seed, dataset, company, inputs, connected]
+    () => ({ seed, dataset, company, inputs, credits, connected, connect, reseed, spendCredits, disconnect }),
+    [seed, dataset, company, inputs, credits, connected]
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

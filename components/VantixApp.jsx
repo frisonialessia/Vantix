@@ -7,7 +7,7 @@ import {
   ScatterChart, Scatter, ZAxis
 } from "recharts";
 import { SessionProvider, useSession } from "./session";
-import { makeRng } from "../lib/synth";
+import { makeRng, toSnapshot } from "../lib/synth";
 
 /* ============================================================
    VANTIX — SISTEMA DE DISEÑO ESTÁNDAR
@@ -593,6 +593,7 @@ const shap = [
 // === MÓDULO: ASISTENTE IA (pantalla completa) ===
 function AssistantView({ previewHeight } = {}) {
   const isPreview = !!previewHeight;
+  const { dataset, company, credits, spendCredits } = useSession();
   // Estado de la conversación: arranca con los mensajes de ejemplo.
   const [msgs, setMsgs] = useState(aiMessages.map(m => ({
     role: m.role === "user" ? "user" : "assistant",
@@ -618,16 +619,22 @@ function AssistantView({ previewHeight } = {}) {
     // En el preview de la landing no llamamos al backend (costo cero al explorar).
     if (isPreview) {
       setTimeout(() => {
-        setMsgs(m => [...m, { role: "assistant", content: "Esta es una demo. Inicia sesión para conversar con el asistente sobre tus datos reales." }]);
+        setMsgs(m => [...m, { role: "assistant", content: "Esta es una demo. Entra y conecta tu negocio para conversar con el asistente sobre tus datos." }]);
         setSending(false);
       }, 700);
+      return;
+    }
+    // Cada consulta consume 1 crédito (refleja el costo de cómputo del modelo).
+    if (!spendCredits(1)) {
+      setMsgs(m => [...m, { role: "assistant", content: "Te quedaste sin créditos para esta sesión. Renuévalos en «Créditos & uso» para seguir consultando." }]);
+      setSending(false);
       return;
     }
     try {
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })), context: toSnapshot(dataset, company) }),
       });
       const data = await res.json();
       setMsgs(m => [...m, { role: "assistant", content: data.reply || data.error || "No pude responder en este momento." }]);
@@ -646,8 +653,11 @@ function AssistantView({ previewHeight } = {}) {
         <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-.3px" }}>Asistente Vantix</div>
         <div style={{ fontSize: FS.label, color: PAL.sub }}>Pregunta en lenguaje natural — responde con la causa y la acción</div>
       </div>
-      <div style={{ marginLeft: "auto", fontSize: FS.label, color: PAL.good, display: "flex", alignItems: "center", gap: 6, fontWeight: 500 }}>
-        <span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />En línea</div>
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+        {!isPreview && <span style={{ fontSize: FS.label, color: PAL.brand, fontWeight: 600 }}>{credits} créditos</span>}
+        <span style={{ fontSize: FS.label, color: PAL.good, display: "flex", alignItems: "center", gap: 6, fontWeight: 500 }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />En línea</span>
+      </div>
     </div>
     {/* mensajes (scroll) */}
     <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: "20px 0", display: "flex", flexDirection: "column", gap: 18 }}>
@@ -792,7 +802,8 @@ function OnboardingView() {
 
 // === MÓDULO: PRICING & BILLING ===
 function BillingView() {
-  const balance = 342, monthly = 500;
+  const { credits } = useSession();
+  const balance = credits, monthly = 500;
   const pct = (balance / monthly) * 100;
   const usage = [
     { type: "Consultas al Asistente IA", count: 47, credits: 47, color: PAL.d1 },
