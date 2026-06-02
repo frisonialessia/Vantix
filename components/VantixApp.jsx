@@ -2041,7 +2041,7 @@ function ProductPreview() {
         {flat.map((it, i) => (
           <button key={it.label.en} onClick={() => setActive(i)} style={{ fontSize: 12, fontWeight: active === i ? 600 : 500, whiteSpace: "nowrap", padding: "7px 12px", borderRadius: 20, cursor: "pointer", fontFamily: FONT, border: `1px solid ${active === i ? PAL.brand : PAL.line}`, color: active === i ? "#fff" : PAL.sub, background: active === i ? PAL.brand : PAL.panel }}>{L(it.label.en, it.label.es)}</button>))}
       </div>
-      <div style={{ maxHeight: 460, overflowY: "auto", overflowX: "auto", padding: "14px 14px 28px", background: PAL.panel2 }}>
+      <div className="vx-grid-collapse" style={{ maxHeight: 460, overflowY: "auto", overflowX: "auto", padding: "14px 14px 28px", background: PAL.panel2 }}>
         {activeItem.view}
       </div>
     </div>;

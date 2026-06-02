@@ -25,3 +25,20 @@ input[type=range] { height: 4px; border-radius: 4px; background: #E8EAEE; }
   [style*="repeat(2, 1fr)"],
   [style*="1fr 1fr"] { grid-template-columns: 1fr !important; }
 }
+
+/* ============================================================
+   PREVIEW DEL PRODUCTO (landing) — las vistas del dashboard se
+   diseñaron anchas; dentro del marco móvil viven FUERA de <main>,
+   así que aquí replicamos el mismo colapso responsive (con las
+   excepciones .cardrow y .matrixgrid de igual forma que el dashboard).
+   ============================================================ */
+@media (max-width: 640px) {
+  .vx-grid-collapse [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+  .vx-grid-collapse [style*="span 2"] { grid-column: span 1 !important; }
+  /* tarjetas/KPI: 2 por fila, no un stack alto */
+  .vx-grid-collapse div.cardrow { grid-template-columns: repeat(2, 1fr) !important; }
+  /* la matriz RFM conserva su retícula (scrollea si no cabe) */
+  .vx-grid-collapse div.matrixgrid { grid-template-columns: 78px repeat(4, 1fr) !important; }
+  /* tablas densas: mantienen columnas y scrollean en horizontal */
+  .vx-grid-collapse .tablewrap [style*="grid-template-columns"] { grid-template-columns: 1.6fr .8fr .8fr .8fr 2fr 1fr !important; }
+}
