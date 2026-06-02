@@ -19,6 +19,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from "
 import { generateDataset, newSeed } from "../lib/synth";
 
 const STORAGE_KEY = "vantix:session:v1";
+const LANG_KEY = "vantix:lang"; // preferencia de idioma, independiente de la sesión
 const BASELINE_SEED = "vantix-baseline"; // determinista para SSR + estado vacío
 
 // No pedimos nombre: derivamos uno presentable (y sus iniciales) del email.
@@ -42,9 +43,14 @@ export function SessionProvider({ children }) {
   const [inputs, setInputs] = useState({});
   const [credits, setCredits] = useState(500);
   const [connected, setConnected] = useState(false);
+  const [lang, setLangState] = useState("en"); // idioma principal: inglés
 
-  // Tras montar (solo cliente): restaura la sesión SI ya estaba conectada.
+  // Tras montar (solo cliente): restaura idioma + sesión.
   useEffect(() => {
+    try {
+      const l = localStorage.getItem(LANG_KEY);
+      if (l === "es" || l === "en") setLangState(l);
+    } catch { /* */ }
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
@@ -124,11 +130,18 @@ export function SessionProvider({ children }) {
 
   const userName = deriveName(email);
   const userInitials = deriveInitials(userName, company);
+  const setLang = (l) => {
+    const next = l === "es" ? "es" : "en";
+    setLangState(next);
+    try { localStorage.setItem(LANG_KEY, next); } catch { /* */ }
+  };
+  // Helper de traducción co-localizada: L("English", "Español") → según idioma.
+  const L = useMemo(() => (en, es) => (lang === "es" ? es : en), [lang]);
 
-  const dataset = useMemo(() => generateDataset(seed, undefined, inputs), [seed, inputs]);
+  const dataset = useMemo(() => generateDataset(seed, undefined, inputs, lang), [seed, inputs, lang]);
   const value = useMemo(
-    () => ({ seed, dataset, company, email, userName, userInitials, inputs, credits, connected, connect, reseed, spendCredits, disconnect }),
-    [seed, dataset, company, email, inputs, credits, connected]
+    () => ({ seed, dataset, company, email, userName, userInitials, inputs, credits, connected, lang, setLang, L, connect, reseed, spendCredits, disconnect }),
+    [seed, dataset, company, email, inputs, credits, connected, lang]
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
