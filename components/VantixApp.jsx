@@ -130,12 +130,12 @@ const seasonal = Array.from({ length: 12 }, (_, i) => ({ m: ["E","F","M","A","M"
 
 // Causa raíz de churn (factores correlacionados con churn)
 const churnDrivers = [
-  { factor: "Caída de login (>21 días)", lift: 4.8, c: PAL.red },
-  { factor: "Ticket soporte sin resolver", lift: 3.6, c: PAL.orange },
-  { factor: "Fallo de pago reciente", lift: 3.1, c: PAL.amber },
-  { factor: "Sin uso de feature core", lift: 2.4, c: PAL.lime },
-  { factor: "Downgrade en 90 días", lift: 2.0, c: PAL.green },
-  { factor: "Onboarding incompleto", lift: 1.7, c: PAL.teal },
+  { factor: { en: "Login drop (>21 days)", es: "Caída de login (>21 días)" }, lift: 4.8, c: PAL.red },
+  { factor: { en: "Unresolved support ticket", es: "Ticket soporte sin resolver" }, lift: 3.6, c: PAL.orange },
+  { factor: { en: "Recent payment failure", es: "Fallo de pago reciente" }, lift: 3.1, c: PAL.amber },
+  { factor: { en: "No core-feature usage", es: "Sin uso de feature core" }, lift: 2.4, c: PAL.lime },
+  { factor: { en: "Downgrade in 90 days", es: "Downgrade en 90 días" }, lift: 2.0, c: PAL.green },
+  { factor: { en: "Incomplete onboarding", es: "Onboarding incompleto" }, lift: 1.7, c: PAL.teal },
 ];
 // Secuencia de eventos previos al churn (timeline agregada)
 const churnTimeline = [
@@ -332,21 +332,21 @@ function Forecast() {
 
 // 1) ALERTAS & TRIGGERS
 function AlertsView({ embedded } = {}) {
-  const { dataset } = useSession();
+  const { dataset, L } = useSession();
   const { alerts } = dataset;
-  const sevLabel = { critical: "Crítico", warning: "Atención", info: "Insight" };
+  const sevLabel = { critical: L("Critical", "Crítico"), warning: L("Attention", "Atención"), info: L("Insight", "Insight") };
   const summary = [
-    { n: alerts.filter((a) => a.sev === "critical").length, t: "Críticas", c: PAL.red },
-    { n: alerts.filter((a) => a.sev === "warning").length, t: "Atención", c: PAL.amber },
-    { n: alerts.filter((a) => a.sev === "info").length, t: "Insights", c: PAL.blue },
+    { n: alerts.filter((a) => a.sev === "critical").length, t: L("Critical", "Críticas"), c: PAL.red },
+    { n: alerts.filter((a) => a.sev === "warning").length, t: L("Attention", "Atención"), c: PAL.amber },
+    { n: alerts.filter((a) => a.sev === "info").length, t: L("Insights", "Insights"), c: PAL.blue },
   ];
   return <div>
-    {!embedded && <H1 title="Alertas & Triggers" sub="El sistema vigila por ti. Cada alerta apunta a una decisión, no solo a un dato." />}
+    {!embedded && <H1 title={L("Alerts & Triggers", "Alertas & Triggers")} sub={L("The system watches for you. Each alert points to a decision, not just a number.", "El sistema vigila por ti. Cada alerta apunta a una decisión, no solo a un dato.")} />}
     <div style={{ display: "flex", gap: 12, marginBottom: 18 }}>
       {summary.map((s) => (
         <div key={s.t} style={{ flex: 1, background: PAL.panel, border: `1px solid ${PAL.line}`, borderLeft: `3px solid ${s.c}`, borderRadius: 12, padding: 16 }}>
           <div style={{ fontSize: 28, fontWeight: 700, color: s.c }}>{s.n}</div>
-          <div style={{ fontSize: 12, color: PAL.sub, marginTop: 2 }}>{s.t} activas</div></div>))}</div>
+          <div style={{ fontSize: 12, color: PAL.sub, marginTop: 2 }}>{s.t} {L("active", "activas")}</div></div>))}</div>
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {alerts.map((a, i) => (
         <div key={i} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderLeft: `3px solid ${a.c}`, borderRadius: 12, padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -360,12 +360,13 @@ function AlertsView({ embedded } = {}) {
 
 // 2) CAUSA RAÍZ DE CHURN
 function RootCauseView() {
+  const { L } = useSession();
   return <div>
-    <H1 title="Causa raíz de churn" sub="Churn alto es el síntoma. Esto muestra qué eventos lo preceden y cuánto multiplican el riesgo." />
+    <H1 title={L("Churn root cause", "Causa raíz de churn")} sub={L("High churn is the symptom. This shows which events precede it and how much they multiply the risk.", "Churn alto es el síntoma. Esto muestra qué eventos lo preceden y cuánto multiplican el riesgo.")} />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-      <Panel title="Factores de riesgo (lift sobre baseline)" tag="correlación" h={340}>
+      <Panel title={L("Risk factors (lift over baseline)", "Factores de riesgo (lift sobre baseline)")} tag={L("correlation", "correlación")} h={340}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart layout="vertical" data={churnDrivers} margin={{ top: 6, right: 30, bottom: 6, left: 10 }}>
+          <BarChart layout="vertical" data={churnDrivers.map((d) => ({ ...d, factor: L(d.factor.en, d.factor.es) }))} margin={{ top: 6, right: 30, bottom: 6, left: 10 }}>
             <CartesianGrid horizontal={false} stroke={PAL.line} />
             <XAxis type="number" tick={{ fontSize: 10, fill: PAL.sub }} tickFormatter={(v) => `${v}x`} domain={[0, 5.5]} />
             <YAxis type="category" dataKey="factor" tick={{ fontSize: 10.5, fill: PAL.text }} width={150} />
@@ -373,21 +374,21 @@ function RootCauseView() {
             <Bar dataKey="lift" radius={[0, 4, 4, 0]} isAnimationActive={false}>{churnDrivers.map((d, i) => <Cell key={i} fill={d.c} />)}</Bar>
           </BarChart></ResponsiveContainer>
       </Panel>
-      <Panel title="Secuencia previa al churn" tag="60 días antes" h={340}>
+      <Panel title={L("Pre-churn sequence", "Secuencia previa al churn")} tag={L("60 days before", "60 días antes")} h={340}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={churnTimeline} margin={{ top: 10, right: 16, bottom: 6, left: -16 }}>
             <CartesianGrid vertical={false} stroke={PAL.line} />
             <XAxis dataKey="day" tick={{ fontSize: 10, fill: PAL.sub }} tickFormatter={(v) => `${v}d`} />
             <YAxis tick={{ fontSize: 10, fill: PAL.sub }} />
             <Tooltip content={<TipBox />} />
-            <Line dataKey="login" stroke={PAL.teal} strokeWidth={2.4} dot={false} name="Actividad de login %" isAnimationActive={false} />
-            <Line dataKey="churned" stroke={PAL.red} strokeWidth={2.4} dot={false} name="Aún activos (luego churn) %" isAnimationActive={false} />
+            <Line dataKey="login" stroke={PAL.teal} strokeWidth={2.4} dot={false} name={L("Login activity %", "Actividad de login %")} isAnimationActive={false} />
+            <Line dataKey="churned" stroke={PAL.red} strokeWidth={2.4} dot={false} name={L("Still active (later churn) %", "Aún activos (luego churn) %")} isAnimationActive={false} />
           </LineChart></ResponsiveContainer>
         <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 9.5, color: PAL.sub, marginTop: 4 }}>
-          <Legend c={PAL.teal} t="Login" /><Legend c={PAL.red} t="Camino al churn" /></div>
+          <Legend c={PAL.teal} t="Login" /><Legend c={PAL.red} t={L("Path to churn", "Camino al churn")} /></div>
       </Panel></div>
     <div style={{ marginTop: 14, background: `${PAL.indigo}0D`, border: `1px solid ${PAL.indigo}40`, borderRadius: 12, padding: "14px 18px", fontSize: 13, color: PAL.text }}>
-      <strong style={{ color: PAL.indigo }}>Lectura del modelo:</strong> una caída de login sostenida más de 21 días multiplica el riesgo de churn por 4.8. Es la señal más temprana y accionable — interviene aquí, no cuando ya dejó de pagar.</div></div>;
+      <strong style={{ color: PAL.indigo }}>{L("Model reading:", "Lectura del modelo:")}</strong> {L("a sustained login drop of more than 21 days multiplies churn risk by 4.8. It's the earliest and most actionable signal — intervene here, not once they've already stopped paying.", "una caída de login sostenida más de 21 días multiplica el riesgo de churn por 4.8. Es la señal más temprana y accionable — interviene aquí, no cuando ya dejó de pagar.")}</div></div>;
 }
 
 // 3) SIMULADOR WHAT-IF
@@ -477,13 +478,13 @@ function NbaView() {
 
 // 5) COHORTES VIVAS
 function CohortsView() {
-  const { dataset } = useSession();
+  const { dataset, L } = useSession();
   const { cohortMonths, cohortGrid } = dataset;
   return <div>
-    <H1 title="Cohortes vivas" sub="Cada cohorte de adquisición y cómo se desgasta su retención. La forma más honesta de saber si el producto mejora." />
-    <Panel title="Retención por cohorte (% activos)" tag="heatmap de retención" h={360}>
+    <H1 title={L("Live cohorts", "Cohortes vivas")} sub={L("Every acquisition cohort and how its retention decays. The most honest way to know if the product is improving.", "Cada cohorte de adquisición y cómo se desgasta su retención. La forma más honesta de saber si el producto mejora.")} />
+    <Panel title={L("Retention by cohort (% active)", "Retención por cohorte (% activos)")} tag={L("retention heatmap", "heatmap de retención")} h={360}>
       <div style={{ display: "grid", gridTemplateColumns: `90px repeat(${cohortMonths.length}, 1fr)`, gap: 4 }}>
-        <div />{cohortMonths.map((m, i) => <div key={i} style={{ fontSize: 10, color: PAL.sub, textAlign: "center", paddingBottom: 6 }}>Mes {i}</div>)}
+        <div />{cohortMonths.map((m, i) => <div key={i} style={{ fontSize: 10, color: PAL.sub, textAlign: "center", paddingBottom: 6 }}>{L("Month", "Mes")} {i}</div>)}
         {cohortGrid.map((row) => (<React.Fragment key={row.name}>
           <div style={{ fontSize: 11, color: PAL.text, fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 10 }}>{row.name}</div>
           {row.vals.map((v, i) => { const col = cohortColor(v);
@@ -493,17 +494,17 @@ function CohortsView() {
         <Legend c={PAL.teal} t="≥90%" /><Legend c={PAL.green} t="80–89%" /><Legend c={PAL.lime} t="72–79%" /><Legend c={PAL.amber} t="65–71%" /><Legend c={PAL.orange} t="<65%" /></div>
     </Panel>
     <div style={{ marginTop: 14, background: `${PAL.amber}0D`, border: `1px solid ${PAL.amber}40`, borderRadius: 12, padding: "14px 18px", fontSize: 13 }}>
-      <strong style={{ color: PAL.amber }}>Señal:</strong> la cohorte de marzo retiene 9 puntos por debajo de febrero al mismo mes de vida. Coincide con un cambio en el flujo de onboarding — vale la pena revertir o testear.</div></div>;
+      <strong style={{ color: PAL.amber }}>{L("Signal:", "Señal:")}</strong> {L("the March cohort retains 9 points below February at the same month of life. It coincides with an onboarding-flow change — worth reverting or A/B testing.", "la cohorte de marzo retiene 9 puntos por debajo de febrero al mismo mes de vida. Coincide con un cambio en el flujo de onboarding — vale la pena revertir o testear.")}</div></div>;
 }
 
 // 6) ATRIBUCIÓN CLV POR CANAL
 function AttributionView() {
-  const { dataset } = useSession();
+  const { dataset, L } = useSession();
   const { channels } = dataset;
   return <div>
-    <H1 title="Atribución de CLV por canal" sub="No optimices por volumen ni por CAC barato. Optimiza por CLV:CAC — qué canal trae clientes valiosos." />
+    <H1 title={L("CLV attribution by channel", "Atribución de CLV por canal")} sub={L("Don't optimize for volume or cheap CAC. Optimize for CLV:CAC — which channel brings valuable customers.", "No optimices por volumen ni por CAC barato. Optimiza por CLV:CAC — qué canal trae clientes valiosos.")} />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-      <Panel title="CLV vs CAC por canal" tag="scatter · burbuja = volumen" h={360}>
+      <Panel title={L("CLV vs CAC by channel", "CLV vs CAC por canal")} tag={L("scatter · bubble = volume", "scatter · burbuja = volumen")} h={360}>
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 6 }}>
             <CartesianGrid stroke={PAL.line} />
@@ -514,7 +515,7 @@ function AttributionView() {
             <Scatter data={channels} isAnimationActive={false}>{channels.map((d, i) => <Cell key={i} fill={d.c} fillOpacity={0.55} stroke={d.c} />)}</Scatter>
           </ScatterChart></ResponsiveContainer>
       </Panel>
-      <Panel title="Ratio CLV : CAC por canal" tag="sano > 3:1" h={360}>
+      <Panel title={L("CLV : CAC ratio by channel", "Ratio CLV : CAC por canal")} tag={L("healthy > 3:1", "sano > 3:1")} h={360}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart layout="vertical" data={channels} margin={{ top: 6, right: 36, bottom: 6, left: 10 }}>
             <CartesianGrid horizontal={false} stroke={PAL.line} />
@@ -523,10 +524,10 @@ function AttributionView() {
             <Tooltip content={<TipBox />} cursor={{ fill: "rgba(0,0,0,.03)" }} />
             <Bar dataKey="ratio" radius={[0, 4, 4, 0]} isAnimationActive={false} name="CLV:CAC">{channels.map((d, i) => <Cell key={i} fill={d.ratio >= 3 ? PAL.teal : d.ratio >= 2 ? PAL.amber : PAL.red} />)}</Bar>
           </BarChart></ResponsiveContainer>
-        <div style={{ fontSize: 11, color: PAL.sub, marginTop: 6, textAlign: "center" }}>Referral y Organic superan 4.5:1 · Display destruye valor por debajo de 1.5:1</div>
+        <div style={{ fontSize: 11, color: PAL.sub, marginTop: 6, textAlign: "center" }}>{L("Referral and Organic exceed 4.5:1 · Display destroys value below 1.5:1", "Referral y Organic superan 4.5:1 · Display destruye valor por debajo de 1.5:1")}</div>
       </Panel></div>
     <div style={{ marginTop: 14, background: `${PAL.teal}0D`, border: `1px solid ${PAL.teal}40`, borderRadius: 12, padding: "14px 18px", fontSize: 13 }}>
-      <strong style={{ color: PAL.teal }}>Recomendación:</strong> reasigna presupuesto de Display (1.4:1) hacia Referral (5.1:1). Aunque Paid Search trae el CLV más alto, su CAC lo deja en 2:1 — apenas rentable.</div></div>;
+      <strong style={{ color: PAL.teal }}>{L("Recommendation:", "Recomendación:")}</strong> {L("reallocate budget from Display (1.4:1) toward Referral (5.1:1). Although Paid Search brings the highest CLV, its CAC leaves it at 2:1 — barely profitable.", "reasigna presupuesto de Display (1.4:1) hacia Referral (5.1:1). Aunque Paid Search trae el CLV más alto, su CAC lo deja en 2:1 — apenas rentable.")}</div></div>;
 }
 
 
@@ -704,19 +705,19 @@ function AssistantView({ previewHeight } = {}) {
 
 // === MÓDULO: NARRATIVAS + ANOMALÍAS ===
 function NarrativeView({ embedded } = {}) {
-  const { dataset } = useSession();
+  const { dataset, L } = useSession();
   const { narrative } = dataset;
   return <div>
-    {!embedded && <H1 title="Resumen ejecutivo" sub="Generado automáticamente cada lunes. Qué cambió, por qué importa y qué hacer — sin descifrar gráficos." />}
+    {!embedded && <H1 title={L("Executive summary", "Resumen ejecutivo")} sub={L("Auto-generated every Monday. What changed, why it matters and what to do — without decoding charts.", "Generado automáticamente cada lunes. Qué cambió, por qué importa y qué hacer — sin descifrar gráficos.")} />}
     <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 14 }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ fontSize: 12, color: PAL.sub, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>Narrativa de la semana</div>
+        <div style={{ fontSize: 12, color: PAL.sub, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>{L("This week's narrative", "Narrativa de la semana")}</div>
         {narrative.map((n, i) => (
           <div key={i} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderLeft: `3px solid ${n.c}`, borderRadius: 12, padding: "14px 18px" }}>
             <div style={{ display: "inline-block", fontSize: 9.5, fontWeight: 700, color: n.c, background: `${n.c}1A`, padding: "2px 8px", borderRadius: 20, marginBottom: 8, letterSpacing: ".4px" }}>{n.tag}</div>
             <div style={{ fontSize: 13.5, lineHeight: 1.55 }}>{n.text}</div></div>))}
       </div>
-      <Panel title="Detección de anomalías" tag="MRR diario · auto-flagged" h={340}>
+      <Panel title={L("Anomaly detection", "Detección de anomalías")} tag={L("daily MRR · auto-flagged", "MRR diario · auto-flagged")} h={340}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={anomalies} margin={{ top: 10, right: 14, bottom: 6, left: -16 }}>
             <CartesianGrid vertical={false} stroke={PAL.line} />
@@ -724,9 +725,9 @@ function NarrativeView({ embedded } = {}) {
             <YAxis tick={{ fontSize: 10, fill: PAL.sub }} />
             <Tooltip content={<TipBox />} />
             <Line dataKey="v" stroke={PAL.indigo} strokeWidth={2} dot={false} name="MRR" isAnimationActive={false} />
-            <Scatter data={anomalies.filter(a => a.anom)} dataKey="v" fill={PAL.red} isAnimationActive={false} name="Anomalía" />
+            <Scatter data={anomalies.filter(a => a.anom)} dataKey="v" fill={PAL.red} isAnimationActive={false} name={L("Anomaly", "Anomalía")} />
           </ComposedChart></ResponsiveContainer>
-        <div style={{ fontSize: 11, color: PAL.sub, marginTop: 6, textAlign: "center" }}>2 anomalías detectadas · el modelo marca lo raro antes de que lo busques</div>
+        <div style={{ fontSize: 11, color: PAL.sub, marginTop: 6, textAlign: "center" }}>{L("2 anomalies detected · the model flags the odd before you look for it", "2 anomalías detectadas · el modelo marca lo raro antes de que lo busques")}</div>
       </Panel></div></div>;
 }
 
@@ -1395,21 +1396,22 @@ function buildClusters2D() {
 const CLUSTERS2D = buildClusters2D();
 
 function NetworkView() {
+  const { L } = useSession();
   const [highlight, setHighlight] = useState(null);
   return <div>
-    <H1 title="Análisis de red & clustering" sub="Segmentos descubiertos por el modelo, no definidos a mano. Los clientes que se comportan parecido se agrupan; las conexiones revelan comunidades." />
+    <H1 title={L("Network analysis & clustering", "Análisis de red & clustering")} sub={L("Segments discovered by the model, not hand-defined. Customers that behave alike cluster together; the connections reveal communities.", "Segmentos descubiertos por el modelo, no definidos a mano. Los clientes que se comportan parecido se agrupan; las conexiones revelan comunidades.")} />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-      <Panel title="Grafo de relaciones de clientes" tag="force-directed · comunidades" h={420}>
+      <Panel title={L("Customer relationship graph", "Grafo de relaciones de clientes")} tag={L("force-directed · communities", "force-directed · comunidades")} h={420}>
         <div style={{ position: "relative", height: "100%" }}>
           <NetworkGraph highlight={highlight} setHighlight={setHighlight} />
         </div>
       </Panel>
-      <Panel title="Proyección de clusters" tag="UMAP 2D · segmentos auto" h={420}>
+      <Panel title={L("Cluster projection", "Proyección de clusters")} tag={L("UMAP 2D · auto segments", "UMAP 2D · segmentos auto")} h={420}>
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 10, right: 16, bottom: 16, left: 0 }}>
             <CartesianGrid stroke={PAL.line} />
-            <XAxis type="number" dataKey="x" tick={{ fontSize: 9.5, fill: PAL.sub }} domain={[-3, 3.2]} label={{ value: "Componente 1", position: "bottom", offset: -2, style: { fontSize: 9.5, fill: PAL.sub } }} />
-            <YAxis type="number" dataKey="y" tick={{ fontSize: 9.5, fill: PAL.sub }} domain={[-2.5, 3.6]} label={{ value: "Componente 2", angle: -90, position: "insideLeft", style: { fontSize: 9.5, fill: PAL.sub } }} />
+            <XAxis type="number" dataKey="x" tick={{ fontSize: 9.5, fill: PAL.sub }} domain={[-3, 3.2]} label={{ value: L("Component 1", "Componente 1"), position: "bottom", offset: -2, style: { fontSize: 9.5, fill: PAL.sub } }} />
+            <YAxis type="number" dataKey="y" tick={{ fontSize: 9.5, fill: PAL.sub }} domain={[-2.5, 3.6]} label={{ value: L("Component 2", "Componente 2"), angle: -90, position: "insideLeft", style: { fontSize: 9.5, fill: PAL.sub } }} />
             <Scatter data={CLUSTERS2D} isAnimationActive={false}>{CLUSTERS2D.map((p, i) => <Cell key={i} fill={p.c} fillOpacity={0.75} stroke={p.c} />)}</Scatter>
           </ScatterChart></ResponsiveContainer>
       </Panel>
@@ -1423,12 +1425,12 @@ function NetworkView() {
             <span style={{ width: 10, height: 10, borderRadius: "50%", background: c.color }} />
             <span style={{ fontSize: 11.5, fontWeight: 600 }}>{c.name}</span></div>
           <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-.5px" }}>{c.n}</div>
-          <div style={{ fontSize: 10.5, color: PAL.sub }}>cuentas · ${tot}K CLV</div>
+          <div style={{ fontSize: 10.5, color: PAL.sub }}>{L("accounts", "cuentas")} · ${tot}K CLV</div>
         </div>;
       })}
     </div>
     <div style={{ marginTop: 14, background: `${PAL.indigo}0D`, border: `1px solid ${PAL.indigo}40`, borderRadius: 12, padding: "14px 18px", fontSize: 13, lineHeight: 1.55 }}>
-      <strong style={{ color: PAL.indigo }}>Lectura del modelo:</strong> el clustering detectó 6 comunidades naturales. El cluster <span style={{ color: PAL.bad, fontWeight: 600 }}>At-Risk</span> tiene conexiones débiles con el resto — son cuentas aisladas que dejaron de interactuar con tu producto. El cluster <span style={{ color: PAL.d2, fontWeight: 600 }}>Enterprise</span> está densamente conectado: alta cohesión, bajo riesgo de churn colectivo.</div>
+      <strong style={{ color: PAL.indigo }}>{L("Model reading:", "Lectura del modelo:")}</strong> {L(<>clustering detected 6 natural communities. The <span style={{ color: PAL.bad, fontWeight: 600 }}>At-Risk</span> cluster has weak connections to the rest — isolated accounts that stopped interacting with your product. The <span style={{ color: PAL.d2, fontWeight: 600 }}>Enterprise</span> cluster is densely connected: high cohesion, low collective churn risk.</>, <>el clustering detectó 6 comunidades naturales. El cluster <span style={{ color: PAL.bad, fontWeight: 600 }}>At-Risk</span> tiene conexiones débiles con el resto — son cuentas aisladas que dejaron de interactuar con tu producto. El cluster <span style={{ color: PAL.d2, fontWeight: 600 }}>Enterprise</span> está densamente conectado: alta cohesión, bajo riesgo de churn colectivo.</>)}</div>
   </div>;
 }
 
@@ -1533,28 +1535,31 @@ function OverviewView() {
 
 /* =================== VISTAS COMBINADAS (consolidan solapamientos) =================== */
 function MapsView() {
+  const { L } = useSession();
   return <div>
-    <H1 title="Mapas" sub="Actividad geográfica en tiempo real y concentración de ingreso por región." />
+    <H1 title={L("Maps", "Mapas")} sub={L("Real-time geographic activity and revenue concentration by region.", "Actividad geográfica en tiempo real y concentración de ingreso por región.")} />
     <Tabs tabs={[
-      { label: "En vivo", content: <IntelligentMap embedded /> },
-      { label: "Calor geográfico", content: <GeoView embedded /> },
+      { label: L("Live", "En vivo"), content: <IntelligentMap embedded /> },
+      { label: L("Geo heatmap", "Calor geográfico"), content: <GeoView embedded /> },
     ]} />
   </div>;
 }
 function PulseView() {
+  const { L } = useSession();
   return <div>
-    <H1 title="Resumen & Alertas" sub="Qué cambió, por qué importa y qué requiere acción ahora." />
+    <H1 title={L("Summary & Alerts", "Resumen & Alertas")} sub={L("What changed, why it matters and what needs action now.", "Qué cambió, por qué importa y qué requiere acción ahora.")} />
     <Tabs tabs={[
-      { label: "Resumen ejecutivo", content: <NarrativeView embedded /> },
-      { label: "Alertas activas", content: <AlertsView embedded /> },
+      { label: L("Executive summary", "Resumen ejecutivo"), content: <NarrativeView embedded /> },
+      { label: L("Active alerts", "Alertas activas"), content: <AlertsView embedded /> },
     ]} />
   </div>;
 }
 function ConnectionsView() {
+  const { L } = useSession();
   return <div>
-    <H1 title="Conexiones" sub="Integra herramientas externas y embebe la analítica en tu propio producto." />
+    <H1 title={L("Connections", "Conexiones")} sub={L("Integrate external tools and embed the analytics into your own product.", "Integra herramientas externas y embebe la analítica en tu propio producto.")} />
     <Tabs tabs={[
-      { label: "Integraciones & API", content: <IntegrationsView embedded /> },
+      { label: L("Integrations & API", "Integraciones & API"), content: <IntegrationsView embedded /> },
       { label: "Embeddable", content: <EmbedView embedded /> },
     ]} />
   </div>;
