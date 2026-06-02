@@ -146,12 +146,12 @@ const churnTimeline = [
 
 // Next best action — lista de cuentas con recomendación
 const nbaRows = [
-  { acct: "Northwind Trading", seg: "Premium", clv: "$18.4K", risk: "Crítico", rc: PAL.red, action: "Llamada del AM + 15% retención", roi: "+$15.6K", roc: PAL.good },
-  { acct: "Acme Logistics", seg: "VIP", clv: "$31.2K", risk: "Alto", rc: PAL.orange, action: "Upgrade a plan anual", roi: "+$9.1K", roc: PAL.good },
-  { acct: "Globex SaaS", seg: "Core", clv: "$6.7K", risk: "Alto", rc: PAL.orange, action: "Email reactivación + tutorial", roi: "+$2.3K", roc: PAL.good },
-  { acct: "Initech Cloud", seg: "Growth", clv: "$3.1K", risk: "Medio", rc: PAL.amber, action: "Nutrir — sin inversión directa", roi: "+$0.6K", roc: PAL.sub },
-  { acct: "Hooli Data", seg: "Marginal", clv: "$0.9K", risk: "Crítico", rc: PAL.red, action: "No invertir — dejar churnear", roi: "—", roc: PAL.sub },
-  { acct: "Umbrella Retail", seg: "VIP", clv: "$24.8K", risk: "Bajo", rc: PAL.teal, action: "Blindar — programa de lealtad", roi: "+$5.0K", roc: PAL.good },
+  { acct: "Northwind Trading", seg: "Premium", clv: "$18.4K", risk: { en: "Critical", es: "Crítico" }, rc: PAL.red, action: { en: "AM call + 15% retention", es: "Llamada del AM + 15% retención" }, roi: "+$15.6K", roc: PAL.good },
+  { acct: "Acme Logistics", seg: "VIP", clv: "$31.2K", risk: { en: "High", es: "Alto" }, rc: PAL.orange, action: { en: "Upgrade to annual plan", es: "Upgrade a plan anual" }, roi: "+$9.1K", roc: PAL.good },
+  { acct: "Globex SaaS", seg: "Core", clv: "$6.7K", risk: { en: "High", es: "Alto" }, rc: PAL.orange, action: { en: "Reactivation email + tutorial", es: "Email reactivación + tutorial" }, roi: "+$2.3K", roc: PAL.good },
+  { acct: "Initech Cloud", seg: "Growth", clv: "$3.1K", risk: { en: "Medium", es: "Medio" }, rc: PAL.amber, action: { en: "Nurture — no direct spend", es: "Nutrir — sin inversión directa" }, roi: "+$0.6K", roc: PAL.sub },
+  { acct: "Hooli Data", seg: "Marginal", clv: "$0.9K", risk: { en: "Critical", es: "Crítico" }, rc: PAL.red, action: { en: "Don't invest — let churn", es: "No invertir — dejar churnear" }, roi: "—", roc: PAL.sub },
+  { acct: "Umbrella Retail", seg: "VIP", clv: "$24.8K", risk: { en: "Low", es: "Bajo" }, rc: PAL.teal, action: { en: "Shield — loyalty program", es: "Blindar — programa de lealtad" }, roi: "+$5.0K", roc: PAL.good },
 ];
 
 // Cohortes vivas (retención por mes desde adquisición)
@@ -393,7 +393,7 @@ function RootCauseView() {
 
 // 3) SIMULADOR WHAT-IF
 function SimulatorView() {
-  const { dataset } = useSession();
+  const { dataset, L } = useSession();
   const base = dataset.simulator.baseMrrK;          // MRR k (escalado a las cifras del usuario)
   const atRiskMrr = dataset.simulator.atRiskMrrK;   // MRR concentrado en el segmento At-Risk
   const [atRiskRed, setAtRiskRed] = useState(2);   // reducción de churn del segmento At-Risk (pts)
@@ -422,24 +422,24 @@ function SimulatorView() {
         <span style={{ fontSize: FS.body, fontWeight: 700, color: accent || PAL.brand }}>{fmt(val)}</span></div>
       <input type="range" min={min} max={max} step={step} value={val} onChange={(e) => set(+e.target.value)} style={{ width: "100%", accentColor: accent || PAL.brand }} /></div>);
   return <div>
-    <H1 title="Simulador de impacto" sub="Mueve una palanca y ve cuánto ARR ganas. De la analítica a la decisión cuantificada." />
+    <H1 title={L("Impact simulator", "Simulador de impacto")} sub={L("Move a lever and see how much ARR you gain. From analytics to a quantified decision.", "Mueve una palanca y ve cuánto ARR ganas. De la analítica a la decisión cuantificada.")} />
     {/* FRASE PROTAGONISTA — la que cierra la venta */}
     <div style={{ background: `linear-gradient(135deg, ${PAL.brandDk}, ${PAL.brand} 60%, #22B5C4)`, borderRadius: 16, padding: "24px 28px", marginBottom: 16, color: "#fff" }}>
-      <div style={{ fontSize: FS.body, opacity: .9, fontWeight: 500 }}>Si reduces el churn del segmento <strong>At-Risk</strong> en <strong>{atRiskRed} {atRiskRed === 1 ? "punto" : "puntos"}</strong>…</div>
-      <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px", marginTop: 6 }}>ganas ${atRiskArr}K en ARR</div>
-      <div style={{ fontSize: FS.body, opacity: .9, marginTop: 4 }}>Con todas las palancas activas: <strong>+${arrLift}K ARR</strong> en 12 meses · +${liftM12}K MRR mensual recurrente</div>
+      <div style={{ fontSize: FS.body, opacity: .9, fontWeight: 500 }}>{L(<>If you cut the <strong>At-Risk</strong> segment's churn by <strong>{atRiskRed} {atRiskRed === 1 ? "point" : "points"}</strong>…</>, <>Si reduces el churn del segmento <strong>At-Risk</strong> en <strong>{atRiskRed} {atRiskRed === 1 ? "punto" : "puntos"}</strong>…</>)}</div>
+      <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px", marginTop: 6 }}>{L(`you gain $${atRiskArr}K in ARR`, `ganas $${atRiskArr}K en ARR`)}</div>
+      <div style={{ fontSize: FS.body, opacity: .9, marginTop: 4 }}>{L(<>With every lever active: <strong>+${arrLift}K ARR</strong> over 12 months · +${liftM12}K recurring monthly MRR</>, <>Con todas las palancas activas: <strong>+${arrLift}K ARR</strong> en 12 meses · +${liftM12}K MRR mensual recurrente</>)}</div>
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "330px 1fr", gap: 14 }}>
-      <Panel title="Palancas de decisión" tag="what-if" h={440}>
+      <Panel title={L("Decision levers", "Palancas de decisión")} tag="what-if" h={440}>
         <div style={{ padding: "10px 12px", background: `${PAL.bad}0D`, border: `1px solid ${PAL.bad}30`, borderRadius: 10, marginBottom: 16 }}>
-          <Slider label="↓ Churn segmento At-Risk" val={atRiskRed} set={setAtRiskRed} min={0} max={5} step={0.5} fmt={(v) => `−${v} pts`} accent={PAL.bad} />
-          <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: -8 }}>La palanca de mayor impacto: At-Risk concentra ${atRiskMrr}K MRR.</div>
+          <Slider label={L("↓ At-Risk segment churn", "↓ Churn segmento At-Risk")} val={atRiskRed} set={setAtRiskRed} min={0} max={5} step={0.5} fmt={(v) => `−${v} pts`} accent={PAL.bad} />
+          <div style={{ fontSize: FS.label, color: PAL.sub, marginTop: -8 }}>{L(`The highest-impact lever: At-Risk concentrates $${atRiskMrr}K MRR.`, `La palanca de mayor impacto: At-Risk concentra $${atRiskMrr}K MRR.`)}</div>
         </div>
-        <Slider label="↓ Churn general" val={churnRed} set={setChurnRed} min={0} max={5} step={0.5} fmt={(v) => `−${v} pts`} />
+        <Slider label={L("↓ Overall churn", "↓ Churn general")} val={churnRed} set={setChurnRed} min={0} max={5} step={0.5} fmt={(v) => `−${v} pts`} />
         <Slider label="Net Revenue Retention" val={nrr} set={setNrr} min={95} max={125} step={1} fmt={(v) => `${v}%`} />
-        <Slider label="Tasa de reactivación" val={reactivation} set={setReactivation} min={5} max={35} step={1} fmt={(v) => `${v}%`} />
+        <Slider label={L("Reactivation rate", "Tasa de reactivación")} val={reactivation} set={setReactivation} min={5} max={35} step={1} fmt={(v) => `${v}%`} />
       </Panel>
-      <Panel title="Proyección de MRR — escenario vs baseline" tag="12 meses" h={440}>
+      <Panel title={L("MRR projection — scenario vs baseline", "Proyección de MRR — escenario vs baseline")} tag={L("12 months", "12 meses")} h={440}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={proj} margin={{ top: 10, right: 16, bottom: 6, left: -10 }}>
             <defs><linearGradient id="scen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={PAL.brand} stopOpacity={0.25} /><stop offset="100%" stopColor={PAL.brand} stopOpacity={0.02} /></linearGradient></defs>
@@ -447,7 +447,7 @@ function SimulatorView() {
             <XAxis dataKey="m" tick={{ fontSize: FS.axis, fill: PAL.sub }} />
             <YAxis tick={{ fontSize: FS.axis, fill: PAL.sub }} tickFormatter={(v) => `$${v}k`} domain={["auto", "auto"]} />
             <Tooltip content={<TipBox unit="k" />} />
-            <Area dataKey="scenario" stroke={PAL.brand} strokeWidth={2.6} fill="url(#scen)" name="Escenario" isAnimationActive={false} />
+            <Area dataKey="scenario" stroke={PAL.brand} strokeWidth={2.6} fill="url(#scen)" name={L("Scenario", "Escenario")} isAnimationActive={false} />
             <Line dataKey="baseline" stroke={PAL.sub} strokeWidth={2} strokeDasharray="5 4" dot={false} name="Baseline" isAnimationActive={false} />
           </ComposedChart></ResponsiveContainer>
       </Panel></div></div>;
@@ -455,25 +455,26 @@ function SimulatorView() {
 
 // 4) NEXT BEST ACTION
 function NbaView() {
+  const { L } = useSession();
   return <div>
-    <H1 title="Next Best Action" sub="El modelo no solo segmenta — recomienda la acción por cuenta y estima su retorno." />
+    <H1 title="Next Best Action" sub={L("The model doesn't just segment — it recommends the action per account and estimates its return.", "El modelo no solo segmenta — recomienda la acción por cuenta y estima su retorno.")} />
     <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, overflow: "hidden" }}>
       <div className="tablewrap" style={{ overflowX: "auto" }}>
       <div style={{ minWidth: 720 }}>
       <div style={{ display: "grid", gridTemplateColumns: "1.6fr .8fr .8fr .8fr 2fr 1fr", padding: "12px 18px", borderBottom: `1px solid ${PAL.line}`, fontSize: FS.label, fontWeight: 600, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".4px", background: PAL.panel2 }}>
-        <span>Cuenta</span><span>Segmento</span><span>CLV</span><span>Riesgo</span><span>Acción recomendada</span><span>Retorno est.</span></div>
+        <span>{L("Account", "Cuenta")}</span><span>{L("Segment", "Segmento")}</span><span>CLV</span><span>{L("Risk", "Riesgo")}</span><span>{L("Recommended action", "Acción recomendada")}</span><span>{L("Est. return", "Retorno est.")}</span></div>
       {nbaRows.map((r, i) => (
         <div key={i} style={{ display: "grid", gridTemplateColumns: "1.6fr .8fr .8fr .8fr 2fr 1fr", padding: "14px 18px", borderBottom: i < nbaRows.length - 1 ? `1px solid ${PAL.line}` : "none", fontSize: FS.body, alignItems: "center" }}>
           <span style={{ fontWeight: 600 }}>{r.acct}</span>
           <span style={{ color: PAL.sub }}>{r.seg}</span>
           <span style={{ fontWeight: 600 }}>{r.clv}</span>
-          <span><span style={{ fontSize: FS.label, fontWeight: 700, color: r.rc, background: `${r.rc}1A`, padding: "3px 9px", borderRadius: 20 }}>{r.risk}</span></span>
-          <span style={{ color: PAL.text }}>{r.action}</span>
+          <span><span style={{ fontSize: FS.label, fontWeight: 700, color: r.rc, background: `${r.rc}1A`, padding: "3px 9px", borderRadius: 20 }}>{L(r.risk.en, r.risk.es)}</span></span>
+          <span style={{ color: PAL.text }}>{L(r.action.en, r.action.es)}</span>
           <span style={{ fontWeight: 700, color: r.roc }}>{r.roi}</span>
         </div>))}</div></div></div>
     <div style={{ marginTop: 14, display: "flex", gap: 12 }}>
-      <button style={{ fontSize: 12.5, fontWeight: 600, color: "#fff", background: PAL.indigo, border: "none", borderRadius: 8, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>Exportar lista al CRM</button>
-      <button style={{ fontSize: 12.5, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 8, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>Disparar campaña de retención</button></div></div>;
+      <button style={{ fontSize: 12.5, fontWeight: 600, color: "#fff", background: PAL.indigo, border: "none", borderRadius: 8, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>{L("Export list to CRM", "Exportar lista al CRM")}</button>
+      <button style={{ fontSize: 12.5, fontWeight: 600, color: PAL.text, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 8, padding: "10px 18px", cursor: "pointer", fontFamily: FONT }}>{L("Trigger retention campaign", "Disparar campaña de retención")}</button></div></div>;
 }
 
 // 5) COHORTES VIVAS
