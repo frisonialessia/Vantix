@@ -552,47 +552,47 @@ const anomalies = Array.from({ length: 40 }, (_, i) => {
   return { d: i, v: +v.toFixed(1), anom: isAnom };
 });
 const integrations = [
-  { name: "Salesforce", cat: "CRM", status: "connected", c: PAL.blue, dir: "Bidireccional" },
-  { name: "HubSpot", cat: "Marketing", status: "connected", c: PAL.orange, dir: "Bidireccional" },
-  { name: "Slack", cat: "Alertas", status: "connected", c: PAL.violet, dir: "Salida" },
-  { name: "Stripe", cat: "Billing", status: "connected", c: PAL.indigo, dir: "Entrada" },
-  { name: "Segment", cat: "Eventos", status: "available", c: PAL.green, dir: "Entrada" },
-  { name: "Snowflake", cat: "Data warehouse", status: "available", c: PAL.teal, dir: "Entrada" },
-  { name: "Intercom", cat: "Soporte", status: "available", c: PAL.blue, dir: "Bidireccional" },
-  { name: "Zapier", cat: "Automatización", status: "available", c: PAL.amber, dir: "Bidireccional" },
+  { name: "Salesforce", cat: { en: "CRM", es: "CRM" }, status: "connected", c: PAL.blue, dir: { en: "Bidirectional", es: "Bidireccional" } },
+  { name: "HubSpot", cat: { en: "Marketing", es: "Marketing" }, status: "connected", c: PAL.orange, dir: { en: "Bidirectional", es: "Bidireccional" } },
+  { name: "Slack", cat: { en: "Alerts", es: "Alertas" }, status: "connected", c: PAL.violet, dir: { en: "Outbound", es: "Salida" } },
+  { name: "Stripe", cat: { en: "Billing", es: "Billing" }, status: "connected", c: PAL.indigo, dir: { en: "Inbound", es: "Entrada" } },
+  { name: "Segment", cat: { en: "Events", es: "Eventos" }, status: "available", c: PAL.green, dir: { en: "Inbound", es: "Entrada" } },
+  { name: "Snowflake", cat: { en: "Data warehouse", es: "Data warehouse" }, status: "available", c: PAL.teal, dir: { en: "Inbound", es: "Entrada" } },
+  { name: "Intercom", cat: { en: "Support", es: "Soporte" }, status: "available", c: PAL.blue, dir: { en: "Bidirectional", es: "Bidireccional" } },
+  { name: "Zapier", cat: { en: "Automation", es: "Automatización" }, status: "available", c: PAL.amber, dir: { en: "Bidirectional", es: "Bidireccional" } },
 ];
 const teamMembers = [
-  { name: "Ana Rivera", role: "CFO", scope: "Acceso total", c: PAL.indigo, init: "AR" },
-  { name: "Marco Díaz", role: "Head of Growth", scope: "Analítica + campañas", c: PAL.teal, init: "MD" },
-  { name: "Lucía Fernández", role: "Account Manager", scope: "Solo su cartera (84 cuentas)", c: PAL.green, init: "LF" },
-  { name: "Tom Becker", role: "Analista", scope: "Lectura + exportar", c: PAL.amber, init: "TB" },
+  { name: "Ana Rivera", role: { en: "CFO", es: "CFO" }, scope: { en: "Full access", es: "Acceso total" }, c: PAL.indigo, init: "AR" },
+  { name: "Marco Díaz", role: { en: "Head of Growth", es: "Head of Growth" }, scope: { en: "Analytics + campaigns", es: "Analítica + campañas" }, c: PAL.teal, init: "MD" },
+  { name: "Lucía Fernández", role: { en: "Account Manager", es: "Account Manager" }, scope: { en: "Her book only (84 accounts)", es: "Solo su cartera (84 cuentas)" }, c: PAL.green, init: "LF" },
+  { name: "Tom Becker", role: { en: "Analyst", es: "Analista" }, scope: { en: "Read + export", es: "Lectura + exportar" }, c: PAL.amber, init: "TB" },
 ];
 const auditLog = [
-  { who: "Ana Rivera", act: "Exportó lista de rescate (12 cuentas)", t: "hace 2h", c: PAL.indigo },
-  { who: "Marco Díaz", act: "Disparó campaña de retención — segmento Premium", t: "hace 5h", c: PAL.teal },
-  { who: "Sistema", act: "Sincronizó 2.4M transacciones desde Stripe", t: "hace 6h", c: PAL.sub },
-  { who: "Lucía Fernández", act: "Visualizó cohorte Northwind Trading", t: "hace 8h", c: PAL.green },
-  { who: "Tom Becker", act: "Modificó umbral de alerta de churn (>21d → >18d)", t: "ayer", c: PAL.amber },
+  { who: { en: "Ana Rivera", es: "Ana Rivera" }, act: { en: "Exported rescue list (12 accounts)", es: "Exportó lista de rescate (12 cuentas)" }, t: { en: "2h ago", es: "hace 2h" }, c: PAL.indigo },
+  { who: { en: "Marco Díaz", es: "Marco Díaz" }, act: { en: "Triggered retention campaign — Premium segment", es: "Disparó campaña de retención — segmento Premium" }, t: { en: "5h ago", es: "hace 5h" }, c: PAL.teal },
+  { who: { en: "System", es: "Sistema" }, act: { en: "Synced 2.4M transactions from Stripe", es: "Sincronizó 2.4M transacciones desde Stripe" }, t: { en: "6h ago", es: "hace 6h" }, c: PAL.sub },
+  { who: { en: "Lucía Fernández", es: "Lucía Fernández" }, act: { en: "Viewed Northwind Trading cohort", es: "Visualizó cohorte Northwind Trading" }, t: { en: "8h ago", es: "hace 8h" }, c: PAL.green },
+  { who: { en: "Tom Becker", es: "Tom Becker" }, act: { en: "Changed churn alert threshold (>21d → >18d)", es: "Modificó umbral de alerta de churn (>21d → >18d)" }, t: { en: "yesterday", es: "ayer" }, c: PAL.amber },
 ];
 const onboardingSteps = [
-  { n: 1, t: "Conecta tu fuente de datos", d: "Stripe, Snowflake o CSV", done: true },
-  { n: 2, t: "Mapea tus columnas", d: "Detección automática de fecha, monto, cliente", done: true },
-  { n: 3, t: "El motor calcula RFM + CLV", d: "Procesamiento en background (~4 min)", done: true },
-  { n: 4, t: "Explora tu primer insight", d: "El asistente genera tu resumen inicial", done: false },
+  { n: 1, t: { en: "Connect your data source", es: "Conecta tu fuente de datos" }, d: { en: "Stripe, Snowflake or CSV", es: "Stripe, Snowflake o CSV" }, done: true },
+  { n: 2, t: { en: "Map your columns", es: "Mapea tus columnas" }, d: { en: "Auto-detect date, amount, customer", es: "Detección automática de fecha, monto, cliente" }, done: true },
+  { n: 3, t: { en: "The engine computes RFM + CLV", es: "El motor calcula RFM + CLV" }, d: { en: "Background processing (~4 min)", es: "Procesamiento en background (~4 min)" }, done: true },
+  { n: 4, t: { en: "Explore your first insight", es: "Explora tu primer insight" }, d: { en: "The assistant generates your initial summary", es: "El asistente genera tu resumen inicial" }, done: false },
 ];
 const compliance = [
-  { name: "SOC 2 Type II", status: "Certificado", c: PAL.good, d: "Auditado anualmente" },
-  { name: "GDPR", status: "Conforme", c: PAL.good, d: "Datos en región UE/US" },
-  { name: "Cifrado", status: "AES-256", c: PAL.good, d: "En reposo y tránsito" },
-  { name: "PII Handling", status: "Tokenizado", c: PAL.good, d: "Hashing de identificadores" },
+  { name: { en: "SOC 2 Type II", es: "SOC 2 Type II" }, status: { en: "Certified", es: "Certificado" }, c: PAL.good, d: { en: "Audited annually", es: "Auditado anualmente" } },
+  { name: { en: "GDPR", es: "GDPR" }, status: { en: "Compliant", es: "Conforme" }, c: PAL.good, d: { en: "Data in EU/US region", es: "Datos en región UE/US" } },
+  { name: { en: "Encryption", es: "Cifrado" }, status: { en: "AES-256", es: "AES-256" }, c: PAL.good, d: { en: "At rest and in transit", es: "En reposo y tránsito" } },
+  { name: { en: "PII Handling", es: "PII Handling" }, status: { en: "Tokenized", es: "Tokenizado" }, c: PAL.good, d: { en: "Identifier hashing", es: "Hashing de identificadores" } },
 ];
 // Explicabilidad del modelo (SHAP-style)
 const shap = [
-  { f: "Días desde último login", v: 38, c: PAL.red, dir: "+riesgo" },
-  { f: "Ticket sin resolver", v: 24, c: PAL.orange, dir: "+riesgo" },
-  { f: "Caída de uso de feature core", v: 18, c: PAL.amber, dir: "+riesgo" },
-  { f: "Antigüedad de cuenta", v: -14, c: PAL.teal, dir: "−riesgo" },
-  { f: "Plan anual", v: -11, c: PAL.green, dir: "−riesgo" },
+  { f: { en: "Days since last login", es: "Días desde último login" }, v: 38, c: PAL.red, dir: { en: "+risk", es: "+riesgo" } },
+  { f: { en: "Unresolved ticket", es: "Ticket sin resolver" }, v: 24, c: PAL.orange, dir: { en: "+risk", es: "+riesgo" } },
+  { f: { en: "Core-feature usage drop", es: "Caída de uso de feature core" }, v: 18, c: PAL.amber, dir: { en: "+risk", es: "+riesgo" } },
+  { f: { en: "Account tenure", es: "Antigüedad de cuenta" }, v: -14, c: PAL.teal, dir: { en: "−risk", es: "−riesgo" } },
+  { f: { en: "Annual plan", es: "Plan anual" }, v: -11, c: PAL.green, dir: { en: "−risk", es: "−riesgo" } },
 ];
 
 // === MÓDULO: ASISTENTE IA (pantalla completa) ===
@@ -734,53 +734,55 @@ function NarrativeView({ embedded } = {}) {
 
 // === MÓDULO: INTEGRACIONES ===
 function IntegrationsView({ embedded } = {}) {
+  const { L } = useSession();
   return <div>
-    {!embedded && <H1 title="Integraciones" sub="No solo exporta — escribe de vuelta. Cuantas más herramientas conecta, más difícil es abandonarlo." />}
+    {!embedded && <H1 title={L("Integrations", "Integraciones")} sub={L("It doesn't just export — it writes back. The more tools it connects, the harder it is to leave.", "No solo exporta — escribe de vuelta. Cuantas más herramientas conecta, más difícil es abandonarlo.")} />}
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
       {integrations.map((it) => (
         <div key={it.name} style={{ background: PAL.panel, border: `1px solid ${it.status === "connected" ? `${it.c}66` : PAL.line}`, borderRadius: 14, padding: 18 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: `${it.c}1A`, display: "flex", alignItems: "center", justifyContent: "center", color: it.c, fontWeight: 700, fontSize: 16 }}>{it.name[0]}</div>
             {it.status === "connected"
-              ? <span style={{ fontSize: 10, fontWeight: 700, color: PAL.good, display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: PAL.good }} />Conectado</span>
-              : <span style={{ fontSize: 10, color: PAL.sub }}>Disponible</span>}
+              ? <span style={{ fontSize: 10, fontWeight: 700, color: PAL.good, display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: PAL.good }} />{L("Connected", "Conectado")}</span>
+              : <span style={{ fontSize: 10, color: PAL.sub }}>{L("Available", "Disponible")}</span>}
           </div>
           <div style={{ fontSize: 14, fontWeight: 600 }}>{it.name}</div>
-          <div style={{ fontSize: 11.5, color: PAL.sub, marginBottom: 12 }}>{it.cat} · {it.dir}</div>
-          <button style={{ width: "100%", fontSize: 12, fontWeight: 600, color: it.status === "connected" ? PAL.sub : "#fff", background: it.status === "connected" ? PAL.panel2 : it.c, border: it.status === "connected" ? `1px solid ${PAL.line}` : "none", borderRadius: 8, padding: "9px", cursor: "pointer", fontFamily: FONT }}>{it.status === "connected" ? "Configurar" : "Conectar"}</button>
+          <div style={{ fontSize: 11.5, color: PAL.sub, marginBottom: 12 }}>{L(it.cat.en, it.cat.es)} · {L(it.dir.en, it.dir.es)}</div>
+          <button style={{ width: "100%", fontSize: 12, fontWeight: 600, color: it.status === "connected" ? PAL.sub : "#fff", background: it.status === "connected" ? PAL.panel2 : it.c, border: it.status === "connected" ? `1px solid ${PAL.line}` : "none", borderRadius: 8, padding: "9px", cursor: "pointer", fontFamily: FONT }}>{it.status === "connected" ? L("Configure", "Configurar") : L("Connect", "Conectar")}</button>
         </div>))}
     </div>
     <div style={{ marginTop: 14, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 18 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>API pública + Webhooks</div>
-      <div style={{ fontSize: 12.5, color: PAL.sub, marginBottom: 12 }}>Una API convierte un producto en plataforma. Otros pueden construir sobre tus datos y embeber tus dashboards.</div>
-      <code style={{ display: "block", background: PAL.panel2, borderRadius: 8, padding: "12px 14px", fontSize: 12, color: PAL.text, fontFamily: "monospace" }}>POST /v1/segments/at-risk → webhook a tu CRM en tiempo real</code>
+      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{L("Public API + Webhooks", "API pública + Webhooks")}</div>
+      <div style={{ fontSize: 12.5, color: PAL.sub, marginBottom: 12 }}>{L("An API turns a product into a platform. Others can build on your data and embed your dashboards.", "Una API convierte un producto en plataforma. Otros pueden construir sobre tus datos y embeber tus dashboards.")}</div>
+      <code style={{ display: "block", background: PAL.panel2, borderRadius: 8, padding: "12px 14px", fontSize: 12, color: PAL.text, fontFamily: "monospace" }}>{L("POST /v1/segments/at-risk → webhook to your CRM in real time", "POST /v1/segments/at-risk → webhook a tu CRM en tiempo real")}</code>
     </div></div>;
 }
 
 // === MÓDULO: EQUIPO & RBAC ===
 function TeamView() {
+  const { L } = useSession();
   return <div>
-    <H1 title="Equipo & permisos" sub="RBAC: el CFO ve todo, el account manager solo su cartera. Indispensable para vender a empresas." />
+    <H1 title={L("Team & permissions", "Equipo & permisos")} sub={L("RBAC: the CFO sees everything, the account manager only their book. Essential to sell to enterprises.", "RBAC: el CFO ve todo, el account manager solo su cartera. Indispensable para vender a empresas.")} />
     <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 14 }}>
       <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, overflow: "hidden" }}>
-        <div style={{ padding: "12px 18px", borderBottom: `1px solid ${PAL.line}`, fontSize: 11, fontWeight: 600, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".4px", background: PAL.panel2, display: "flex", justifyContent: "space-between" }}><span>Miembros del equipo</span><span>Alcance (RBAC)</span></div>
+        <div style={{ padding: "12px 18px", borderBottom: `1px solid ${PAL.line}`, fontSize: 11, fontWeight: 600, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".4px", background: PAL.panel2, display: "flex", justifyContent: "space-between" }}><span>{L("Team members", "Miembros del equipo")}</span><span>{L("Scope (RBAC)", "Alcance (RBAC)")}</span></div>
         {teamMembers.map((m, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: i < teamMembers.length - 1 ? `1px solid ${PAL.line}` : "none" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: `${m.c}1A`, color: m.c, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 }}>{m.init}</div>
-              <div><div style={{ fontSize: 13.5, fontWeight: 600 }}>{m.name}</div><div style={{ fontSize: 11.5, color: PAL.sub }}>{m.role}</div></div>
+              <div><div style={{ fontSize: 13.5, fontWeight: 600 }}>{m.name}</div><div style={{ fontSize: 11.5, color: PAL.sub }}>{L(m.role.en, m.role.es)}</div></div>
             </div>
-            <span style={{ fontSize: 11.5, color: m.c, fontWeight: 500 }}>{m.scope}</span>
+            <span style={{ fontSize: 11.5, color: m.c, fontWeight: 500 }}>{L(m.scope.en, m.scope.es)}</span>
           </div>))}
       </div>
-      <Panel title="Audit log" tag="quién vio qué y cuándo" h={320}>
+      <Panel title="Audit log" tag={L("who viewed what and when", "quién vio qué y cuándo")} h={320}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {auditLog.map((a, i) => (
             <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: a.c, marginTop: 6, flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12.5 }}><strong style={{ color: a.c }}>{a.who}</strong> {a.act}</div>
-                <div style={{ fontSize: 10.5, color: PAL.sub }}>{a.t}</div></div>
+                <div style={{ fontSize: 12.5 }}><strong style={{ color: a.c }}>{L(a.who.en, a.who.es)}</strong> {L(a.act.en, a.act.es)}</div>
+                <div style={{ fontSize: 10.5, color: PAL.sub }}>{L(a.t.en, a.t.es)}</div></div>
             </div>))}
         </div>
       </Panel></div></div>;
@@ -788,8 +790,9 @@ function TeamView() {
 
 // === MÓDULO: ONBOARDING SELF-SERVE ===
 function OnboardingView() {
+  const { L } = useSession();
   return <div>
-    <H1 title="Onboarding" sub="Conecta tus datos y ve valor en 10 minutos sin hablar con nadie. El crecimiento eficiente vive aquí." />
+    <H1 title="Onboarding" sub={L("Connect your data and see value in 10 minutes without talking to anyone. Efficient growth lives here.", "Conecta tus datos y ve valor en 10 minutos sin hablar con nadie. El crecimiento eficiente vive aquí.")} />
     <div style={{ maxWidth: 720 }}>
       <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 24 }}>
         {onboardingSteps.map((s, i) => (
@@ -797,13 +800,13 @@ function OnboardingView() {
             {i < onboardingSteps.length - 1 && <div style={{ position: "absolute", left: 17, top: 36, bottom: 4, width: 2, background: s.done ? PAL.teal : PAL.line }} />}
             <div style={{ width: 36, height: 36, borderRadius: "50%", background: s.done ? PAL.teal : PAL.panel2, border: s.done ? "none" : `2px solid ${PAL.line}`, color: s.done ? "#fff" : PAL.sub, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, flexShrink: 0, zIndex: 1 }}>{s.done ? "✓" : s.n}</div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14.5, fontWeight: 600, color: s.done ? PAL.text : PAL.sub }}>{s.t}</div>
-              <div style={{ fontSize: 12.5, color: PAL.sub, marginTop: 2 }}>{s.d}</div>
-              {!s.done && <button style={{ marginTop: 10, fontSize: 12.5, fontWeight: 600, color: "#fff", background: PAL.indigo, border: "none", borderRadius: 8, padding: "9px 18px", cursor: "pointer", fontFamily: FONT }}>Continuar</button>}
+              <div style={{ fontSize: 14.5, fontWeight: 600, color: s.done ? PAL.text : PAL.sub }}>{L(s.t.en, s.t.es)}</div>
+              <div style={{ fontSize: 12.5, color: PAL.sub, marginTop: 2 }}>{L(s.d.en, s.d.es)}</div>
+              {!s.done && <button style={{ marginTop: 10, fontSize: 12.5, fontWeight: 600, color: "#fff", background: PAL.indigo, border: "none", borderRadius: 8, padding: "9px 18px", cursor: "pointer", fontFamily: FONT }}>{L("Continue", "Continuar")}</button>}
             </div></div>))}
       </div>
       <div style={{ marginTop: 14, display: "flex", gap: 12 }}>
-        {[{ t: "Stripe", c: PAL.indigo }, { t: "Snowflake", c: PAL.teal }, { t: "Subir CSV", c: PAL.sub }].map((o) => (
+        {[{ t: "Stripe", c: PAL.indigo }, { t: "Snowflake", c: PAL.teal }, { t: L("Upload CSV", "Subir CSV"), c: PAL.sub }].map((o) => (
           <div key={o.t} style={{ flex: 1, background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 12, padding: 16, textAlign: "center", cursor: "pointer" }}>
             <div style={{ width: 32, height: 32, borderRadius: 8, background: `${o.c}1A`, color: o.c, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px", fontWeight: 700 }}>{o.t[0]}</div>
             <div style={{ fontSize: 12.5, fontWeight: 600 }}>{o.t}</div></div>))}
@@ -812,37 +815,37 @@ function OnboardingView() {
 
 // === MÓDULO: PRICING & BILLING ===
 function BillingView() {
-  const { credits } = useSession();
+  const { credits, L } = useSession();
   const balance = credits, monthly = 500;
   const pct = (balance / monthly) * 100;
   const usage = [
-    { type: "Consultas al Asistente IA", count: 47, credits: 47, color: PAL.d1 },
-    { type: "Micro-estudios de mercado", count: 3, credits: 75, color: PAL.d3 },
-    { type: "Planes de retención", count: 2, credits: 30, color: PAL.d4 },
-    { type: "Simulaciones Monte Carlo", count: 1, credits: 5, color: PAL.d5 },
+    { type: L("AI Assistant queries", "Consultas al Asistente IA"), count: 47, credits: 47, color: PAL.d1 },
+    { type: L("Market micro-studies", "Micro-estudios de mercado"), count: 3, credits: 75, color: PAL.d3 },
+    { type: L("Retention plans", "Planes de retención"), count: 2, credits: 30, color: PAL.d4 },
+    { type: L("Monte Carlo simulations", "Simulaciones Monte Carlo"), count: 1, credits: 5, color: PAL.d5 },
   ];
   const spent = usage.reduce((a, u) => a + u.credits, 0);
   const history = [
-    { date: "02 jun", action: "Micro-estudio: expansión a EU", credits: -25 },
-    { date: "01 jun", action: "Plan de retención · At-Risk Premium", credits: -15 },
-    { date: "31 may", action: "Consulta: ¿qué cuentas priorizar?", credits: -1 },
-    { date: "28 may", action: "Renovación mensual de créditos", credits: +500 },
-    { date: "27 may", action: "Simulación Monte Carlo · ARR 18m", credits: -5 },
+    { date: L("Jun 02", "02 jun"), action: L("Micro-study: expansion to EU", "Micro-estudio: expansión a EU"), credits: -25 },
+    { date: L("Jun 01", "01 jun"), action: L("Retention plan · At-Risk Premium", "Plan de retención · At-Risk Premium"), credits: -15 },
+    { date: L("May 31", "31 may"), action: L("Query: which accounts to prioritize?", "Consulta: ¿qué cuentas priorizar?"), credits: -1 },
+    { date: L("May 28", "28 may"), action: L("Monthly credit renewal", "Renovación mensual de créditos"), credits: +500 },
+    { date: L("May 27", "27 may"), action: L("Monte Carlo simulation · ARR 18m", "Simulación Monte Carlo · ARR 18m"), credits: -5 },
   ];
   return <div>
-    <H1 title="Créditos & uso" sub="Cada análisis consume créditos que reflejan el costo de cómputo de los modelos. Transparente, sin suscripción." />
+    <H1 title={L("Credits & usage", "Créditos & uso")} sub={L("Each analysis consumes credits that reflect the models' compute cost. Transparent, no subscription.", "Cada análisis consume créditos que reflejan el costo de cómputo de los modelos. Transparente, sin suscripción.")} />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-      <Panel title="Saldo de créditos" tag="early access · gratis" h={200}>
+      <Panel title={L("Credit balance", "Saldo de créditos")} tag={L("early access · free", "early access · gratis")} h={200}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
           <span style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-1px", color: PAL.brand }}>{balance}</span>
-          <span style={{ fontSize: FS.body, color: PAL.sub }}>de {monthly} créditos</span>
+          <span style={{ fontSize: FS.body, color: PAL.sub }}>{L(`of ${monthly} credits`, `de ${monthly} créditos`)}</span>
         </div>
         <div style={{ height: 10, background: PAL.panel2, borderRadius: 6, overflow: "hidden", margin: "14px 0 8px" }}>
           <div style={{ width: `${pct}%`, height: "100%", background: PAL.brand, borderRadius: 6 }} /></div>
-        <div style={{ fontSize: FS.label, color: PAL.sub }}>Se renuevan gratis el 28 de cada mes · {spent} créditos usados este periodo</div>
-        <button style={{ marginTop: 16, fontSize: FS.body, fontWeight: 600, color: PAL.brand, background: PAL.panel, border: `1px solid ${PAL.brand}`, borderRadius: 9, padding: "9px 16px", cursor: "pointer", fontFamily: FONT }}>Solicitar más créditos</button>
+        <div style={{ fontSize: FS.label, color: PAL.sub }}>{L(`Renews free on the 28th of each month · ${spent} credits used this period`, `Se renuevan gratis el 28 de cada mes · ${spent} créditos usados este periodo`)}</div>
+        <button style={{ marginTop: 16, fontSize: FS.body, fontWeight: 600, color: PAL.brand, background: PAL.panel, border: `1px solid ${PAL.brand}`, borderRadius: 9, padding: "9px 16px", cursor: "pointer", fontFamily: FONT }}>{L("Request more credits", "Solicitar más créditos")}</button>
       </Panel>
-      <Panel title="Consumo por tipo de análisis" tag="este periodo" h={200}>
+      <Panel title={L("Usage by analysis type", "Consumo por tipo de análisis")} tag={L("this period", "este periodo")} h={200}>
         <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
           {usage.map((u, i) => (
             <div key={i}>
@@ -856,7 +859,7 @@ function BillingView() {
       </Panel>
     </div>
     <div style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, overflow: "hidden" }}>
-      <div style={{ padding: "12px 18px", borderBottom: `1px solid ${PAL.line}`, fontSize: FS.label, fontWeight: 700, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".4px", background: PAL.panel2 }}>Historial de créditos</div>
+      <div style={{ padding: "12px 18px", borderBottom: `1px solid ${PAL.line}`, fontSize: FS.label, fontWeight: 700, color: PAL.sub, textTransform: "uppercase", letterSpacing: ".4px", background: PAL.panel2 }}>{L("Credit history", "Historial de créditos")}</div>
       {history.map((h, i) => (
         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 18px", borderBottom: i < history.length - 1 ? `1px solid ${PAL.line}` : "none", fontSize: FS.body }}>
           <div style={{ display: "flex", gap: 14 }}><span style={{ color: PAL.sub, width: 50 }}>{h.date}</span><span>{h.action}</span></div>
@@ -867,37 +870,39 @@ function BillingView() {
 
 // === MÓDULO: GOBERNANZA & EXPLICABILIDAD ===
 function GovernanceView() {
+  const { L } = useSession();
   return <div>
-    <H1 title="Confianza & gobernanza" sub="Lo que cierra ventas enterprise: cumplimiento, explicabilidad del modelo y manejo de PII." />
+    <H1 title={L("Trust & governance", "Confianza & gobernanza")} sub={L("What closes enterprise deals: compliance, model explainability and PII handling.", "Lo que cierra ventas enterprise: cumplimiento, explicabilidad del modelo y manejo de PII.")} />
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 14 }}>
       {compliance.map((c) => (
-        <div key={c.name} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 18 }}>
+        <div key={c.name.en} style={{ background: PAL.panel, border: `1px solid ${PAL.line}`, borderRadius: 14, padding: 18 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 8 }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: c.c }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: c.c }}>{c.status}</span></div>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>{c.name}</div>
-          <div style={{ fontSize: 11.5, color: PAL.sub, marginTop: 2 }}>{c.d}</div></div>))}
+            <span style={{ fontSize: 12, fontWeight: 700, color: c.c }}>{L(c.status.en, c.status.es)}</span></div>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>{L(c.name.en, c.name.es)}</div>
+          <div style={{ fontSize: 11.5, color: PAL.sub, marginTop: 2 }}>{L(c.d.en, c.d.es)}</div></div>))}
     </div>
-    <Panel title="Explicabilidad del modelo" tag="por qué esta cuenta está en riesgo" h={320}>
-      <div style={{ fontSize: 12.5, color: PAL.sub, marginBottom: 14 }}>Cuenta <strong style={{ color: PAL.text }}>Northwind Trading</strong> · probabilidad de churn 78%. Una caja negra no es accionable; esto muestra qué factores empujan la predicción.</div>
+    <Panel title={L("Model explainability", "Explicabilidad del modelo")} tag={L("why this account is at risk", "por qué esta cuenta está en riesgo")} h={320}>
+      <div style={{ fontSize: 12.5, color: PAL.sub, marginBottom: 14 }}>{L(<>Account <strong style={{ color: PAL.text }}>Northwind Trading</strong> · 78% churn probability. A black box isn't actionable; this shows which factors push the prediction.</>, <>Cuenta <strong style={{ color: PAL.text }}>Northwind Trading</strong> · probabilidad de churn 78%. Una caja negra no es accionable; esto muestra qué factores empujan la predicción.</>)}</div>
       <ResponsiveContainer width="100%" height={200}>
-        <BarChart layout="vertical" data={shap} margin={{ top: 0, right: 50, bottom: 0, left: 10 }}>
+        <BarChart layout="vertical" data={shap.map((d) => ({ ...d, f: L(d.f.en, d.f.es) }))} margin={{ top: 0, right: 50, bottom: 0, left: 10 }}>
           <CartesianGrid horizontal={false} stroke={PAL.line} />
           <XAxis type="number" tick={{ fontSize: 10, fill: PAL.sub }} domain={[-20, 45]} tickFormatter={(v) => `${v > 0 ? "+" : ""}${v}%`} />
           <YAxis type="category" dataKey="f" tick={{ fontSize: 11, fill: PAL.text }} width={180} />
           <Tooltip content={<TipBox unit="%" />} cursor={{ fill: "rgba(0,0,0,.03)" }} />
           <Bar dataKey="v" radius={[0, 4, 4, 0]} isAnimationActive={false}>{shap.map((d, i) => <Cell key={i} fill={d.c} />)}</Bar>
         </BarChart></ResponsiveContainer>
-      <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 9.5, color: PAL.sub, marginTop: 6 }}><Legend c={PAL.red} t="Aumenta riesgo" /><Legend c={PAL.teal} t="Reduce riesgo" /></div>
+      <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 9.5, color: PAL.sub, marginTop: 6 }}><Legend c={PAL.red} t={L("Increases risk", "Aumenta riesgo")} /><Legend c={PAL.teal} t={L("Reduces risk", "Reduce riesgo")} /></div>
     </Panel></div>;
 }
 
 // === MÓDULO: EMBEDDABLE ANALYTICS ===
 function EmbedView({ embedded } = {}) {
+  const { L } = useSession();
   return <div>
-    {!embedded && <H1 title="Embeddable analytics" sub="Que otras empresas metan tus dashboards dentro de sus productos. Es un modelo de negocio entero." />}
+    {!embedded && <H1 title="Embeddable analytics" sub={L("Let other companies put your dashboards inside their products. It's a whole business model.", "Que otras empresas metan tus dashboards dentro de sus productos. Es un modelo de negocio entero.")} />}
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-      <Panel title="Vista previa embebida" tag="iframe en producto de cliente" h={300}>
+      <Panel title={L("Embedded preview", "Vista previa embebida")} tag={L("iframe in client product", "iframe en producto de cliente")} h={300}>
         <div style={{ border: `2px dashed ${PAL.line}`, borderRadius: 12, padding: 16, height: "100%", display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 11, color: PAL.sub, marginBottom: 10 }}>app.tu-cliente.com / analytics</div>
           <div style={{ flex: 1 }}>
@@ -909,7 +914,7 @@ function EmbedView({ embedded } = {}) {
               </AreaChart></ResponsiveContainer></div>
         </div>
       </Panel>
-      <Panel title="Snippet de integración" tag="white-label" h={300}>
+      <Panel title={L("Integration snippet", "Snippet de integración")} tag="white-label" h={300}>
         <code style={{ display: "block", background: PAL.panel2, borderRadius: 10, padding: 16, fontSize: 12, color: PAL.text, fontFamily: "monospace", lineHeight: 1.7 }}>
           {"<script src=\"cdn.tu-saas.com/embed.js\"></scr" + "ipt>"}<br/>
           {"<div data-dashboard=\"clv-retention\""}<br/>
@@ -917,7 +922,7 @@ function EmbedView({ embedded } = {}) {
           {"     data-theme=\"light\">"}<br/>
           {"</div>"}
         </code>
-        <div style={{ fontSize: 12, color: PAL.sub, marginTop: 12 }}>Tema, branding y permisos heredan del cliente. Cada empresa que embebe amplía tu mercado sin que toques su producto.</div>
+        <div style={{ fontSize: 12, color: PAL.sub, marginTop: 12 }}>{L("Theme, branding and permissions inherit from the client. Every company that embeds expands your market without you touching their product.", "Tema, branding y permisos heredan del cliente. Cada empresa que embebe amplía tu mercado sin que toques su producto.")}</div>
       </Panel></div></div>;
 }
 
