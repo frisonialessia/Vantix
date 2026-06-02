@@ -2197,25 +2197,31 @@ function useHashRoute(defaultSlug) {
 // puebla con datos sintéticos "suyos". Sin integración real, costo cero.
 // Bandas de negocio → valores representativos para escalar el dashboard.
 const MRR_BANDS = [
-  { label: "Menos de $10k", mrrK: 5 },
-  { label: "$10k – $50k", mrrK: 30 },
-  { label: "$50k – $200k", mrrK: 120 },
-  { label: "$200k – $1M", mrrK: 500 },
-  { label: "Más de $1M", mrrK: 2000 },
+  { label: { en: "Under $10k", es: "Menos de $10k" }, mrrK: 5 },
+  { label: { en: "$10k – $50k", es: "$10k – $50k" }, mrrK: 30 },
+  { label: { en: "$50k – $200k", es: "$50k – $200k" }, mrrK: 120 },
+  { label: { en: "$200k – $1M", es: "$200k – $1M" }, mrrK: 500 },
+  { label: { en: "Over $1M", es: "Más de $1M" }, mrrK: 2000 },
 ];
 const CUST_BANDS = [
-  { label: "Menos de 100", v: 50 },
-  { label: "100 – 1.000", v: 500 },
-  { label: "1.000 – 10.000", v: 4000 },
-  { label: "Más de 10.000", v: 40000 },
+  { label: { en: "Under 100", es: "Menos de 100" }, v: 50 },
+  { label: { en: "100 – 1,000", es: "100 – 1.000" }, v: 500 },
+  { label: { en: "1,000 – 10,000", es: "1.000 – 10.000" }, v: 4000 },
+  { label: { en: "Over 10,000", es: "Más de 10.000" }, v: 40000 },
 ];
-const INDUSTRIES = ["SaaS / Software", "E-commerce", "Fintech", "Marketplace", "Salud", "Educación", "Servicios", "Otro"];
+// Valor canónico en inglés (para el lead) + etiqueta localizada para mostrar.
+const INDUSTRIES = [
+  { en: "SaaS / Software", es: "SaaS / Software" }, { en: "E-commerce", es: "E-commerce" },
+  { en: "Fintech", es: "Fintech" }, { en: "Marketplace", es: "Marketplace" },
+  { en: "Health", es: "Salud" }, { en: "Education", es: "Educación" },
+  { en: "Services", es: "Servicios" }, { en: "Other", es: "Otro" },
+];
 
 function ConnectGate({ onBack }) {
-  const { connect } = useSession();
+  const { connect, L } = useSession();
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
-  const [industry, setIndustry] = useState(INDUSTRIES[0]);
+  const [industry, setIndustry] = useState(INDUSTRIES[0].en);
   const [mrrIdx, setMrrIdx] = useState(2);
   const [custIdx, setCustIdx] = useState(1);
   const [consent, setConsent] = useState(false);
@@ -2223,16 +2229,16 @@ function ConnectGate({ onBack }) {
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
   const steps = [
-    "Autenticando conexión segura…",
-    "Leyendo transacciones históricas…",
-    "Calculando RFM, CLV y probabilidad de churn…",
-    `Generando la inteligencia de ${company || "tu negocio"}…`,
+    L("Authenticating secure connection…", "Autenticando conexión segura…"),
+    L("Reading historical transactions…", "Leyendo transacciones históricas…"),
+    L("Computing RFM, CLV and churn probability…", "Calculando RFM, CLV y probabilidad de churn…"),
+    L(`Generating intelligence for ${company || "your business"}…`, `Generando la inteligencia de ${company || "tu negocio"}…`),
   ];
   const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
   const submit = () => {
     if (connecting) return;
-    if (!emailOk) { setError("Ingresa un email de trabajo válido."); return; }
-    if (!consent) { setError("Necesitamos tu consentimiento para continuar."); return; }
+    if (!emailOk) { setError(L("Enter a valid work email.", "Ingresa un email de trabajo válido.")); return; }
+    if (!consent) { setError(L("We need your consent to continue.", "Necesitamos tu consentimiento para continuar.")); return; }
     setError("");
     const inputs = { mrrK: MRR_BANDS[mrrIdx].mrrK, customers: CUST_BANDS[custIdx].v, industry };
     // Captura del lead — no bloquea la demo si el endpoint falla o no está configurado.
@@ -2242,7 +2248,7 @@ function ConnectGate({ onBack }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email.trim(), company: company.trim(), industry,
-          mrr_band: MRR_BANDS[mrrIdx].label, customers_band: CUST_BANDS[custIdx].label,
+          mrr_band: MRR_BANDS[mrrIdx].label.en, customers_band: CUST_BANDS[custIdx].label.en,
         }),
       }).catch(() => {});
     } catch { /* noop */ }
@@ -2260,36 +2266,36 @@ function ConnectGate({ onBack }) {
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
         <Logo size={40} />
         <div><div style={{ fontSize: 18, fontWeight: 700, fontFamily: '"Space Grotesk", sans-serif', letterSpacing: "-.3px" }}>Vantix</div>
-          <div style={{ fontSize: FS.label, color: PAL.sub }}>Prueba la inteligencia con los números de tu negocio</div></div>
+          <div style={{ fontSize: FS.label, color: PAL.sub }}>{L("Try the intelligence with your business's numbers", "Prueba la inteligencia con los números de tu negocio")}</div></div>
       </div>
       {!connecting ? <>
-        <h1 style={{ fontSize: 23, fontWeight: 800, letterSpacing: "-.5px", margin: "0 0 8px" }}>Genera tu dashboard a medida</h1>
-        <p style={{ fontSize: FS.body, color: PAL.sub, lineHeight: 1.55, margin: "0 0 20px" }}>Dinos unos datos de tu negocio y Vantix genera un dashboard escalado a tus cifras. <strong style={{ color: PAL.text }}>Los datos son simulados a partir de lo que ingresas — no procesamos información real.</strong></p>
+        <h1 style={{ fontSize: 23, fontWeight: 800, letterSpacing: "-.5px", margin: "0 0 8px" }}>{L("Generate your tailored dashboard", "Genera tu dashboard a medida")}</h1>
+        <p style={{ fontSize: FS.body, color: PAL.sub, lineHeight: 1.55, margin: "0 0 20px" }}>{L(<>Tell us a few things about your business and Vantix generates a dashboard scaled to your figures. <strong style={{ color: PAL.text }}>The data is simulated from what you enter — we don't process real information.</strong></>, <>Dinos unos datos de tu negocio y Vantix genera un dashboard escalado a tus cifras. <strong style={{ color: PAL.text }}>Los datos son simulados a partir de lo que ingresas — no procesamos información real.</strong></>)}</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-          <div><label style={lbl}>Email de trabajo *</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@empresa.com" style={fld} /></div>
-          <div><label style={lbl}>Empresa</label>
-            <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="ej. Acme Inc." style={fld} /></div>
-          <div><label style={lbl}>Industria</label>
-            <select value={industry} onChange={(e) => setIndustry(e.target.value)} style={{ ...fld, cursor: "pointer" }}>{INDUSTRIES.map((x) => <option key={x}>{x}</option>)}</select></div>
-          <div><label style={lbl}>MRR aproximado</label>
-            <select value={mrrIdx} onChange={(e) => setMrrIdx(+e.target.value)} style={{ ...fld, cursor: "pointer" }}>{MRR_BANDS.map((b, i) => <option key={i} value={i}>{b.label}</option>)}</select></div>
-          <div style={{ gridColumn: "span 2" }}><label style={lbl}>Nº de clientes</label>
-            <select value={custIdx} onChange={(e) => setCustIdx(+e.target.value)} style={{ ...fld, cursor: "pointer" }}>{CUST_BANDS.map((b, i) => <option key={i} value={i}>{b.label}</option>)}</select></div>
+          <div><label style={lbl}>{L("Work email *", "Email de trabajo *")}</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" style={fld} /></div>
+          <div><label style={lbl}>{L("Company", "Empresa")}</label>
+            <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={L("e.g. Acme Inc.", "ej. Acme Inc.")} style={fld} /></div>
+          <div><label style={lbl}>{L("Industry", "Industria")}</label>
+            <select value={industry} onChange={(e) => setIndustry(e.target.value)} style={{ ...fld, cursor: "pointer" }}>{INDUSTRIES.map((x) => <option key={x.en} value={x.en}>{L(x.en, x.es)}</option>)}</select></div>
+          <div><label style={lbl}>{L("Approx. MRR", "MRR aproximado")}</label>
+            <select value={mrrIdx} onChange={(e) => setMrrIdx(+e.target.value)} style={{ ...fld, cursor: "pointer" }}>{MRR_BANDS.map((b, i) => <option key={i} value={i}>{L(b.label.en, b.label.es)}</option>)}</select></div>
+          <div style={{ gridColumn: "span 2" }}><label style={lbl}>{L("Number of customers", "Nº de clientes")}</label>
+            <select value={custIdx} onChange={(e) => setCustIdx(+e.target.value)} style={{ ...fld, cursor: "pointer" }}>{CUST_BANDS.map((b, i) => <option key={i} value={i}>{L(b.label.en, b.label.es)}</option>)}</select></div>
         </div>
         <label style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: FS.label, color: PAL.sub, cursor: "pointer", lineHeight: 1.5, marginBottom: error ? 8 : 16 }}>
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 1, accentColor: PAL.brand, flexShrink: 0 }} />
-          <span>Acepto que Vantix guarde mi email y me contacte sobre el producto. Sin spam; baja cuando quieras.</span>
+          <span>{L("I agree that Vantix stores my email and contacts me about the product. No spam; unsubscribe anytime.", "Acepto que Vantix guarde mi email y me contacte sobre el producto. Sin spam; baja cuando quieras.")}</span>
         </label>
         {error && <div style={{ fontSize: FS.label, color: PAL.bad, marginBottom: 12 }}>{error}</div>}
-        <button onClick={submit} style={{ width: "100%", fontSize: FS.body, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 11, padding: "13px", cursor: "pointer", fontFamily: FONT }}>Generar mi dashboard</button>
+        <button onClick={submit} style={{ width: "100%", fontSize: FS.body, fontWeight: 600, color: "#fff", background: PAL.brand, border: "none", borderRadius: 11, padding: "13px", cursor: "pointer", fontFamily: FONT }}>{L("Generate my dashboard", "Generar mi dashboard")}</button>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
-          <span onClick={onBack} style={{ fontSize: FS.label, color: PAL.sub, cursor: "pointer" }}>← Volver al inicio</span>
-          <span style={{ fontSize: FS.label, color: PAL.sub, display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />Datos simulados · sin tarjeta</span>
+          <span onClick={onBack} style={{ fontSize: FS.label, color: PAL.sub, cursor: "pointer" }}>{L("← Back to home", "← Volver al inicio")}</span>
+          <span style={{ fontSize: FS.label, color: PAL.sub, display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: PAL.good }} />{L("Simulated data · no card", "Datos simulados · sin tarjeta")}</span>
         </div>
       </> : <div style={{ textAlign: "center", padding: "30px 10px 24px" }}>
         <div style={{ display: "inline-block", width: 34, height: 34, border: `3px solid ${PAL.line}`, borderTopColor: PAL.brand, borderRadius: "50%", animation: "cgspin .8s linear infinite" }} />
-        <div style={{ fontSize: 16, fontWeight: 700, marginTop: 18 }}>{company ? `Construyendo el dashboard de ${company}…` : "Construyendo tu dashboard…"}</div>
+        <div style={{ fontSize: 16, fontWeight: 700, marginTop: 18 }}>{company ? L(`Building ${company}'s dashboard…`, `Construyendo el dashboard de ${company}…`) : L("Building your dashboard…", "Construyendo tu dashboard…")}</div>
         <div style={{ fontSize: FS.body, color: PAL.sub, marginTop: 8, minHeight: 20 }}>{steps[step]}</div>
         <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 18 }}>
           {steps.map((_, i) => <span key={i} style={{ width: 26, height: 4, borderRadius: 2, background: i <= step ? PAL.brand : PAL.line, transition: "background .3s" }} />)}
