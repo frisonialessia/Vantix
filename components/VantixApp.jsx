@@ -602,6 +602,39 @@ const shap = [
   { f: { en: "Annual plan", es: "Plan anual" }, v: -11, c: PAL.green, dir: { en: "−risk", es: "−riesgo" } },
 ];
 
+// Limpia tokens de Markdown sueltos que el LLM podría devolver (asteriscos,
+// backticks) para que nunca se vean crudos. No toca "_" (snake_case seguro).
+function stripMd(s) {
+  return String(s).replace(/\*\*/g, "").replace(/\*/g, "").replace(/`/g, "");
+}
+// Formato inline: **negrita** → <strong>, y limpia el resto.
+function inlineFmt(text, keyBase) {
+  const out = [];
+  let rest = String(text), k = 0, m;
+  const boldRe = /\*\*(.+?)\*\*/;
+  while ((m = boldRe.exec(rest))) {
+    if (m.index > 0) out.push(stripMd(rest.slice(0, m.index)));
+    out.push(<strong key={`${keyBase}-b${k++}`}>{stripMd(m[1])}</strong>);
+    rest = rest.slice(m.index + m[0].length);
+  }
+  out.push(stripMd(rest));
+  return out;
+}
+// Renderiza la respuesta del asistente con Markdown mínimo: respeta saltos de
+// línea, viñetas (-, *, •) y negritas; sin asteriscos ni "#" crudos.
+function RichText({ text }) {
+  const lines = String(text || "").split("\n");
+  return <div>{lines.map((raw, i) => {
+    const line = raw.trim();
+    if (!line) return <div key={i} style={{ height: 7 }} />;
+    if (/^#{1,6}\s+/.test(line))
+      return <div key={i} style={{ fontWeight: 700, margin: "6px 0 2px" }}>{inlineFmt(line.replace(/^#{1,6}\s+/, ""), i)}</div>;
+    if (/^[-*•]\s+/.test(line))
+      return <div key={i} style={{ display: "flex", gap: 8, margin: "2px 0" }}><span style={{ color: PAL.brand, flexShrink: 0 }}>•</span><span>{inlineFmt(line.replace(/^[-*•]\s+/, ""), i)}</span></div>;
+    return <div key={i} style={{ margin: "2px 0" }}>{inlineFmt(line, i)}</div>;
+  })}</div>;
+}
+
 // === MÓDULO: ASISTENTE IA (pantalla completa) ===
 function AssistantView({ previewHeight } = {}) {
   const isPreview = !!previewHeight;
@@ -684,7 +717,7 @@ function AssistantView({ previewHeight } = {}) {
             <div style={{ maxWidth: "84%" }}>
               {m.role === "assistant" && <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
                 <Logo size={22} /><span style={{ fontSize: 11.5, fontWeight: 600, color: PAL.sub }}>{L("Assistant", "Asistente")}</span></div>}
-              <div style={{ background: m.role === "user" ? PAL.brand : PAL.panel, color: m.role === "user" ? "#fff" : PAL.text, padding: "13px 17px", borderRadius: 14, fontSize: FS.body, lineHeight: 1.6, border: m.role === "assistant" ? `1px solid ${PAL.line}` : "none", boxShadow: m.role === "assistant" ? "0 1px 2px rgba(16,17,22,.04)" : "none" }}>{m.content}</div>
+              <div style={{ background: m.role === "user" ? PAL.brand : PAL.panel, color: m.role === "user" ? "#fff" : PAL.text, padding: "13px 17px", borderRadius: 14, fontSize: FS.body, lineHeight: 1.6, border: m.role === "assistant" ? `1px solid ${PAL.line}` : "none", boxShadow: m.role === "assistant" ? "0 1px 2px rgba(16,17,22,.04)" : "none" }}>{m.role === "assistant" ? <RichText text={m.content} /> : m.content}</div>
               {m.actions && <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
                 {m.actions.map((a, j) => <button key={j} style={{ fontSize: 12, fontWeight: 600, color: j === 0 ? PAL.brand : PAL.text, background: PAL.panel, border: `1px solid ${j === 0 ? PAL.brand : PAL.line}`, borderRadius: 8, padding: "7px 13px", cursor: "pointer", fontFamily: FONT }}>{a}</button>)}
               </div>}
